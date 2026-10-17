@@ -757,7 +757,7 @@ body{
       <h1>Welcome Back</h1>
       <p>Sign in to your ICF member account</p>
       <div style="text-align:left">
-        <div class="form-group"><label class="form-label">Email / Phone</label><input class="form-input" type="text" id="login-email" placeholder="Email or phone number" autocomplete="username"/></div>
+        <div class="form-group"><label class="form-label">Email / Phone</label><input class="form-input" type="text" id="login-email" placeholder="Email address" autocomplete="username"/></div>
         <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="login-pass" placeholder="••••••••••" autocomplete="current-password"/></div>
         <button type="button" class="btn btn-blue btn-full" style="margin-top:8px" onclick="doMemberLogin()">👤 Sign In</button>
         <button type="button" class="btn btn-outline btn-full" style="margin-top:8px" onclick="navigate('admin-login')">🛡️ Admin Login</button>
@@ -887,6 +887,7 @@ body{
       <button class="sidebar-item active" data-section="dashboard" onclick="setAdminSection('dashboard')"><span>📊</span> Dashboard</button>
       <button class="sidebar-item" data-section="members" onclick="setAdminSection('members')"><span>👥</span> Members</button>
       <button class="sidebar-item" data-section="prayers" onclick="setAdminSection('prayers')"><span>🙏</span> Prayer Requests</button>
+    <button class="sidebar-item" data-section="messages" onclick="setAdminSection('messages')"><span>✉️</span> Contact Messages</button>
       <button class="sidebar-item" data-section="baptisms" onclick="setAdminSection('baptisms')"><span>💧</span> Baptisms</button>
       <button class="sidebar-item" data-section="events" onclick="setAdminSection('events')"><span>📅</span> Events</button>
       <button class="sidebar-item" data-section="nationality" onclick="setAdminSection('nationality')"><span>🌍</span> Nationality Stats</button>
@@ -2417,6 +2418,7 @@ function renderAdminSection(s){
     case 'dashboard':c.innerHTML=adminDashHTML();break;
     case 'members':c.innerHTML=adminMembersHTML();break;
     case 'prayers':c.innerHTML=adminPrayersHTML();break;
+    case 'messages':c.innerHTML=adminContactMessagesHTML();break;
     case 'baptisms':c.innerHTML=adminBaptismsHTML();break;
     case 'events':c.innerHTML=adminEventsHTML();break;
     case 'sermons':c.innerHTML=adminSermonsHTML();break;
@@ -3450,6 +3452,45 @@ document.addEventListener('DOMContentLoaded', function(){
     targets.forEach(function(el){ el.classList.add('is-visible'); });
   }
 });
+
+
+function icfEscapeHtml(value){
+  return String(value == null ? '' : value).replace(/[&<>"']/g,function(ch){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+}
+function adminContactMessagesHTML(){
+  const messages=DB.get('contactMessages',[]);
+  const count=messages.length;
+  if(!count){
+    return '<div><h2 class="section-title" style="margin-bottom:20px">✉️ Contact Messages (0)</h2>'+
+      '<div class="empty-state"><div class="empty-state-emoji">✉️</div><h3>No contact messages yet</h3><p>Messages sent through the public contact form will appear here.</p></div></div>';
+  }
+  const cards=messages.map(function(m){
+    const id=icfEscapeHtml(m.id);
+    const status=String(m.status || 'new');
+    const isResolved=status==='resolved';
+    return '<div class="card" style="margin-bottom:14px"><div class="card-header">'+
+      '<div class="flex items-center justify-between flex-wrap gap-2"><div class="font-bold">'+icfEscapeHtml(m.subject || 'Website enquiry')+'</div>'+
+      '<span class="badge '+(isResolved?'badge-green':'badge-yellow')+'">'+icfEscapeHtml(status)+'</span></div>'+
+      '<div class="text-sm text-dim" style="margin-top:7px">'+icfEscapeHtml(m.name)+' · '+icfEscapeHtml(m.email)+
+      (m.phone?' · '+icfEscapeHtml(m.phone):'')+'</div><div class="text-xs text-dim" style="margin-top:4px">'+icfEscapeHtml(m.createdAt || '')+'</div></div>'+
+      '<div class="card-body"><p style="white-space:pre-wrap;overflow-wrap:anywhere">'+icfEscapeHtml(m.message)+'</p>'+
+      '<div class="flex gap-2" style="margin-top:14px"><button class="btn btn-sm btn-outline" onclick="updateContactMessageStatus(\''+id+'\',\''+(isResolved?'new':'resolved')+'\')">'+(isResolved?'Reopen':'Mark resolved')+'</button></div></div></div>';
+  }).join('');
+  return '<div><h2 class="section-title" style="margin-bottom:20px">✉️ Contact Messages ('+count+')</h2>'+cards+'</div>';
+}
+function updateContactMessageStatus(id,status){
+  const messages=DB.get('contactMessages',[]);
+  const item=messages.find(function(m){return String(m.id)===String(id);});
+  if(!item)return;
+  item.status=status;
+  DB.set('contactMessages',messages);
+  renderAdminSection('messages');
+  toast(status==='resolved'?'Message marked resolved':'Message reopened','','success');
+}
+window.adminContactMessagesHTML=adminContactMessagesHTML;
+window.updateContactMessageStatus=updateContactMessageStatus;
 
 </script>
 <script src="/js/api-bridge.js" defer></script>
