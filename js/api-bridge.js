@@ -267,7 +267,69 @@
     localStorage.removeItem('icf_seeded');
   }
 
+  function installVisualPolish() {
+    if (document.getElementById('icf-premium-polish')) return;
+    var style = document.createElement('style');
+    style.id = 'icf-premium-polish';
+    style.textContent = `
+      :root { --icf-gold:#d7a83e; --icf-navy:#07172f; --icf-blue:#0d3c79; }
+      html { scroll-behavior:smooth; }
+      body { overflow-wrap:anywhere; }
+      img, video, iframe { max-width:100%; }
+      .card, .event-card, .sermon-card, .media-card, .announcement-card, .stat-card, .admin-card {
+        transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+      }
+      .card:hover, .event-card:hover, .sermon-card:hover, .media-card:hover, .announcement-card:hover {
+        transform:translateY(-3px); box-shadow:0 16px 36px rgba(6,25,53,.12);
+      }
+      .icf-premium-panel { border:1px solid rgba(215,168,62,.26); border-radius:18px;
+        background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(246,249,253,.96));
+        box-shadow:0 12px 32px rgba(7,23,47,.07); }
+      .icf-error-card { display:flex; align-items:flex-start; gap:12px; padding:14px 16px;
+        margin:12px 0; border:1px solid #f3c4c4; border-left:4px solid #b42318;
+        border-radius:12px; background:#fff7f7; color:#7a271a; overflow-wrap:anywhere; }
+      .icf-error-card strong { display:block; margin-bottom:3px; }
+      input, select, textarea, button, a { scroll-margin-top:90px; }
+      input, select, textarea { max-width:100%; }
+      button, .btn, a.btn { touch-action:manipulation; }
+      @media (max-width:720px) {
+        .container, .section-container, .page-container { width:min(100% - 28px,100%); }
+        .card, .event-card, .sermon-card, .media-card, .announcement-card { min-width:0; }
+        table { display:block; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+        .modal, .modal-content, .admin-modal { max-width:calc(100vw - 24px); }
+        input, select, textarea { font-size:16px; }
+      }
+      @media (prefers-reduced-motion:reduce) {
+        html { scroll-behavior:auto; }
+        *, *::before, *::after { animation-duration:.01ms!important; transition-duration:.01ms!important; }
+      }`;
+    document.head.appendChild(style);
+  }
+  function updateDocumentLinks() {
+    document.querySelectorAll('a[href]').forEach(function (link) {
+      var href = (link.getAttribute('href') || '').toLowerCase();
+      if (href.indexOf('membership-statement.pdf') !== -1) {
+        link.textContent = 'ICF Membership Statement PDF';
+        link.setAttribute('aria-label','Open ICF Membership Statement PDF');
+      } else if (href.indexOf('workers-manual.pdf') !== -1) {
+        link.textContent = 'ICF Workers’ Manual PDF';
+        link.setAttribute('aria-label','Open ICF Workers’ Manual PDF');
+      }
+      if (/\\.pdf(?:[?#]|$)/i.test(href)) {
+        link.setAttribute('target','_blank');
+        link.setAttribute('rel','noopener noreferrer');
+      }
+    });
+  }
+  function observeVisualUpdates() {
+    if (!document.body || typeof MutationObserver === 'undefined') return;
+    var observer = new MutationObserver(function () { updateDocumentLinks(); });
+    observer.observe(document.body,{childList:true,subtree:true});
+  }
   document.addEventListener('DOMContentLoaded',function () {
+    installVisualPolish();
+    updateDocumentLinks();
+    observeVisualUpdates();
     removeKnownDemoCache();
     var existingToken = getToken();
     if (existingToken && existingToken.split('.').length !== 3) {
