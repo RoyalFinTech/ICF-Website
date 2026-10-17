@@ -415,6 +415,13 @@ body{
 @media(min-width:701px) and (max-width:1024px){#events-grid,#announcements-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
+
+/* Mobile navigation and long-page usability */
+.nav-mobile.open{max-height:calc(100dvh - 68px);overflow-y:auto;overscroll-behavior:contain;padding-bottom:max(16px,env(safe-area-inset-bottom))}
+.nav-mobile a,.nav-mobile button{min-height:42px;line-height:1.4}
+#main,.page-content{min-width:0;overflow-wrap:anywhere}
+img,iframe,video{max-width:100%}
+@media(max-width:640px){.container{width:min(100% - 28px,1200px)}.page-content{padding-bottom:28px}.hero{padding-left:0;padding-right:0}.hero h1{font-size:clamp(2rem,9vw,3.2rem)}.pdf-hero h1{font-size:clamp(1.8rem,7vw,2.6rem)}.pdf-hero-logo{max-height:100px}.login-card{width:min(100% - 28px,460px);margin:20px auto}.admin-content{min-width:0;overflow-x:auto}.table-wrap{max-width:100%;overflow-x:auto}}
 </style>
 </head>
 <body data-theme="light">
