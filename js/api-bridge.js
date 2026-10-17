@@ -315,7 +315,7 @@
         link.textContent = 'ICF Workers’ Manual PDF';
         link.setAttribute('aria-label','Open ICF Workers’ Manual PDF');
       }
-      if (/\\.pdf(?:[?#]|$)/i.test(href)) {
+      if (/\.pdf(?:[?#]|$)/i.test(href)) {
         link.setAttribute('target','_blank');
         link.setAttribute('rel','noopener noreferrer');
       }
