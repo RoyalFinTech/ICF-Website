@@ -132,7 +132,8 @@
         if (typeof navigate === 'function') navigate('admin-portal');
       });
     }).catch(function (error) {
-      if (typeof toast === 'function') toast('Sign-in failed',error.message || 'Check the credentials and Supabase setup.','error');\n      else showErrorCard('Sign-in failed',error.message || 'Check the credentials and Supabase setup.');
+      if (typeof toast === 'function') toast('Sign-in failed',error.message || 'Check the credentials and Supabase setup.','error');
+      else showErrorCard('Sign-in failed',error.message || 'Check the credentials and Supabase setup.');
     });
   };
   window.adminLogout = function () {
