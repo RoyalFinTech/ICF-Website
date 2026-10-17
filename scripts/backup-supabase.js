@@ -29,9 +29,13 @@ async function backupRecords() {
     if (!result.data || result.data.length < 1000) break;
     offset += 1000;
   }
-  const compressed = gzipSync(Buffer.from(JSON.stringify({backupVersion:1,createdAt:new Date().toISOString(),records:rows}),'utf8'));
+  const admins = await supabase.from('admin_users').select('*').order('created_at');
+  if (admins.error) throw admins.error;
+  const compressed = gzipSync(Buffer.from(JSON.stringify({
+    backupVersion:1,createdAt:new Date().toISOString(),records:rows,adminUsers:admins.data || []
+  }),'utf8'));
   await put('icf-gambia/' + runId + '/database-records.json.gz',compressed,'application/gzip','gzip');
-  console.log('Exported ' + rows.length + ' database records.');
+  console.log('Exported ' + rows.length + ' application records and ' + (admins.data || []).length + ' administrator role records.');
 }
 async function backupFolder(storageBucket,prefix) {
   let offset = 0;
