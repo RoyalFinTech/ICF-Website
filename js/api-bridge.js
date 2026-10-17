@@ -37,8 +37,16 @@
   }
   function sync(collection, records) {
     if (!getToken() || collections.indexOf(collection) < 0) return Promise.resolve();
+    var payload = records;
+    if (!Array.isArray(payload)) {
+      if ((collection === 'siteSettings' || collection === 'livestream') && payload && typeof payload === 'object') {
+        payload = [Object.assign({ id: 'singleton' }, payload)];
+      } else {
+        payload = [];
+      }
+    }
     queues[collection] = (queues[collection] || Promise.resolve()).then(function () {
-      return request('/admin/records/' + encodeURIComponent(collection),{method:'PUT',body:records});
+      return request('/admin/records/' + encodeURIComponent(collection),{method:'PUT',body:payload});
     }).catch(notifyError);
     return queues[collection];
   }
@@ -70,6 +78,13 @@
       if (collections.indexOf(key) < 0) return;
       var value = data[key];
       if (key === 'media' && Array.isArray(value) && value.length === 0) return;
+      if (key === 'siteSettings' || key === 'livestream') {
+        if (Array.isArray(value)) {
+          if (!value.length) return;
+          value = Object.assign({}, value[0]);
+          delete value.id;
+        }
+      }
       originalSet(key,value);
     });
     refreshViews();
