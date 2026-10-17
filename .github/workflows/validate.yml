@@ -1,0 +1,26 @@
+name: Validate ICF Website
+on:
+  push:
+    branches: [main, feature/supabase-render-backend]
+  pull_request:
+    branches: [main]
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install
+      - name: Check server syntax
+        run: node --check server.js
+      - name: Check frontend bridge syntax
+        run: node --check js/api-bridge.js
+      - name: Check backup script syntax
+        run: node --check scripts/backup-supabase.js
+      - name: Validate package manifest
+        run: node -e "JSON.parse(require('node:fs').readFileSync('package.json','utf8')); console.log('package.json valid')"
