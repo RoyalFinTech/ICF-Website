@@ -49,8 +49,9 @@ app.get('/healthz', function (req, res) {
 app.get('/api/health', function (req, res) {
   res.status(200).json({
     status: 'ok',
-    supabaseConfigured: configured,
-    storageConfigured: Boolean(PUBLIC_BUCKET && PRIVATE_BUCKET),
+    supabaseConfigured: Boolean(URL && ANON_KEY && SERVICE_KEY),
+    publicBucketNameConfigured: Boolean(PUBLIC_BUCKET),
+    privateBucketNameConfigured: Boolean(PRIVATE_BUCKET),
     timestamp: new Date().toISOString()
   });
 });
