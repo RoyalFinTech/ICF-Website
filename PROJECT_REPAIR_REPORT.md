@@ -1,19 +1,24 @@
-# Repository repair report
+# ICF Website — Engineering status report
 
-## Inspected
-- The public website is a single-page HTML file named index (4).html, approximately 1.18 MB.
-- Real church and Fofuo mission photographs, membership-statement.pdf, and workers-manual.pdf are in the repository root.
-- The admin portal is embedded in the same HTML file.
-- The existing page had a hard-coded admin password, client-only login, localStorage-only records, and sample records that looked real. These are unsuitable for production.
+## Completed in `feature/supabase-render-backend`
+- Added an Express/Node API backend that serves the existing `index (4).html` site and its existing media.
+- Added Supabase-backed records, admin-role checks, member sign-up/login, public prayer/baptism/contact submissions, and administrator upload routes.
+- Added health endpoints: `/healthz` and `/api/health`.
+- Applied the Supabase migration `icf_app_records_and_admin_storage` to project `iaxtmenmbduaxhyhikjq`.
+- Verified `public.app_records` and `public.admin_users` exist with row-level security enabled.
+- Verified `church-public` (public) and `church-private` (private) storage buckets exist with 15 MB limits.
+- Added server startup provisioning for the administrator configured through `ICF_ADMIN_EMAIL` and `ICF_ADMIN_PASSWORD`, with the role granted in `public.admin_users`.
+- Improved frontend bridge responsiveness, motion preferences, input sizing, card hover feedback, accessible PDF labels, and PDF opening behavior.
+- Updated Render deployment instructions and corrected administrator email validation.
+- Retained the existing church media/PDF source paths; no HTML redesign replacement has been committed.
 
-## Added in this branch
-- Express server and Supabase PostgreSQL persistence.
-- Server-side Supabase Auth verification and an explicit administrator allow-list.
-- Validated public endpoints for prayer requests, baptism requests, contact messages, and membership signup.
-- Admin-only record reads/writes and Supabase Storage uploads.
-- API bridge for the existing forms and admin portal.
-- Removed hard-coded demo credentials and non-media sample records while preserving the existing visual layout and real photo seed.
-- Supabase schema, Render instructions, and an off-site backup script/workflow.
+## Not yet completed / must be verified
+- A Render service has not yet been created or deployed. The connected Render service-creation operation was blocked.
+- The Render environment must include `SUPABASE_SERVICE_ROLE_KEY`; the connected key retrieval only exposed public/anon keys, not the server-side secret.
+- Administrator login, member registration/login, public publishing, and upload routes have not yet passed end-to-end tests against a live deployment.
+- The logo's transparent PNG was prepared as a working artifact, but has not yet been added to the Git repository or integrated throughout the HTML because the large existing homepage file is not readable through the connected file API.
+- Premium generated Christian photography and full page-by-page design integration remain pending; the generated UI concept is not a deployed website page.
+- The offsite backup workflow requires its external destination and credentials, and a successful backup run, before it should be treated as operational.
 
-## Deployment QA still required
-A real end-to-end test cannot complete until the owner creates/configures the Supabase project and Render service. Before accepting real records, configure the external backup secrets, run a backup manually, and verify recovery.
+## Deployment gate
+Do not describe this project as production-ready until the Render deployment succeeds and the checks in `RENDER_DEPLOYMENT.md` pass. Keep all service-role keys and administrator credentials in Render environment variables, never in frontend code or GitHub.
