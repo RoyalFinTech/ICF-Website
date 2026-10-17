@@ -31,3 +31,13 @@
 
 ## Deployment gate
 Do not call the application production-ready until Render deployment succeeds and the checks in `RENDER_DEPLOYMENT.md` pass. Keep all server-side keys and administrator credentials in Render environment variables, never in frontend code or GitHub.
+
+
+## Homepage theme and carousel update
+- Added a persistent, animated October theme ribbon above the site navigation so it remains visible across all routed pages.
+- Added a three-slide homepage carousel with a five-second auto-advance, manual arrows, slide dots, responsive layout, and Scripture-led content for prayer, worship, and baptism.
+- Used the existing real ICF church photos for worship, prayer, and baptism slides rather than generic SVG placeholders.
+- Added an administrator sidebar section, **Theme & Hero Slider**, for editing the monthly theme, month label, Scripture, ticker copy, ribbon visibility, and three image URLs/paths.
+- Theme settings are stored inside the existing `siteSettings` collection so they flow through the existing Supabase-backed record sync.
+- The exact October flyer uploaded in the conversation still needs to be copied into a repository or Supabase Storage asset path before it can display as the first slide on the live site. Current first slide uses an existing ICF prayer photo as a safe fallback; it does not pretend the flyer has been deployed.
+- Admin uploads and publishing still require end-to-end verification against the live Render service after the deployment environment variables are complete.
