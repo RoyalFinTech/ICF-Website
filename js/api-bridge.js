@@ -30,10 +30,30 @@
       });
     });
   }
+  function showErrorCard(title,message) {
+    var host = document.querySelector('main') || document.getElementById('page-admin-portal') || document.body;
+    if (!host) { console.error(message); return; }
+    var card = document.createElement('div');
+    card.className = 'icf-error-card';
+    card.setAttribute('role','alert');
+    var copy = document.createElement('div');
+    var heading = document.createElement('strong');
+    heading.textContent = title || 'Something went wrong';
+    var detail = document.createElement('span');
+    detail.textContent = message || 'Please try again.';
+    copy.appendChild(heading); copy.appendChild(detail);
+    var close = document.createElement('button');
+    close.type = 'button'; close.className = 'icf-error-dismiss';
+    close.setAttribute('aria-label','Dismiss error'); close.textContent = '×';
+    close.addEventListener('click',function () { card.remove(); });
+    card.appendChild(copy); card.appendChild(close);
+    host.insertBefore(card,host.firstChild);
+  }
   function notifyError(error) {
     if (error && error.status === 401) { localStorage.removeItem(TOKEN); localStorage.removeItem(USER); }
-    if (typeof window.toast === 'function') window.toast('Could not save',error && error.message ? error.message : 'Please try again.','error');
-    else console.error(error);
+    var message = error && error.message ? error.message : 'Please try again.';
+    if (typeof window.toast === 'function') window.toast('Could not save',message,'error');
+    else showErrorCard('Could not save',message);
   }
   function sync(collection, records) {
     if (!getToken() || collections.indexOf(collection) < 0) return Promise.resolve();
@@ -112,7 +132,7 @@
         if (typeof navigate === 'function') navigate('admin-portal');
       });
     }).catch(function (error) {
-      if (typeof toast === 'function') toast('Sign-in failed',error.message || 'Check the credentials and Supabase setup.','error');
+      if (typeof toast === 'function') toast('Sign-in failed',error.message || 'Check the credentials and Supabase setup.','error');\n      else showErrorCard('Sign-in failed',error.message || 'Check the credentials and Supabase setup.');
     });
   };
   window.adminLogout = function () {
@@ -290,7 +310,7 @@
       .icf-error-card { display:flex; align-items:flex-start; gap:12px; padding:14px 16px;
         margin:12px 0; border:1px solid #f3c4c4; border-left:4px solid #b42318;
         border-radius:12px; background:#fff7f7; color:#7a271a; overflow-wrap:anywhere; }
-      .icf-error-card strong { display:block; margin-bottom:3px; }
+      .icf-error-card strong { display:block; margin-bottom:3px; }\n      .icf-error-dismiss { margin-left:auto; border:0; background:transparent; color:inherit; font-size:22px; cursor:pointer; padding:0 4px; }
       input, select, textarea, button, a { scroll-margin-top:90px; }
       input, select, textarea { max-width:100%; }
       button, .btn, a.btn { touch-action:manipulation; }
