@@ -167,7 +167,7 @@ function publicRecord(collection, body) {
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
 app.use(helmet({ contentSecurityPolicy: { directives: {
-  defaultSrc:["'self'"], scriptSrc:["'self'","'unsafe-inline'"], styleSrc:["'self'","'unsafe-inline'"],
+  defaultSrc:["'self'"], scriptSrc:["'self'","'unsafe-inline'"], styleSrc:["'self'","'unsafe-inline'",'https:'],
   imgSrc:["'self'",'data:','blob:','https:'], fontSrc:["'self'",'data:','https:'],
   connectSrc:["'self'",URL].filter(Boolean),
   frameSrc:["'self'",'https://www.youtube.com','https://www.youtube-nocookie.com','https://www.facebook.com'],

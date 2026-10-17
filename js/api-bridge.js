@@ -239,7 +239,36 @@
     addUploadInput('serm-audio','serm-audio-upload','Upload audio (optional)','audio/*');
     addUploadInput('serm-pdf','serm-pdf-upload','Upload PDF (optional)','application/pdf');
   }
+  function removeKnownDemoCache() {
+    var rules = {
+      prayers: function (item) {
+        return ['Fatou Jallow','Ebrima Ceesay'].indexOf(item.requesterName) !== -1 ||
+          String(item.request || '').indexOf('Pray for unity and peace in my family.') !== -1;
+      },
+      baptisms: function (item) { return ['Mariama Jobe','Lamin Sanneh'].indexOf(item.fullName) !== -1; },
+      events: function (item) {
+        return ['Community Crusade – Mariama Kunda','Singles & Married Couples Fellowship','Night Vigil – Last Friday'].indexOf(item.title) !== -1;
+      },
+      members: function (item) { return item.role === 'admin' && item.email === 'admin@icfgambia.org'; },
+      sermons: function (item) {
+        return ['Walking in the Power of the Holy Spirit','Faith That Moves Mountains','The Power of Prayer and Fasting'].indexOf(item.title) !== -1;
+      },
+      announcements: function (item) {
+        return ['Sunday Service Time Reminder','Night Vigil – Last Friday of the Month','Baptism Registration Now Open'].indexOf(item.title) !== -1;
+      }
+    };
+    Object.keys(rules).forEach(function (collection) {
+      var records = originalGet(collection, []);
+      if (Array.isArray(records)) {
+        var filtered = records.filter(function (item) { return !rules[collection](item || {}); });
+        if (filtered.length !== records.length) originalSet(collection, filtered);
+      }
+    });
+    localStorage.removeItem('icf_seeded');
+  }
+
   document.addEventListener('DOMContentLoaded',function () {
+    removeKnownDemoCache();
     var existingToken = getToken();
     if (existingToken && existingToken.split('.').length !== 3) {
       localStorage.removeItem(TOKEN); localStorage.removeItem(USER); existingToken='';
