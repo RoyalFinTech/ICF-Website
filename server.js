@@ -37,6 +37,23 @@ function authClient() {
   return createClient(URL, ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
 }
 function fail(res, status, error) { return res.status(status).json({ error: error }); }
+app.get('/healthz', function (req, res) {
+  res.status(200).json({
+    status: 'ok',
+    service: 'icf-website',
+    environment: process.env.NODE_ENV || 'development',
+    supabaseConfigured: configured,
+    timestamp: new Date().toISOString()
+  });
+});
+app.get('/api/health', function (req, res) {
+  res.status(200).json({
+    status: 'ok',
+    supabaseConfigured: configured,
+    storageConfigured: Boolean(PUBLIC_BUCKET && PRIVATE_BUCKET),
+    timestamp: new Date().toISOString()
+  });
+});
 function requireStorage(req, res, next) {
   if (!configured) return fail(res, 503, 'Supabase is not configured. Add the Supabase environment variables in Render.');
   next();
