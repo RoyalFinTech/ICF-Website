@@ -396,6 +396,25 @@ body{
 .pdf-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media (max-width:700px){.pdf-frame,.pdf-frame iframe{height:80vh}.pdf-hero{padding:36px 16px 22px}}
 
+
+/* Premium responsive ICF refinement — October 2026 */
+:root{--icf-card-radius:22px;--icf-shadow:0 18px 48px rgba(11,31,58,.09);--icf-shadow-hover:0 24px 60px rgba(11,31,58,.15)}
+.card,.glass-card,.stat-pill,.admin-stat,.login-card{border-radius:var(--icf-card-radius);box-shadow:var(--icf-shadow);transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+.card:hover,.glass-card:hover{transform:translateY(-3px);box-shadow:var(--icf-shadow-hover);border-color:rgba(201,162,39,.35)}
+.card-header{padding:clamp(16px,2.4vw,24px)}.card-body{padding:clamp(16px,2.4vw,24px)}
+.page-header{margin-bottom:clamp(18px,3vw,32px)}.page-title h1,.page-header h1{line-height:1.16;letter-spacing:-.025em}
+.hero{isolation:isolate;overflow:hidden}.hero:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 15% 20%,rgba(201,162,39,.12),transparent 42%),radial-gradient(ellipse at 85% 35%,rgba(37,99,235,.10),transparent 44%)}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px}.hero-actions .btn{min-height:46px}
+#announcements-grid .card{border-left:4px solid var(--gold)}#events-grid .card{overflow:hidden;position:relative}#events-grid .card:before{content:"";display:block;height:4px;background:linear-gradient(90deg,var(--gold),#f4d675,var(--blue));position:absolute;inset:0 0 auto}
+#announcements-grid,#events-grid{align-items:stretch}#announcements-grid .card,#events-grid .card{height:100%}
+.site-logo{object-fit:contain;max-width:100%;height:auto}input,select,textarea,button,a{touch-action:manipulation}button,.btn,.nav-link{-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:3px solid rgba(37,99,235,.72);outline-offset:3px}
+.icf-error-card{box-sizing:border-box;display:flex;align-items:flex-start;gap:14px;margin:12px 0;padding:16px 18px;border:1px solid rgba(220,38,38,.28);border-left:5px solid #dc2626;border-radius:16px;background:#fff7f7;color:#7f1d1d;box-shadow:0 12px 28px rgba(127,29,29,.08)}
+.icf-error-card strong{display:block;margin-bottom:4px}.icf-error-card span{display:block;overflow-wrap:anywhere}.icf-error-dismiss{margin-left:auto;border:0;background:transparent;color:inherit;font-size:24px;line-height:1;cursor:pointer}
+@media(max-width:700px){.card:hover,.glass-card:hover{transform:none}.hero-actions{display:grid;grid-template-columns:1fr}.hero-actions .btn{width:100%;justify-content:center}.page-title{gap:12px}.page-title-logo{width:46px;height:46px;flex:0 0 46px}.pdf-frame,.pdf-frame iframe{max-width:100%}#announcements-grid,#events-grid{grid-template-columns:1fr!important}.icf-error-card{padding:14px}}
+@media(min-width:701px) and (max-width:1024px){#events-grid,#announcements-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
 </style>
 </head>
 <body data-theme="light">
@@ -419,8 +438,8 @@ body{
       <li><a class="nav-link" data-page="sermons" onclick="navigate('sermons')" data-i18n="sermons">🎥 Sermons</a></li>
       <li><a class="nav-link" data-page="gallery" onclick="navigate('gallery')" data-i18n="gallery">📷 Gallery</a></li>
       <li><a class="nav-link" data-page="announcements" onclick="navigate('announcements')" data-i18n="news">📢 News</a></li>
-      <li><a class="nav-link" data-page="membership" onclick="navigate('membership')" title="Membership">🧾 Members</a></li>
-      <li><a class="nav-link" data-page="workers" onclick="navigate('workers')" title="Worker's Manual">📘 Workers</a></li>
+      <li><a class="nav-link" data-page="membership" onclick="navigate('membership')" title="Membership">🧾 ICF Membership Statement PDF</a></li>
+      <li><a class="nav-link" data-page="workers" onclick="navigate('workers')" title="Worker's Manual">📘 ICF Workers’ Manual PDF</a></li>
       <li><button class="btn nav-login" onclick="navigate('login')">👤 Login</button></li>
       <li><button class="btn nav-signup" onclick="navigate('signup')">📝 Sign Up</button></li>
       <li><select class="lang-selector filter-select" style="font-size:11.5px;padding:4px 7px;max-width:130px" onchange="setLanguage(this.value)" title="Language"></select></li>
@@ -1027,7 +1046,7 @@ body{
   <div class="pdf-frame-wrap">
     <div class="pdf-actions fade-in-up">
       <button type="button" class="pdf-btn-primary" onclick="openFullscreenPDF('membershipPdfFrame')">📄 View Full Screen</button>
-      <a class="pdf-btn-ghost" href="membership-statement.pdf" download>⬇ Download Membership PDF</a>
+      <a class="pdf-btn-ghost" href="membership-statement.pdf" download>⬇ Download ICF Membership Statement PDF</a>
       <button type="button" class="pdf-btn-ghost" onclick="sharePDF('membership-statement.pdf','ICF Membership, Mission &amp; Statement of Belief')">🔗 Share PDF</button>
     </div>
     <div class="pdf-frame glass-card fade-in-up">
@@ -1052,7 +1071,7 @@ body{
   <div class="pdf-frame-wrap">
     <div class="pdf-actions fade-in-up">
       <button type="button" class="pdf-btn-primary" onclick="openFullscreenPDF('workersPdfFrame')">📄 View Full Screen</button>
-      <a class="pdf-btn-ghost" href="workers-manual.pdf" download>⬇ Download Worker's Manual PDF</a>
+      <a class="pdf-btn-ghost" href="workers-manual.pdf" download>⬇ Download ICF Workers’ Manual PDF</a>
       <button type="button" class="pdf-btn-ghost" onclick="sharePDF('workers-manual.pdf',&quot;ICF Worker's Manual&quot;)">🔗 Share PDF</button>
     </div>
     <div class="pdf-frame glass-card fade-in-up">
@@ -2289,7 +2308,7 @@ function submitBaptismForm(){
 /* ── Events ── */
 function renderEvents(filter){
   filter=filter||'all';
-  let events=DB.get('events',[]);
+  let events=DB.get('events',[]).slice().sort((a,b)=>new Date(a.date||0)-new Date(b.date||0));
   if(filter!=='all')events=events.filter(e=>e.type===filter);
   const grid=document.getElementById('events-grid');
   if(!events.length){grid.innerHTML='<div class="empty-state"><div class="empty-state-emoji">📅</div><h3>No events scheduled</h3><p>Check back soon for upcoming events.</p></div>';return}
@@ -3312,7 +3331,7 @@ function openLightbox(id){
 }
 
 function renderAnnouncements(){
-  const announcements=DB.get('announcements',[]).filter(a=>!a.expiry||new Date(a.expiry)>=new Date());
+  const announcements=DB.get('announcements',[]).filter(a=>!a.expiry||new Date(a.expiry)>=new Date()).slice().sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
   const grid=document.getElementById('announcements-grid');
   if(!grid)return;
   if(!announcements.length){
