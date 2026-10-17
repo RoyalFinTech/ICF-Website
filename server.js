@@ -226,7 +226,6 @@ const loginLimit = rateLimit({ windowMs:15*60*1000, limit:10, standardHeaders:'d
 const publicLimit = rateLimit({ windowMs:15*60*1000, limit:30, standardHeaders:'draft-7', legacyHeaders:false });
 
 app.get('/health', function (req,res) { res.json({ status:'ok', service:'icf-gambia', storageConfigured:configured, timestamp:new Date().toISOString() }); });
-app.get('/api/health', function (req,res) { res.json({ status:'ok', storageConfigured:configured }); });
 
 app.post('/api/auth/login', loginLimit, requireStorage, async function (req,res) {
   try {
