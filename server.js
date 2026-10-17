@@ -108,7 +108,7 @@ async function ensureConfiguredAdmin() {
   const email = String(process.env.ICF_ADMIN_EMAIL || '').trim().toLowerCase();
   const password = String(process.env.ICF_ADMIN_PASSWORD || '');
   if (!email || !password || !configured) return;
-  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || password.length < 12 || password.length > 200) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 12 || password.length > 200) {
     throw new Error('ICF_ADMIN_EMAIL or ICF_ADMIN_PASSWORD is invalid; use a valid email and a password of at least 12 characters.');
   }
   const client = db();
