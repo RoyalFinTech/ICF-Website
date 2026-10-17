@@ -104,6 +104,30 @@ async function insertRecord(collection, value) {
   if (result.error) throw result.error;
   return result.data.data;
 }
+async function ensureConfiguredAdmin() {
+  const email = String(process.env.ICF_ADMIN_EMAIL || '').trim().toLowerCase();
+  const password = String(process.env.ICF_ADMIN_PASSWORD || '');
+  if (!email || !password || !configured) return;
+  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || password.length < 12 || password.length > 200) {
+    throw new Error('ICF_ADMIN_EMAIL or ICF_ADMIN_PASSWORD is invalid; use a valid email and a password of at least 12 characters.');
+  }
+  const client = db();
+  const listed = await client.auth.admin.listUsers({ page: 1, perPage: 1000 });
+  if (listed.error) throw listed.error;
+  let user = (listed.data.users || []).find(function (entry) { return String(entry.email || '').toLowerCase() === email; });
+  if (user) {
+    const updated = await client.auth.admin.updateUserById(user.id, { password: password, email_confirm: true });
+    if (updated.error) throw updated.error;
+    user = updated.data.user;
+  } else {
+    const created = await client.auth.admin.createUser({ email: email, password: password, email_confirm: true, user_metadata: { full_name: 'ICF Administrator', church: 'ICF Gambia' } });
+    if (created.error) throw created.error;
+    user = created.data.user;
+  }
+  const granted = await client.from('admin_users').upsert({ user_id: user.id, display_name: 'ICF Administrator', role: 'super_admin' }, { onConflict: 'user_id' });
+  if (granted.error) throw granted.error;
+  console.log('Configured ICF administrator account is ready.');
+}
 function getBearer(req) {
   const header = req.headers.authorization || '';
   return header.toLowerCase().startsWith('bearer ') ? header.slice(7).trim() : '';
@@ -359,4 +383,9 @@ app.use(function (error,req,res,next) {
   console.error('Unhandled request error:',error.message);
   fail(res,500,'An unexpected server error occurred.');
 });
-app.listen(PORT,function () { console.log('ICF Gambia listening on port ' + PORT + '. Supabase configured: ' + configured); });
+app.listen(PORT,function () {
+  console.log('ICF Gambia listening on port ' + PORT + '. Supabase configured: ' + configured);
+  ensureConfiguredAdmin().catch(function (error) {
+    console.error('ICF administrator bootstrap failed:', error.message);
+  });
+});
