@@ -56,7 +56,9 @@
   };
   DB.push = function (key,item) {
     var result = originalPush(key,item);
-    if (!getToken() && ['prayers','baptisms','contactMessages'].indexOf(key) !== -1) {
+    if (getToken() && collections.indexOf(key) !== -1) {
+      sync(key, originalGet(key, []));
+    } else if (!getToken() && ['prayers','baptisms','contactMessages'].indexOf(key) !== -1) {
       request('/public/' + encodeURIComponent(key),{method:'POST',body:item}).catch(notifyError);
     }
     return result;
