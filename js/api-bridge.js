@@ -52,7 +52,7 @@
   }
   DB.set = function (key,value) {
     originalSet(key,value);
-    if (collections.indexOf(key) !== -1 && getToken()) sync(key,Array.isArray(value) ? value : []);
+    if (collections.indexOf(key) !== -1 && getToken()) sync(key,value);
   };
   DB.push = function (key,item) {
     var result = originalPush(key,item);
