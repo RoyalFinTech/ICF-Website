@@ -24,7 +24,7 @@
 - Offsite backups require an external destination and secrets, and a successful run.
 
 ## QA performed
-- JavaScript syntax parsing passed for `server.js` and `js/api-bridge.js` after the latest fixes.
+- JavaScript syntax parsing passed for `server.js` and `js/api-bridge.js` after the latest fixes. The validation workflow checks server, bridge, backup script, and package manifest.
 - Checked that the public API does not expose member records or contact-message records.
 - Confirmed the source does not contain the administrator password or email.
 - The latest branch contains additional commits beyond `main`; PR #1 remains open and mergeable.
