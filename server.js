@@ -390,7 +390,7 @@ function hasValidFileSignature(buffer,mime) {
 const upload = multer({
   storage:multer.memoryStorage(), limits:{ fileSize:MAX_UPLOAD_BYTES, files:1 },
   fileFilter:function (req,file,callback) {
-    const allowed = /^(image\\/(jpeg|png|webp|gif)|application\\/pdf|audio\\/(mpeg|mp4|wav|ogg|webm)|video\\/(mp4|webm|quicktime))$/i;
+    const allowed = /^(image\/(jpeg|png|webp|gif)|application\/pdf|audio\/(mpeg|mp4|wav|ogg|webm)|video\/(mp4|webm|quicktime))$/i;
     if (!allowed.test(file.mimetype)) return callback(new Error('This file type is not allowed.'));
     callback(null,true);
   }
