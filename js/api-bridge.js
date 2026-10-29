@@ -164,8 +164,8 @@
     var confirm = (document.getElementById('su-confirm') || {value:''}).value;
     var agreed = !!(document.getElementById('su-agree') || {checked:false}).checked;
     if (name.length < 2 || phone.length < 6 || address.length < 3 || !nationality ||
-        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 8 || password !== confirm || !agreed) {
-      if (typeof toast === 'function') toast('Check the form','Enter your details, a valid email, matching password of at least 8 characters, and accept the terms.','error');
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 12 || password !== confirm || !agreed) {
+      if (typeof toast === 'function') toast('Check the form','Enter your details, a valid email, matching password of at least 12 characters, and accept the terms.','error');
       return;
     }
     var dialCode = typeof selectedDialCode !== 'undefined' ? selectedDialCode : '';

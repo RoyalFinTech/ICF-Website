@@ -287,8 +287,8 @@ app.post('/api/public/member-signup', publicLimit, requireStorage, async functio
     const password = String(body.password || '');
     const phone = String(body.phone || '').trim();
     const address = String(body.address || '').trim();
-    if (name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 8 || password.length > 200 || phone.length < 6 || address.length < 3) {
-      return fail(res,400,'Provide your name, a valid email, phone number, address, and a password of at least 8 characters.');
+    if (name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 12 || password.length > 200 || phone.length < 6 || address.length < 3) {
+      return fail(res,400,'Provide your name, a valid email, phone number, address, and a password of at least 12 characters.');
     }
     const auth = authClient();
     const signup = await auth.auth.signUp({ email:email, password:password, options:{ data:{ full_name:name, church:'ICF Gambia' } } });

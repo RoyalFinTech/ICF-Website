@@ -40,3 +40,8 @@ on conflict (id) do update set public=excluded.public,file_size_limit=excluded.f
 -- After creating an administrator in Supabase Authentication, grant its UUID:
 -- insert into public.admin_users (user_id,display_name,role)
 -- values ('REPLACE-WITH-AUTH-USER-UUID','ICF Administrator','super_admin');
+
+-- Keep direct browser/API roles away from private application records.
+-- The Express server uses the service_role key, kept only in Render environment variables.
+revoke all privileges on table public.app_records, public.admin_users from public, anon, authenticated;
+grant select, insert, update, delete on table public.app_records, public.admin_users to service_role;

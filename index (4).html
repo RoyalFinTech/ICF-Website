@@ -936,7 +936,7 @@ img,iframe,video{max-width:100%}
               <input class="form-input" type="password" id="su-pass" placeholder="Create a password" oninput="checkPasswordStrength(this.value)"/>
               <div class="pw-strength"><div class="pw-strength-bar" id="pw-bar"></div></div>
               <div class="form-hint" id="pw-hint">Minimum 8 characters</div>
-              <div class="form-error" id="err-pass">Password must be at least 8 characters</div>
+              <div class="form-error" id="err-pass">Password must be at least 12 characters</div>
             </div>
             <div class="form-group">
               <label class="form-label">Confirm Password *</label>
@@ -2450,7 +2450,7 @@ function submitSignup(){
   const natCode=(document.getElementById('su-nationality-code')||{value:''}).value;
   const natErr=document.getElementById('err-nationality');
   if(!natVal){if(natErr)natErr.style.display='block';valid=false;}else{if(natErr)natErr.style.display='none';}
-  const pass=chk('su-pass','err-pass',s=>s.length>=8,'Password must be at least 8 characters');
+  const pass=chk('su-pass','err-pass',s=>s.length>=12,'Password must be at least 12 characters');
   const confirm=(document.getElementById('su-confirm')||{value:''}).value;
   const errConf=document.getElementById('err-confirm');
   const passOk=pass&&confirm===pass;
