@@ -215,11 +215,15 @@ app.use(helmet({ contentSecurityPolicy: { directives: {
   frameSrc:["'self'",'https://www.youtube.com','https://www.youtube-nocookie.com','https://www.facebook.com'],
   objectSrc:["'self'"], baseUri:["'self'"], frameAncestors:["'self'"]
 } } }));
+function normalizeOrigin(value) {
+  let normalized = String(value || '').trim();
+  while (normalized.endsWith('/')) normalized = normalized.slice(0, -1);
+  return normalized;
+}
 const origins = Array.from(new Set([process.env.CORS_ORIGINS || '', process.env.CORS_ORIGIN || '']
-  .join(',').split(',').map(function (value) { return value.trim().replace(/\\/+$/, ''); }).filter(Boolean)));
+  .join(',').split(',').map(normalizeOrigin).filter(Boolean)));
 app.use(cors({ origin:function (origin, callback) {
-  const normalizedOrigin = String(origin || '').trim().replace(/\\/+$/, '');
-  if (!origin || origins.indexOf(normalizedOrigin) !== -1) return callback(null, true);
+  if (!origin || origins.indexOf(normalizeOrigin(origin)) !== -1) return callback(null, true);
   return callback(null, false);
 }, methods:['GET','POST','PUT','DELETE','OPTIONS'], allowedHeaders:['Content-Type','Authorization'] }));
 app.use(express.json({ limit:'1mb' }));
