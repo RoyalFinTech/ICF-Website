@@ -16,6 +16,28 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm install
+      - name: Report dependency security findings
+        run: |
+          node <<'NODE'
+          const { spawnSync } = require('node:child_process');
+          const result = spawnSync('npm', ['audit', '--json'], { encoding: 'utf8' });
+          let report = {};
+          try { report = JSON.parse(result.stdout || '{}'); } catch (_) {}
+          const vulnerabilities = Object.entries(report.vulnerabilities || {}).map(([name, item]) => ({
+            name,
+            severity: item.severity,
+            direct: item.isDirect,
+            range: item.range,
+            via: (item.via || []).map((entry) => typeof entry === 'string' ? entry : ({
+              name: entry.name, title: entry.title, url: entry.url, range: entry.range
+            })),
+            fixAvailable: item.fixAvailable
+          }));
+          console.log('DEPENDENCY_AUDIT_SUMMARY ' + JSON.stringify({
+            metadata: report.metadata && report.metadata.vulnerabilities,
+            vulnerabilities
+          }));
+          NODE
       - name: Check server syntax
         run: node --check server.js
       - name: Check frontend bridge syntax
