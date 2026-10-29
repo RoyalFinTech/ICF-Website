@@ -134,9 +134,13 @@ async function ensureConfiguredAdmin() {
   if (listed.error) throw listed.error;
   let user = (listed.data.users || []).find(function (entry) { return String(entry.email || '').toLowerCase() === email; });
   if (user) {
-    const updated = await client.auth.admin.updateUserById(user.id, { password: password, email_confirm: true });
-    if (updated.error) throw updated.error;
-    user = updated.data.user;
+    // Avoid silently resetting the administrator password on every restart or deploy.
+    // Set ICF_ADMIN_SYNC_PASSWORD=true only when an intentional password sync is required.
+    if (String(process.env.ICF_ADMIN_SYNC_PASSWORD || '').toLowerCase() === 'true') {
+      const updated = await client.auth.admin.updateUserById(user.id, { password: password, email_confirm: true });
+      if (updated.error) throw updated.error;
+      user = updated.data.user;
+    }
   } else {
     const created = await client.auth.admin.createUser({ email: email, password: password, email_confirm: true, user_metadata: { full_name: 'ICF Administrator', church: 'ICF Gambia' } });
     if (created.error) throw created.error;
@@ -211,7 +215,7 @@ app.set('trust proxy', 1);
 app.use(helmet({ contentSecurityPolicy: { directives: {
   defaultSrc:["'self'"], scriptSrc:["'self'","'unsafe-inline'"], styleSrc:["'self'","'unsafe-inline'",'https:'],
   imgSrc:["'self'",'data:','blob:','https:'], fontSrc:["'self'",'data:','https:'],
-  connectSrc:["'self'",URL].filter(Boolean),
+  connectSrc:["'self'",URL,'https://nominatim.openstreetmap.org'].filter(Boolean),
   frameSrc:["'self'",'https://www.youtube.com','https://www.youtube-nocookie.com','https://www.facebook.com'],
   objectSrc:["'self'"], baseUri:["'self'"], frameAncestors:["'self'"]
 } } }));
@@ -229,6 +233,11 @@ app.use(cors({ origin:function (origin, callback) {
 app.use(express.json({ limit:'1mb' }));
 app.use(express.urlencoded({ extended:false, limit:'1mb' }));
 app.use('/api/', rateLimit({ windowMs:15*60*1000, limit:300, standardHeaders:'draft-7', legacyHeaders:false }));
+app.use('/api/', function (req,res,next) {
+  res.setHeader('Cache-Control','no-store');
+  res.setHeader('Pragma','no-cache');
+  next();
+});
 const loginLimit = rateLimit({ windowMs:15*60*1000, limit:10, standardHeaders:'draft-7', legacyHeaders:false });
 const publicLimit = rateLimit({ windowMs:15*60*1000, limit:30, standardHeaders:'draft-7', legacyHeaders:false });
 
@@ -361,10 +370,27 @@ app.put('/api/admin/records/:collection', requireStorage, requireAdmin, async fu
   }
 });
 
+function hasValidFileSignature(buffer,mime) {
+  if (!Buffer.isBuffer(buffer)) return false;
+  const starts = function (bytes) { return buffer.length >= bytes.length && bytes.every(function (byte,index) { return buffer[index] === byte; }); };
+  const ascii = function (start,length) { return buffer.toString('ascii',start,start+length); };
+  if (mime === 'image/jpeg') return starts([0xff,0xd8,0xff]);
+  if (mime === 'image/png') return starts([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a]);
+  if (mime === 'image/gif') return ascii(0,6) === 'GIF87a' || ascii(0,6) === 'GIF89a';
+  if (mime === 'image/webp') return ascii(0,4) === 'RIFF' && ascii(8,4) === 'WEBP';
+  if (mime === 'application/pdf') return ascii(0,5) === '%PDF-';
+  if (mime === 'audio/mpeg') return ascii(0,3) === 'ID3' || (buffer.length > 1 && buffer[0] === 0xff && (buffer[1] & 0xe0) === 0xe0);
+  if (mime === 'audio/wav') return ascii(0,4) === 'RIFF' && ascii(8,4) === 'WAVE';
+  if (mime === 'audio/ogg') return ascii(0,4) === 'OggS';
+  if (mime === 'audio/webm' || mime === 'video/webm') return starts([0x1a,0x45,0xdf,0xa3]);
+  if (mime === 'audio/mp4' || mime === 'video/mp4') return ascii(4,4) === 'ftyp';
+  if (mime === 'video/quicktime') return ascii(4,4) === 'ftyp' && ascii(8,4).startsWith('qt');
+  return false;
+}
 const upload = multer({
   storage:multer.memoryStorage(), limits:{ fileSize:MAX_UPLOAD_BYTES, files:1 },
   fileFilter:function (req,file,callback) {
-    const allowed = /^(image\/(jpeg|png|webp|gif)|application\/pdf|audio\/(mpeg|mp4|wav|ogg|webm)|video\/(mp4|webm|quicktime))$/i;
+    const allowed = /^(image\\/(jpeg|png|webp|gif)|application\\/pdf|audio\\/(mpeg|mp4|wav|ogg|webm)|video\\/(mp4|webm|quicktime))$/i;
     if (!allowed.test(file.mimetype)) return callback(new Error('This file type is not allowed.'));
     callback(null,true);
   }
@@ -372,6 +398,9 @@ const upload = multer({
 app.post('/api/admin/uploads', requireStorage, requireAdmin, upload.single('file'), async function (req,res) {
   try {
     if (!req.file) return fail(res,400,'Choose a file to upload.');
+    if (!hasValidFileSignature(req.file.buffer,req.file.mimetype)) {
+      return fail(res,400,'The file content does not match its declared file type. Please choose a valid image, document, audio, or video file.');
+    }
     const bucket = String(req.query.bucket || PUBLIC_BUCKET);
     if (bucket !== PUBLIC_BUCKET && bucket !== PRIVATE_BUCKET) return fail(res,400,'Invalid storage bucket.');
     const ext = path.extname(req.file.originalname || '').toLowerCase().replace(/[^.a-z0-9]/g,'').slice(0,12);
