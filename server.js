@@ -215,9 +215,11 @@ app.use(helmet({ contentSecurityPolicy: { directives: {
   frameSrc:["'self'",'https://www.youtube.com','https://www.youtube-nocookie.com','https://www.facebook.com'],
   objectSrc:["'self'"], baseUri:["'self'"], frameAncestors:["'self'"]
 } } }));
-const origins = (process.env.CORS_ORIGINS || '').split(',').map(function (v) { return v.trim(); }).filter(Boolean);
+const origins = Array.from(new Set([process.env.CORS_ORIGINS || '', process.env.CORS_ORIGIN || '']
+  .join(',').split(',').map(function (value) { return value.trim().replace(/\\/+$/, ''); }).filter(Boolean)));
 app.use(cors({ origin:function (origin, callback) {
-  if (!origin || origins.indexOf(origin) !== -1) return callback(null, true);
+  const normalizedOrigin = String(origin || '').trim().replace(/\\/+$/, '');
+  if (!origin || origins.indexOf(normalizedOrigin) !== -1) return callback(null, true);
   return callback(null, false);
 }, methods:['GET','POST','PUT','DELETE','OPTIONS'], allowedHeaders:['Content-Type','Authorization'] }));
 app.use(express.json({ limit:'1mb' }));
