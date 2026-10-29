@@ -519,9 +519,28 @@ body.icf-menu-open{overflow:hidden!important}
 #main{height:auto;overflow:visible}
 #footer{width:100%;box-sizing:border-box;flex-shrink:0}
 #footer .footer-grid{box-sizing:border-box;width:min(100%,1140px)}
+
+/* ICF branded splash screen + resilient first paint */
+#icf-splash{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:24px;box-sizing:border-box;background:radial-gradient(ellipse at 50% 35%,#123d72 0%,#071a35 48%,#030b19 100%);color:#fff;opacity:1;visibility:visible;transition:opacity .55s ease,visibility .55s ease}
+#icf-splash.is-leaving{opacity:0;visibility:hidden;pointer-events:none}
+#icf-splash .splash-logo-wrap{width:clamp(112px,28vw,172px);height:clamp(112px,28vw,172px);display:grid;place-items:center;border-radius:50%;padding:8px;background:linear-gradient(145deg,#fff2b0,#dba52c 38%,#fff0a1 62%,#8b5a0b);box-shadow:0 0 0 1px rgba(255,255,255,.3),0 0 45px rgba(77,177,255,.22),0 18px 45px rgba(0,0,0,.4);animation:icf-splash-pulse 2s ease-in-out infinite}
+#icf-splash img{display:block;width:100%;height:100%;object-fit:contain;border-radius:50%;background:#fff}
+#icf-splash .splash-title{font-size:clamp(21px,5vw,30px);font-weight:800;letter-spacing:.09em;text-align:center;color:#fff;margin:0}
+#icf-splash .splash-tagline{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:#f5d77e;text-align:center;margin:0}
+#icf-splash .splash-loading{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#dbeafe}
+#icf-splash .splash-spinner{width:17px;height:17px;border:2px solid rgba(255,255,255,.25);border-top-color:#f4c84b;border-radius:50%;animation:icf-splash-spin .8s linear infinite}
+#icf-splash .splash-progress{width:min(220px,62vw);height:3px;border-radius:5px;overflow:hidden;background:rgba(255,255,255,.16);margin-top:3px}
+#icf-splash .splash-progress span{display:block;width:35%;height:100%;background:linear-gradient(90deg,#f5c84b,#fff0a6);border-radius:5px;animation:icf-splash-progress 1.65s ease-in-out forwards}
+@keyframes icf-splash-spin{to{transform:rotate(360deg)}}
+@keyframes icf-splash-pulse{50%{transform:translateY(-3px) scale(1.025)}}
+@keyframes icf-splash-progress{from{width:5%}to{width:100%}}
+@media(prefers-reduced-motion:reduce){#icf-splash *,#icf-splash .splash-logo-wrap{animation:none!important;transition:none!important}}
+
 </style>
 </head>
 <body data-theme="light">
+<div id="icf-splash" role="status" aria-live="polite" aria-label="Loading ICF Gambia website"><div class="splash-logo-wrap"><img src="/1003877401.png" alt="International Christian Fellowship logo" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%230c3670%22 stroke=%22%23f5cc54%22 stroke-width=%224%22/%3E%3Cpath d=%22M50 18v42M29 39h42%22 stroke=%22white%22 stroke-width=%228%22 stroke-linecap=%22round%22/%3E%3C/svg%3E'"></div><h1 class="splash-title">ICF GAMBIA</h1><p class="splash-tagline">Solution Centre · It’s All About Jesus</p><div class="splash-loading"><span class="splash-spinner" aria-hidden="true"></span><span id="icf-splash-status">Preparing your experience</span></div><div class="splash-progress" aria-hidden="true"><span></span></div></div>
+
 
 <!-- ═══ NAVBAR ═══════════════════════════════ -->
 <div id="icf-theme-ribbon" class="icf-theme-ribbon" role="region" aria-label="ICF monthly theme"><img data-logo="1" alt="ICF" class="icf-ribbon-logo"><div class="icf-ribbon-track"><div class="icf-ribbon-content"><span>✨ <strong>OCTOBER THEME: THE POWER OF PRAYER</strong></span><span>📖 “Pray without ceasing.” — 1 Thessalonians 5:17</span><span>🙏 Pray • Trust • Believe • Walk in Faith</span><span>✝ It’s All About Jesus.</span><span>✨ <strong>OCTOBER THEME: THE POWER OF PRAYER</strong></span><span>📖 “Pray without ceasing.” — 1 Thessalonians 5:17</span><span>🙏 Pray • Trust • Believe • Walk in Faith</span><span>✝ It’s All About Jesus.</span></div></div></div>
@@ -3669,4 +3688,34 @@ window.updateContactMessageStatus=updateContactMessageStatus;
 })();
 
 </script>
+
+<script>
+/* Independent boot guard: works even if a preceding inline app script fails to parse. */
+(function(){
+ var finished=false;
+ function showHomeSafely(){
+  var home=document.getElementById('page-home');
+  if(home && !home.classList.contains('active')){
+   try{if(typeof window.navigate==='function')window.navigate('home');}catch(e){}
+   if(!home.classList.contains('active')){
+    document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+    home.classList.add('active');
+   }
+  }
+ }
+ function finishSplash(){
+  if(finished)return; finished=true;
+  showHomeSafely();
+  var splash=document.getElementById('icf-splash');
+  if(splash){var status=document.getElementById('icf-splash-status');if(status)status.textContent='Welcome';setTimeout(function(){splash.classList.add('is-leaving');setTimeout(function(){if(splash.parentNode)splash.parentNode.removeChild(splash);},650);},500);}
+  document.documentElement.style.overflowY='auto';
+  document.body.style.overflowY='auto';
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(finishSplash,1400);},{once:true});
+ else setTimeout(finishSplash,1400);
+ window.addEventListener('error',function(){/* keep the splash bounded; the boot guard still reveals the public home page */});
+ setTimeout(finishSplash,5000);
+})();
+</script>
+
 </body>
