@@ -521,7 +521,7 @@ body.icf-menu-open{overflow:hidden!important}
 #footer .footer-grid{box-sizing:border-box;width:min(100%,1140px)}
 
 /* ICF branded splash screen + resilient first paint */
-#icf-splash{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:24px;box-sizing:border-box;background:radial-gradient(ellipse at 50% 35%,#123d72 0%,#071a35 48%,#030b19 100%);color:#fff;opacity:1;visibility:visible;transition:opacity .55s ease,visibility .55s ease}
+#icf-splash{animation:icf-splash-emergency-hide 5s forwards;position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:24px;box-sizing:border-box;background:radial-gradient(ellipse at 50% 35%,#123d72 0%,#071a35 48%,#030b19 100%);color:#fff;opacity:1;visibility:visible;transition:opacity .55s ease,visibility .55s ease}
 #icf-splash.is-leaving{opacity:0;visibility:hidden;pointer-events:none}
 #icf-splash .splash-logo-wrap{width:clamp(112px,28vw,172px);height:clamp(112px,28vw,172px);display:grid;place-items:center;border-radius:50%;padding:8px;background:linear-gradient(145deg,#fff2b0,#dba52c 38%,#fff0a1 62%,#8b5a0b);box-shadow:0 0 0 1px rgba(255,255,255,.3),0 0 45px rgba(77,177,255,.22),0 18px 45px rgba(0,0,0,.4);animation:icf-splash-pulse 2s ease-in-out infinite}
 #icf-splash img{display:block;width:100%;height:100%;object-fit:contain;border-radius:50%;background:#fff}
@@ -531,6 +531,7 @@ body.icf-menu-open{overflow:hidden!important}
 #icf-splash .splash-spinner{width:17px;height:17px;border:2px solid rgba(255,255,255,.25);border-top-color:#f4c84b;border-radius:50%;animation:icf-splash-spin .8s linear infinite}
 #icf-splash .splash-progress{width:min(220px,62vw);height:3px;border-radius:5px;overflow:hidden;background:rgba(255,255,255,.16);margin-top:3px}
 #icf-splash .splash-progress span{display:block;width:35%;height:100%;background:linear-gradient(90deg,#f5c84b,#fff0a6);border-radius:5px;animation:icf-splash-progress 1.65s ease-in-out forwards}
+@keyframes icf-splash-emergency-hide{0%,78%{opacity:1;visibility:visible;pointer-events:auto}100%{opacity:0;visibility:hidden;pointer-events:none}}
 @keyframes icf-splash-spin{to{transform:rotate(360deg)}}
 @keyframes icf-splash-pulse{50%{transform:translateY(-3px) scale(1.025)}}
 @keyframes icf-splash-progress{from{width:5%}to{width:100%}}
@@ -539,7 +540,7 @@ body.icf-menu-open{overflow:hidden!important}
 </style>
 </head>
 <body data-theme="light">
-<div id="icf-splash" role="status" aria-live="polite" aria-label="Loading ICF Gambia website"><div class="splash-logo-wrap"><img src="/1003877401.png" alt="International Christian Fellowship logo" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%230c3670%22 stroke=%22%23f5cc54%22 stroke-width=%224%22/%3E%3Cpath d=%22M50 18v42M29 39h42%22 stroke=%22white%22 stroke-width=%228%22 stroke-linecap=%22round%22/%3E%3C/svg%3E'"></div><h1 class="splash-title">ICF GAMBIA</h1><p class="splash-tagline">Solution Centre · It’s All About Jesus</p><div class="splash-loading"><span class="splash-spinner" aria-hidden="true"></span><span id="icf-splash-status">Preparing your experience</span></div><div class="splash-progress" aria-hidden="true"><span></span></div></div>
+<div id="icf-splash" role="status" aria-live="polite" aria-label="Loading ICF Gambia website"><div class="splash-logo-wrap"><img src="/icf-logo-transparent.png" alt="International Christian Fellowship logo" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%230c3670%22 stroke=%22%23f5cc54%22 stroke-width=%224%22/%3E%3Cpath d=%22M50 18v42M29 39h42%22 stroke=%22white%22 stroke-width=%228%22 stroke-linecap=%22round%22/%3E%3C/svg%3E'"></div><h1 class="splash-title">ICF GAMBIA</h1><p class="splash-tagline">Solution Centre · It’s All About Jesus</p><div class="splash-loading"><span class="splash-spinner" aria-hidden="true"></span><span id="icf-splash-status">Preparing your experience</span></div><div class="splash-progress" aria-hidden="true"><span></span></div></div>
 
 
 <!-- ═══ NAVBAR ═══════════════════════════════ -->
@@ -604,7 +605,7 @@ body.icf-menu-open{overflow:hidden!important}
 <main id="main">
 
 <!-- ═══ HOME ═════════════════════════════════ -->
-<div id="page-home" class="page page-content">
+<div id="page-home" class="page page-content active">
   <section class="icf-hero-slider" id="icf-hero-slider" aria-label="ICF featured messages">
     <div class="icf-hero-slide active" data-slide="0"><img class="icf-hero-image" src="church-mummy-prayer.jpg" alt="October theme: The Power of Prayer"><div class="icf-hero-shade"></div><div class="icf-hero-copy"><span class="icf-eyebrow">✦ OCTOBER MONTHLY THEME ✦</span><h1>The Power of Prayer</h1><p class="icf-hero-verse">“Pray without ceasing.” <strong>— 1 Thessalonians 5:17</strong></p><p>Draw closer to God through worship, thanksgiving, intercession and faith.</p><div class="icf-hero-actions"><button class="btn btn-primary" onclick="navigate('prayers')">🙏 Submit a Prayer Request</button><button class="btn btn-outline" onclick="navigate('about')">✝ Discover ICF</button></div></div></div>
     <div class="icf-hero-slide" data-slide="1"><img class="icf-hero-image" src="church-worship-service.jpg" alt="Christian worship and fellowship"><div class="icf-hero-shade"></div><div class="icf-hero-copy"><span class="icf-eyebrow">WORSHIP • FELLOWSHIP • SERVICE</span><h1>It’s All About Jesus.</h1><p class="icf-hero-verse">“Oh come, let us worship and bow down.” <strong>— Psalm 95:6</strong></p><p>A Christ-centred family growing together in grace, truth and love.</p><div class="icf-hero-actions"><button class="btn btn-primary" onclick="navigate('services')">Explore Our Ministries</button><button class="btn btn-outline" onclick="navigate('events')">See Upcoming Events</button></div></div></div>
@@ -1401,7 +1402,7 @@ const ICF_LOGO_DATA_URI = 'data:image/svg+xml;charset=UTF-8,' + encodeURICompone
 </svg>`);
 document.addEventListener('DOMContentLoaded', function(){
   document.querySelectorAll('img[data-logo="1"]').forEach(function(img){
-    img.src = ICF_LOGO_DATA_URI;
+    img.src = '/icf-logo-transparent.png';
   });
 });
 /* ══ COUNTRY + PHONE CODE DATA ══ */
@@ -3667,8 +3668,8 @@ window.updateContactMessageStatus=updateContactMessageStatus;
   var btn=document.querySelector('.nav-hamburger');
   if(btn){btn.setAttribute('aria-controls','nav-mobile');btn.setAttribute('aria-expanded',nav&&nav.classList.contains('open')?'true':'false');}
   document.querySelectorAll('img[data-logo="1"]').forEach(function(img){
-   if(!img.getAttribute('src') && typeof ICF_LOGO_DATA_URI!=='undefined')img.src=ICF_LOGO_DATA_URI;
-   img.addEventListener('error',function(){if(typeof ICF_LOGO_DATA_URI!=='undefined'&&img.src!==ICF_LOGO_DATA_URI)img.src=ICF_LOGO_DATA_URI;},{once:true});
+   if(!img.getAttribute('src'))img.src='/icf-logo-transparent.png';
+   img.addEventListener('error',function(){if(img.src.indexOf('/icf-logo-transparent.png')===-1)img.src='/icf-logo-transparent.png';},{once:true});
   });
   var footer=document.getElementById('footer');if(footer){footer.style.display='block';footer.style.visibility='visible';}
  }
