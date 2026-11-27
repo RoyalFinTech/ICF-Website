@@ -177,8 +177,35 @@ function normalizedLiveKitUrl(){var raw=String(process.env.LIVEKIT_URL||'').trim
     catch(e){if(e.message==='LIVEKIT_NOT_CONFIGURED')return fail(res,503,'LiveKit is not configured.');if(e.message==='LIVEKIT_URL_INVALID')return fail(res,503,'LIVEKIT_URL must be a valid LiveKit WebSocket URL.');console.error('Remote camera token failed:',e.message);fail(res,503,'Could not connect the phone camera.');}
   });
   app.post('/api/admin/broadcast/sessions/:id/start',requireStorage,requireAdmin,async function(req,res){
-    try{if(!process.env.LIVEKIT_URL||!process.env.LIVEKIT_API_KEY||!process.env.LIVEKIT_API_SECRET)return fail(res,503,'LiveKit credentials are not configured.');const r=await db().from('broadcast_sessions').update({status:'live',started_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',req.params.id).select('*').single();if(r.error)throw r.error;res.json({session:r.data});}
-    catch(e){console.error('Broadcast publish update failed:',e.message);fail(res,503,'Could not publish the broadcast status.');}
+    try{
+      if(!process.env.LIVEKIT_URL||!process.env.LIVEKIT_API_KEY||!process.env.LIVEKIT_API_SECRET)return fail(res,503,'LiveKit credentials are not configured.');
+      const current=await db().from('broadcast_sessions').select('id').eq('id',req.params.id).maybeSingle();
+      if(current.error)throw current.error;
+      if(!current.data)return fail(res,404,'Broadcast session not found.');
+      const now=new Date().toISOString();
+      // Enforce one public live service at a time. Close abandoned older sessions
+      // before publishing this session, and ask LiveKit to release each old room.
+      const previous=await db().from('broadcast_sessions').select('id,room_name,ended_at')
+        .eq('status','live').eq('is_public',true).neq('id',req.params.id);
+      if(previous.error)throw previous.error;
+      for(const old of previous.data||[]){
+        const closed=await db().from('broadcast_sessions').update({
+          status:'ended',ended_at:old.ended_at||now,updated_at:now
+        }).eq('id',old.id).eq('status','live');
+        if(closed.error)throw closed.error;
+        try{await terminateLiveKitRoom(old.room_name);}
+        catch(roomError){console.error('Previous broadcast room cleanup failed:',roomError.message);}
+      }
+      const r=await db().from('broadcast_sessions').update({
+        status:'live',started_at:now,ended_at:null,updated_at:now
+      }).eq('id',req.params.id).select('*').single();
+      if(r.error)throw r.error;
+      res.set('Cache-Control','no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.json({session:r.data});
+    }catch(e){
+      console.error('Broadcast publish update failed:',e.message);
+      fail(res,503,'Could not publish the broadcast status.');
+    }
   });
   app.patch('/api/admin/broadcast/sessions/:id/overlay',requireStorage,requireAdmin,async function(req,res){
     try{
