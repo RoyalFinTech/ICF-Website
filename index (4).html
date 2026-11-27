@@ -521,8 +521,8 @@ body.icf-menu-open{overflow:hidden!important}
 #footer .footer-grid{box-sizing:border-box;width:min(100%,1140px)}
 
 /* ICF branded splash screen + resilient first paint */
-#icf-splash{animation:icf-splash-emergency-hide 3.2s linear forwards !important;position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:24px;box-sizing:border-box;background:radial-gradient(ellipse at 50% 35%,#123d72 0%,#071a35 48%,#030b19 100%);color:#fff;opacity:1;visibility:visible;transition:opacity .55s ease,visibility .55s ease}
-#icf-splash.is-leaving{animation:none!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+#icf-splash{animation:icf-splash-emergency-hide 1.8s linear forwards !important;position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:24px;box-sizing:border-box;background:radial-gradient(ellipse at 50% 35%,#123d72 0%,#071a35 48%,#030b19 100%);color:#fff;opacity:1;visibility:visible;transition:opacity .55s ease,visibility .55s ease}
+#icf-splash.is-leaving{animation:none!important;display:none!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important}
 #icf-splash .splash-logo-wrap{width:clamp(112px,28vw,172px);height:clamp(112px,28vw,172px);display:grid;place-items:center;border-radius:0;padding:0;background:transparent;box-shadow:none;animation:none}
 #icf-splash img{display:block;width:100%;height:100%;object-fit:contain;border-radius:0;background:transparent}
 #icf-splash .splash-title{font-size:clamp(21px,5vw,30px);font-weight:800;letter-spacing:.09em;text-align:center;color:#fff;margin:0}
@@ -531,11 +531,11 @@ body.icf-menu-open{overflow:hidden!important}
 #icf-splash .splash-spinner{width:17px;height:17px;border:2px solid rgba(255,255,255,.25);border-top-color:#f4c84b;border-radius:50%;animation:icf-splash-spin .8s linear infinite}
 #icf-splash .splash-progress{width:min(220px,62vw);height:3px;border-radius:5px;overflow:hidden;background:rgba(255,255,255,.16);margin-top:3px}
 #icf-splash .splash-progress span{display:block;width:35%;height:100%;background:linear-gradient(90deg,#f5c84b,#fff0a6);border-radius:5px;animation:icf-splash-progress 1.65s ease-in-out forwards}
-@keyframes icf-splash-emergency-hide{0%,78%{opacity:1;visibility:visible;pointer-events:auto}100%{opacity:0;visibility:hidden;pointer-events:none}}
+@keyframes icf-splash-emergency-hide{0%,70%{opacity:1;visibility:visible;pointer-events:auto}100%{display:none;opacity:0;visibility:hidden;pointer-events:none}}
 @keyframes icf-splash-spin{to{transform:rotate(360deg)}}
 @keyframes icf-splash-pulse{50%{transform:translateY(-3px) scale(1.025)}}
 @keyframes icf-splash-progress{from{width:5%}to{width:100%}}
-@media(prefers-reduced-motion:reduce){#icf-splash{animation:icf-splash-emergency-hide 1ms linear 2800ms forwards!important;transition:none!important}#icf-splash *{animation:none!important;transition:none!important}}
+@media(prefers-reduced-motion:reduce){#icf-splash{animation:icf-splash-emergency-hide 1ms linear 0ms forwards!important;transition:none!important}#icf-splash *{animation:none!important;transition:none!important}}
 
 </style>
 </head>
@@ -3706,14 +3706,14 @@ window.updateContactMessageStatus=updateContactMessageStatus;
   if(finished)return; finished=true;
   showHomeSafely();
   var splash=document.getElementById('icf-splash');
-  if(splash){var status=document.getElementById('icf-splash-status');if(status)status.textContent='Welcome';setTimeout(function(){splash.classList.add('is-leaving');setTimeout(function(){if(splash.parentNode)splash.parentNode.removeChild(splash);},450);},250);}
+  if(splash){splash.classList.add('is-leaving');if(splash.parentNode)splash.parentNode.removeChild(splash);}
   document.documentElement.style.overflowY='auto';
   document.body.style.overflowY='auto';
  }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(finishSplash,900);},{once:true});
- else setTimeout(finishSplash,1400);
- window.addEventListener('error',function(){/* keep the splash bounded; the boot guard still reveals the public home page */});
- setTimeout(finishSplash,2600);
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(finishSplash,700);},{once:true});
+ else setTimeout(finishSplash,900);
+ window.addEventListener('error',function(){setTimeout(finishSplash,100);});
+ setTimeout(finishSplash,1700);
 })();
 </script>
 
