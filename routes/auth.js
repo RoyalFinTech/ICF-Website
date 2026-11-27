@@ -177,8 +177,13 @@ module.exports = function registerAuthRoutes(app, deps) {
       const signupOptions = {data:{full_name:name,church:'ICF Gambia'},emailRedirectTo:publicSiteUrl()};
       if (captchaConfig.enabled) signupOptions.captchaToken=String(body.captchaToken||'');
       const signup = await auth.auth.signUp({email:email,password:password,options:signupOptions});
-      if (signup.error || !signup.data || !signup.data.user) return fail(res,400,signup.error ? signup.error.message : 'Could not create your account.');
-      if (Array.isArray(signup.data.user.identities) && signup.data.user.identities.length === 0) return fail(res,409,'An account with this email may already exist.');
+      const genericSignupFailure='We could not complete registration. If you already have an account, sign in or use password recovery. Otherwise, check your details and try again.';
+      if (signup.error || !signup.data || !signup.data.user) {
+        console.warn('Member signup Auth request rejected:',signup.error && (signup.error.code||signup.error.status)||'AUTH_ERROR');
+        return fail(res,400,genericSignupFailure);
+      }
+      if (Array.isArray(signup.data.user.identities) && signup.data.user.identities.length === 0)
+        return fail(res,400,genericSignupFailure);
       const member = {
         id:crypto.randomUUID(), authUserId:signup.data.user.id, name:name.slice(0,120), email:email.slice(0,254),
         phone:(dialCode + ' ' + phone).trim().slice(0,50), phoneRaw:phone.slice(0,40),
