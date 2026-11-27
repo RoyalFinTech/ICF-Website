@@ -97,6 +97,19 @@ module.exports = function registerAdminRoutes(app, deps) {
   app.get('/api/admin/broadcast/config',requireStorage,requireAdmin,function(req,res){
     res.json({provider:'LiveKit',configured:Boolean(process.env.LIVEKIT_URL&&process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET)});
   });
+  app.get('/api/admin/broadcast/hymns',requireStorage,requireAdmin,async function(req,res){
+    try{const r=await db().from('worship_hymns').select('id,title,hymn_number,lyrics,created_at').order('created_at',{ascending:false}).limit(300);if(r.error)throw r.error;res.json({hymns:r.data||[]});}
+    catch(e){console.error('Hymn library read failed:',e.message);fail(res,503,'Could not load the ICF hymnary.');}
+  });
+  app.post('/api/admin/broadcast/hymns',requireStorage,requireAdmin,async function(req,res){
+    try{const b=req.body||{},title=String(b.title||'').trim(),lyrics=String(b.lyrics||'').trim();if(title.length<2||title.length>180||!lyrics||lyrics.length>12000)return fail(res,400,'Enter a hymn title and lyrics (up to 12,000 characters).');
+      const r=await db().from('worship_hymns').insert({title:title,hymn_number:String(b.hymnNumber||'').slice(0,80),lyrics:lyrics,created_by:req.identity.user.id}).select('id,title,hymn_number,lyrics,created_at').single();if(r.error)throw r.error;res.status(201).json({hymn:r.data});}
+    catch(e){console.error('Hymn save failed:',e.message);fail(res,503,'Could not save this hymn.');}
+  });
+  app.delete('/api/admin/broadcast/hymns/:id',requireStorage,requireAdmin,async function(req,res){
+    try{const r=await db().from('worship_hymns').delete().eq('id',req.params.id).select('id').maybeSingle();if(r.error)throw r.error;if(!r.data)return fail(res,404,'Hymn not found.');res.json({deleted:true});}
+    catch(e){console.error('Hymn delete failed:',e.message);fail(res,503,'Could not delete this hymn.');}
+  });
   app.get('/api/admin/broadcast/sessions',requireStorage,requireAdmin,async function(req,res){
     try{const r=await db().from('broadcast_sessions').select('*').order('created_at',{ascending:false}).limit(50);if(r.error)throw r.error;res.json({sessions:r.data||[]});}
     catch(e){console.error('Broadcast history read failed:',e.message);fail(res,503,'Could not load broadcast history.');}
@@ -125,7 +138,7 @@ module.exports = function registerAdminRoutes(app, deps) {
   app.patch('/api/admin/broadcast/sessions/:id/overlay',requireStorage,requireAdmin,async function(req,res){
     try{
       const b=req.body||{},raw=b.presentationConfig||{},mode=['camera','slide','flyer','split','ticker'].includes(raw.mode)?raw.mode:'camera';
-      const config={mode:mode,cameraLayout:['single','pip','split'].includes(raw.cameraLayout)?raw.cameraLayout:'single',background:/^#[0-9a-f]{6}$/i.test(String(raw.background||''))?raw.background:'#071329',
+      const config={mode:mode,quality:['480p','720p','1080p'].includes(raw.quality)?raw.quality:'720p',orientation:raw.orientation==='portrait'?'portrait':'landscape',cameraLayout:['single','pip','split'].includes(raw.cameraLayout)?raw.cameraLayout:'single',background:/^#[0-9a-f]{6}$/i.test(String(raw.background||''))?raw.background:'#071329',
         textColor:/^#[0-9a-f]{6}$/i.test(String(raw.textColor||''))?raw.textColor:'#ffffff',
         fontSize:Math.max(18,Math.min(64,Number(raw.fontSize)||34)),textAlign:['left','center','right'].includes(raw.textAlign)?raw.textAlign:'center',
         scroll:raw.scroll===true,flyerUrl:String(raw.flyerUrl||'').slice(0,1200),slideTitle:String(raw.slideTitle||'').slice(0,180),
