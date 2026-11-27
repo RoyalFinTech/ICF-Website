@@ -125,7 +125,7 @@ module.exports = function registerAdminRoutes(app, deps) {
   app.patch('/api/admin/broadcast/sessions/:id/overlay',requireStorage,requireAdmin,async function(req,res){
     try{
       const b=req.body||{},raw=b.presentationConfig||{},mode=['camera','slide','flyer','split','ticker'].includes(raw.mode)?raw.mode:'camera';
-      const config={mode:mode,background:/^#[0-9a-f]{6}$/i.test(String(raw.background||''))?raw.background:'#071329',
+      const config={mode:mode,cameraLayout:['single','pip','split'].includes(raw.cameraLayout)?raw.cameraLayout:'single',background:/^#[0-9a-f]{6}$/i.test(String(raw.background||''))?raw.background:'#071329',
         textColor:/^#[0-9a-f]{6}$/i.test(String(raw.textColor||''))?raw.textColor:'#ffffff',
         fontSize:Math.max(18,Math.min(64,Number(raw.fontSize)||34)),textAlign:['left','center','right'].includes(raw.textAlign)?raw.textAlign:'center',
         scroll:raw.scroll===true,flyerUrl:String(raw.flyerUrl||'').slice(0,1200),slideTitle:String(raw.slideTitle||'').slice(0,180),
