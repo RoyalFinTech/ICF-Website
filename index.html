@@ -56,7 +56,7 @@
       <li><a class="nav-link" data-page="baptisms" onclick="navigate('baptisms')" data-i18n="baptism">💝 Baptism</a></li>
       <li><a class="nav-link" data-page="contact" onclick="navigate('contact')" data-i18n="contact">📞 Contact</a></li>
       <li><a class="nav-link" data-page="sermons" onclick="navigate('sermons')" data-i18n="sermons">🎥 Sermons</a></li>
-      <li><a class="nav-link icf-watch-live-link" data-icf-watch-live href="/live.html">📺 Watch ICF Live</a></li>
+      <li><a class="nav-link icf-watch-live-link" data-icf-watch-live href="/live.html" style="display:none">📺 Watch ICF Live</a></li>
       <li><a class="nav-link" data-page="gallery" onclick="navigate('gallery')" data-i18n="gallery">📷 Gallery</a></li>
       <li><a class="nav-link" data-page="announcements" onclick="navigate('announcements')" data-i18n="news">📢 News</a></li>
       <li><a class="nav-link" data-page="membership" onclick="navigate('membership')" title="Membership">🧾 ICF Membership Statement PDF</a></li>
@@ -87,7 +87,7 @@
   <button class="mob-login" onclick="navigate('login')">👤 Login</button>
   <button class="mob-signup" onclick="navigate('signup')">📝 Sign Up</button>
   <a onclick="navigate('about');setTimeout(function(){var el=document.getElementById('leadership');if(el)el.scrollIntoView({behavior:'smooth'});},50)">🧑‍🤝‍🧑 Leadership</a>
-  <a class="icf-watch-live-link" data-icf-watch-live href="/live.html">🔴 Join Us Live · ICF Broadcast</a>
+  <a class="icf-watch-live-link" data-icf-watch-live href="/live.html" style="display:none">🔴 Join Us Live · ICF Broadcast</a>
   <a onclick="navigate('sermons')">🎥 Sermons</a>
   <a onclick="navigate('gallery')">📷 Gallery</a>
   <a onclick="navigate('announcements')">📢 Announcements</a>
@@ -113,7 +113,7 @@
     <div class="icf-hero-slide" data-slide="2"><img class="icf-hero-image" data-src="church-baptism-group.jpg" alt="Christian baptism in water" loading="lazy" decoding="async"><div class="icf-hero-shade"></div><div class="icf-hero-copy"><span class="icf-eyebrow">NEW LIFE • NEW HOPE</span><h1>Walk in Newness of Life</h1><p class="icf-hero-verse">“We were buried with him through baptism into death...” <strong>— Romans 6:4</strong></p><p>Celebrate faith, transformation and the promise of life in Christ.</p><div class="icf-hero-actions"><button class="btn btn-primary" onclick="navigate('baptisms')">Learn About Baptism</button><button class="btn btn-outline" onclick="navigate('signup')">Join Our Fellowship</button></div></div></div>
     <button class="icf-hero-arrow prev" type="button" aria-label="Previous slide" onclick="icfHeroMove(-1)">‹</button><button class="icf-hero-arrow next" type="button" aria-label="Next slide" onclick="icfHeroMove(1)">›</button><div class="icf-hero-dots"><button class="active" aria-label="Slide 1" onclick="icfHeroGo(0)"></button><button aria-label="Slide 2" onclick="icfHeroGo(1)"></button><button aria-label="Slide 3" onclick="icfHeroGo(2)"></button></div>
   </section>
-<section class="icf-live-join" id="icf-live-join" aria-labelledby="icf-live-heading"><div class="icf-live-copy"><span class="icf-live-eyebrow" data-icf-live-state>ICF GAMBIA · WORSHIP &amp; FELLOWSHIP</span><h2 id="icf-live-heading">Join Us Live on ICF Broadcast</h2><p>Worship with the ICF family wherever you are. When a service goes live, join the broadcast here.</p></div><a class="btn btn-primary icf-live-join-button" data-icf-watch-live href="/live.html">📺 Watch ICF Live</a></section><div id="livestream-widget" style="display:none;padding:0 20px 0"></div>
+<section class="icf-live-join" id="icf-live-join" style="display:none" aria-labelledby="icf-live-heading"><div class="icf-live-copy"><span class="icf-live-eyebrow" data-icf-live-state>ICF GAMBIA · WORSHIP &amp; FELLOWSHIP</span><h2 id="icf-live-heading">Join Us Live on ICF Broadcast</h2><p>Worship with the ICF family wherever you are. When a service goes live, join the broadcast here.</p></div><a class="btn btn-primary icf-live-join-button" data-icf-watch-live href="/live.html">📺 Watch ICF Live</a></section><div id="livestream-widget" style="display:none;padding:0 20px 0"></div>
   <div class="stats-bar">
     <div class="stats-grid">
       <div class="stat-pill"><div class="stat-pill-emoji">🙏</div><div class="stat-pill-num" id="stat-prayers">—</div><div class="stat-pill-label">Prayers</div></div>
