@@ -6,6 +6,12 @@
   var USER = 'icf_admin_user';
   var MEMBER_LOGIN_BUSY = false;
   var MEMBER_SIGNUP_BUSY = false;
+  var memberCaptchaToken = '';
+  var memberCaptchaWidget = null;
+  var captchaEnabled = false;
+  var captchaConfigReady = false;
+  var captchaConfigFailed = false;
+  var passwordRecoveryCredentials = null;
   var collections = ['members','prayers','baptisms','events','sermons','media','announcements','contactMessages','emailHistory','livestream','siteSettings','enabledLangs','churchRoles'];
   var originalGet = DB.get.bind(DB);
   var originalSet = DB.set.bind(DB);
@@ -231,6 +237,14 @@ window.toggleIcfPassword = function (id,button) {
 };
 window.submitSignup = function () {
   if (MEMBER_SIGNUP_BUSY) return;
+  if (!captchaConfigReady) {
+    if (typeof toast === 'function') toast('Preparing security check','Please try again in a moment.','warning');
+    return;
+  }
+  if (captchaConfigFailed) {
+    if (typeof toast === 'function') toast('Security check unavailable','Refresh the page and try again later.','error');
+    return;
+  }
   var name = (document.getElementById('su-name') || {value:''}).value.trim();
   var phone = (document.getElementById('su-phone') || {value:''}).value.trim();
   var email = (document.getElementById('su-email') || {value:''}).value.trim().toLowerCase();
@@ -241,9 +255,14 @@ window.submitSignup = function () {
   var password = (document.getElementById('su-pass') || {value:''}).value;
   var confirm = (document.getElementById('su-confirm') || {value:''}).value;
   var agreed = !!(document.getElementById('su-agree') || {checked:false}).checked;
+  var websiteTrap = (document.getElementById('su-website') || {value:''}).value.trim();
   if (name.length < 2 || phone.length < 6 || address.length < 3 || !country ||
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 12 || password.length > 200 || password !== confirm || !agreed) {
     if (typeof toast === 'function') toast('Check the form','Enter your details, select a nationality, use a valid email, set a matching password of at least 12 characters, and accept the terms.','error');
+    return;
+  }
+  if (captchaEnabled && !memberCaptchaToken) {
+    if (typeof toast === 'function') toast('Complete the security check','Please complete the verification challenge before creating your account.','warning');
     return;
   }
   var dialCode = typeof selectedDialCode !== 'undefined' ? selectedDialCode : '';
@@ -251,21 +270,176 @@ window.submitSignup = function () {
   MEMBER_SIGNUP_BUSY = true;
   var button=document.getElementById('member-signup-submit');
   if(button){button.disabled=true;button.dataset.originalText=button.textContent;button.textContent='Submitting application…';}
-  request('/public/member-signup',{method:'POST',body:{name:name,phone:phone,email:email,address:address,nationality:nationality,nationalityCode:country.code,dialCode:dialCode,password:password}})
-    .then(function (result) {
-      ['su-name','su-phone','su-email','su-address','su-pass','su-confirm'].forEach(function (id) { var el=document.getElementById(id); if(el)el.value=''; });
-      ['su-nationality-val','su-nationality-code'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-      var natDisplay=document.getElementById('nat-display-nationality');if(natDisplay)natDisplay.textContent='🌍 Select your nationality';
-      var agree = document.getElementById('su-agree'); if(agree)agree.checked=false;
-      if (typeof toast === 'function') toast('Application received',result.message || 'Your membership application is pending approval.','success');
-      if (typeof navigate === 'function') setTimeout(function () { navigate('home'); },1800);
-    }).catch(function (error) {
-      if (typeof toast === 'function') toast('Registration failed',error.message || 'Please try again.','error');
-    }).finally(function () {
-      MEMBER_SIGNUP_BUSY=false;
-      if(button){button.disabled=false;button.textContent=button.dataset.originalText||'📝 Create Account';}
-    });
+  request('/public/member-signup',{method:'POST',body:{
+    name:name,phone:phone,email:email,address:address,nationality:nationality,
+    nationalityCode:country.code,dialCode:dialCode,password:password,
+    companyWebsite:websiteTrap,captchaToken:memberCaptchaToken
+  }}).then(function (result) {
+    ['su-name','su-phone','su-email','su-address','su-pass','su-confirm','su-website'].forEach(function (id) { var el=document.getElementById(id); if(el)el.value=''; });
+    ['su-nationality-val','su-nationality-code'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+    var natDisplay=document.getElementById('nat-display-nationality');if(natDisplay)natDisplay.textContent='🌍 Select your nationality';
+    var agree = document.getElementById('su-agree'); if(agree)agree.checked=false;
+    var form=document.getElementById('signup-form'),panel=document.getElementById('signup-result');
+    var heading=document.getElementById('signup-result-title'),message=document.getElementById('signup-result-message');
+    if(form)form.hidden=true;
+    if(panel)panel.hidden=false;
+    if(heading)heading.textContent=result.emailConfirmationRequired?'Confirm Your Email Address':'Membership Application Received';
+    if(message)message.textContent=result.message || 'Your ICF membership application has been received. Membership access requires church approval.';
+    var loginEmail=document.getElementById('login-email');if(loginEmail)loginEmail.value=email;
+    if (typeof toast === 'function') toast('Application received',result.message || 'Your membership application is awaiting review.','success');
+  }).catch(function (error) {
+    if (typeof toast === 'function') toast('Registration failed',error.message || 'Please try again.','error');
+  }).finally(function () {
+    MEMBER_SIGNUP_BUSY=false;
+    if(captchaEnabled&&window.turnstile&&memberCaptchaWidget!==null){
+      try{window.turnstile.reset(memberCaptchaWidget);}catch(_e){}
+      memberCaptchaToken='';
+    }
+    if(button){button.disabled=false;button.textContent=button.dataset.originalText||'📝 Create Account';}
+  });
 };
+
+window.openIcfPasswordReset = function (sourceId) {
+  var source=document.getElementById(sourceId||'login-email');
+  var email=document.getElementById('icf-reset-email');
+  if(source&&email)email.value=source.value.trim();
+  var status=document.getElementById('password-reset-status');if(status)status.textContent='';
+  if(typeof navigate==='function')navigate('password-reset');
+};
+window.requestIcfPasswordReset = function () {
+  var email=(document.getElementById('icf-reset-email')||{value:''}).value.trim().toLowerCase();
+  var status=document.getElementById('password-reset-status');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    if(status)status.textContent='Enter a valid email address.';
+    return;
+  }
+  var button=document.getElementById('icf-reset-request-button');
+  if(button){button.disabled=true;button.dataset.originalText=button.textContent;button.textContent='Sending…';}
+  request('/auth/password-reset-request',{method:'POST',body:{email:email}}).then(function(result){
+    if(status)status.textContent=result.message||'If an account exists, a reset link will be sent.';
+  }).catch(function(error){
+    if(status)status.textContent=error.message||'We could not send a reset link. Please try again later.';
+  }).finally(function(){
+    if(button){button.disabled=false;button.textContent=button.dataset.originalText||'Send Password Reset Link';}
+  });
+};
+window.completeIcfPasswordReset = function () {
+  if(!passwordRecoveryCredentials){
+    var status=document.getElementById('password-reset-status');
+    if(status)status.textContent='This reset link is invalid or expired. Request a new password reset link.';
+    return;
+  }
+  var password=(document.getElementById('icf-new-password')||{value:''}).value;
+  var confirm=(document.getElementById('icf-confirm-password')||{value:''}).value;
+  var status=document.getElementById('password-reset-status');
+  if(password.length<12||password.length>200||password!==confirm){
+    if(status)status.textContent=password!==confirm?'The passwords do not match.':'Use a password containing at least 12 characters.';
+    return;
+  }
+  var button=document.getElementById('icf-reset-complete-button');
+  if(button){button.disabled=true;button.dataset.originalText=button.textContent;button.textContent='Updating…';}
+  request('/auth/password-reset-complete',{method:'POST',body:{
+    accessToken:passwordRecoveryCredentials.accessToken,
+    refreshToken:passwordRecoveryCredentials.refreshToken,
+    password:password
+  }}).then(function(result){
+    passwordRecoveryCredentials=null;
+    ['icf-new-password','icf-confirm-password'].forEach(function(id){var input=document.getElementById(id);if(input)input.value='';});
+    var complete=document.getElementById('password-reset-complete');if(complete)complete.hidden=true;
+    var requestForm=document.getElementById('password-reset-request');if(requestForm)requestForm.hidden=true;
+    if(status)status.textContent=result.message||'Your password has been updated. You can now sign in.';
+  }).catch(function(error){
+    if(status)status.textContent=error.message||'The reset link may have expired. Request a new one and try again.';
+  }).finally(function(){
+    if(button){button.disabled=false;button.textContent=button.dataset.originalText||'Update Password';}
+  });
+};
+window.resendIcfSignupConfirmation = function () {
+  var input=document.getElementById('login-email')||document.getElementById('admin-email-input');
+  var email=(input||{value:''}).value.trim().toLowerCase();
+  var status=document.getElementById('login-email-status');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    if(status)status.textContent='Enter your email address first, then request a new confirmation link.';
+    else if(typeof toast==='function')toast('Email required','Enter your account email first.','warning');
+    return;
+  }
+  if(status)status.textContent='Requesting a confirmation email…';
+  request('/auth/resend-confirmation',{method:'POST',body:{email:email}}).then(function(result){
+    if(status)status.textContent=result.message||'If confirmation is still needed, a new link will be sent.';
+  }).catch(function(error){
+    if(status)status.textContent=error.message||'We could not resend the email right now.';
+  });
+};
+function initIcfAuthEnhancements() {
+  var callback=window.ICFAuthCallback||null;
+  if(callback){
+    if(callback.type==='recovery'){
+      if(callback.accessToken&&callback.refreshToken){
+        passwordRecoveryCredentials={accessToken:callback.accessToken,refreshToken:callback.refreshToken};
+        var requestForm=document.getElementById('password-reset-request');
+        var completeForm=document.getElementById('password-reset-complete');
+        if(requestForm)requestForm.hidden=true;
+        if(completeForm)completeForm.hidden=false;
+        var status=document.getElementById('password-reset-status');
+        if(status)status.textContent='Your secure reset link is ready. Choose a new password below.';
+      }else{
+        var errorStatus=document.getElementById('password-reset-status');
+        if(errorStatus)errorStatus.textContent=callback.error||'This reset link is invalid or expired. Request a new one.';
+      }
+    }else if(callback.type==='signup'){
+      var verified=document.getElementById('email-confirmed-message');
+      if(verified)verified.textContent='Your email address has been confirmed. Your ICF membership application is still pending review and approval by the church administration.';
+    }else if(callback.error){
+      var failed=document.getElementById('email-confirmed-message');
+      if(failed)failed.textContent='This email link could not be verified or has expired. You can request another confirmation or password reset link from the sign-in page.';
+    }
+    try{delete window.ICFAuthCallback;}catch(_e){window.ICFAuthCallback=null;}
+  }
+  request('/public/auth-config',{method:'GET'}).then(function(config){
+    captchaConfigReady=true;
+    captchaEnabled=!!config.turnstileEnabled;
+    if(config.captchaConfigurationIncomplete){
+      captchaConfigFailed=true;
+      var wrap=document.getElementById('icf-turnstile-wrap');if(wrap)wrap.hidden=false;
+      var text=wrap&&wrap.querySelector('p');if(text)text.textContent='Registration security verification is not fully configured. Please try again later.';
+      return;
+    }
+    if(!captchaEnabled)return;
+    var wrapper=document.getElementById('icf-turnstile-wrap');
+    if(wrapper)wrapper.hidden=false;
+    var mount=document.getElementById('icf-turnstile');
+    if(!mount)return;
+    var script=document.createElement('script');
+    script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    script.async=true;script.defer=true;
+    script.onload=function(){
+      if(!window.turnstile)return;
+      try{
+        memberCaptchaWidget=window.turnstile.render(mount,{
+          sitekey:config.turnstileSiteKey,
+          action:'icf_member_signup',
+          callback:function(token){memberCaptchaToken=token||'';},
+          'expired-callback':function(){memberCaptchaToken='';},
+          'error-callback':function(){memberCaptchaToken='';}
+        });
+      }catch(error){
+        captchaConfigFailed=true;
+        var text=wrapper&&wrapper.querySelector('p');if(text)text.textContent='The security check could not be loaded. Refresh the page and try again.';
+      }
+    };
+    script.onerror=function(){
+      captchaConfigFailed=true;
+      var text=wrapper&&wrapper.querySelector('p');if(text)text.textContent='The security check could not be loaded. Check your connection and refresh the page.';
+    };
+    document.head.appendChild(script);
+  }).catch(function(){
+    captchaConfigReady=false;
+    captchaConfigFailed=true;
+    var wrap=document.getElementById('icf-turnstile-wrap');if(wrap)wrap.hidden=false;
+    var text=wrap&&wrap.querySelector('p');if(text)text.textContent='The registration security settings could not be checked. Refresh the page before submitting.';
+  });
+}
+
 window.submitPrayerForm = function () {
     var anonymous = !!(document.getElementById('anon-checkbox') && document.getElementById('anon-checkbox').checked);
     var name = (document.getElementById('pf-name') || {value:''}).value.trim();
@@ -451,6 +625,7 @@ window.submitPrayerForm = function () {
     updateDocumentLinks();
     observeVisualUpdates();
     removeKnownDemoCache();
+    initIcfAuthEnhancements();
     var existingToken = getToken();
     if (existingToken && existingToken.split('.').length !== 3) {
       localStorage.removeItem(TOKEN); localStorage.removeItem(USER); existingToken='';
