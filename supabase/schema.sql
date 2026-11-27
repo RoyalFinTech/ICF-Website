@@ -45,3 +45,7 @@ on conflict (id) do update set public=excluded.public,file_size_limit=excluded.f
 -- The Express server uses the service_role key, kept only in Render environment variables.
 revoke all privileges on table public.app_records, public.admin_users from public, anon, authenticated;
 grant select, insert, update, delete on table public.app_records, public.admin_users to service_role;
+
+
+-- Worship & Broadcast Studio presentation settings.
+alter table public.broadcast_sessions add column if not exists presentation_config jsonb not null default '{}'::jsonb;
