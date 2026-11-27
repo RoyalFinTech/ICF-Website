@@ -17,12 +17,12 @@ const { createClient } = require('@supabase/supabase-js');
 const app = express();
 const PORT = Number(process.env.PORT || 10000);
 const ROOT = __dirname;
-const URL = (process.env.SUPABASE_URL || '').replace(/\/+$/, '');
+const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/+$/, '');
 const ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const PUBLIC_BUCKET = process.env.SUPABASE_PUBLIC_BUCKET || 'church-public';
 const PRIVATE_BUCKET = process.env.SUPABASE_PRIVATE_BUCKET || 'church-private';
-const configured = Boolean(URL && ANON_KEY && SERVICE_KEY);
+const configured = Boolean(SUPABASE_URL && ANON_KEY && SERVICE_KEY);
 const COLLECTIONS = ['members','prayers','baptisms','events','sermons','media','announcements','contactMessages','emailHistory','livestream','siteSettings','enabledLangs','churchRoles'];
 const PUBLIC_COLLECTIONS = ['events','sermons','media','announcements','prayers','baptisms','livestream','siteSettings'];
 const PUBLIC_SUBMISSIONS = new Set(['prayers','baptisms','contactMessages']);
@@ -31,12 +31,12 @@ let serviceClient = null;
 
 function db() {
   if (!configured) throw new Error('Supabase environment variables are missing.');
-  if (!serviceClient) serviceClient = createClient(URL, SERVICE_KEY, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
+  if (!serviceClient) serviceClient = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
   return serviceClient;
 }
 function authClient() {
   if (!configured) throw new Error('Supabase environment variables are missing.');
-  return createClient(URL, ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
+  return createClient(SUPABASE_URL, ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
 }
 function fail(res, status, error) { return res.status(status).json({ error: error }); }
 app.get('/healthz', function (req, res) {
@@ -52,7 +52,7 @@ app.get('/healthz', function (req, res) {
 app.get('/api/health', function (req, res) {
   res.status(200).json({
     status: 'ok',
-    supabaseConfigured: Boolean(URL && ANON_KEY && SERVICE_KEY),
+    supabaseConfigured: Boolean(SUPABASE_URL && ANON_KEY && SERVICE_KEY),
     liveKitConfigured: Boolean(process.env.LIVEKIT_URL && process.env.LIVEKIT_API_KEY && process.env.LIVEKIT_API_SECRET),
     publicBucketNameConfigured: Boolean(PUBLIC_BUCKET),
     privateBucketNameConfigured: Boolean(PRIVATE_BUCKET),
@@ -232,7 +232,7 @@ const liveKitConnectSrc = (function () {
 app.use(helmet({ contentSecurityPolicy: { directives: {
   defaultSrc:["'self'"], scriptSrc:["'self'",'https://cdn.jsdelivr.net'], scriptSrcAttr:["'unsafe-inline'"], styleSrc:["'self'","'unsafe-inline'",'https:'],
   imgSrc:["'self'",'data:','blob:','https:'], fontSrc:["'self'",'data:','https:'],
-  workerSrc:["'self'",'blob:'], connectSrc:["'self'",URL,'https://nominatim.openstreetmap.org','https://bible-api.com',...liveKitConnectSrc].filter(Boolean),
+  workerSrc:["'self'",'blob:'], connectSrc:["'self'",SUPABASE_URL,'https://nominatim.openstreetmap.org','https://bible-api.com',...liveKitConnectSrc].filter(Boolean),
   frameSrc:["'self'",'https://www.youtube.com','https://www.youtube-nocookie.com','https://www.facebook.com'],
   objectSrc:["'self'"], baseUri:["'self'"], frameAncestors:["'self'"]
 } } }));
