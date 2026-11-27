@@ -11,6 +11,8 @@
   var captchaEnabled = false;
   var captchaConfigReady = false;
   var captchaConfigFailed = false;
+  var captchaSiteKey = '';
+  var turnstileScriptLoading = false;
   var passwordRecoveryCredentials = null;
   var collections = ['members','prayers','baptisms','events','sermons','media','announcements','contactMessages','emailHistory','livestream','siteSettings','enabledLangs','churchRoles'];
   var originalGet = DB.get.bind(DB);
@@ -370,6 +372,44 @@ window.resendIcfSignupConfirmation = function () {
     if(status)status.textContent=error.message||'We could not resend the email right now.';
   });
 };
+function mountIcfTurnstile() {
+  if(!captchaEnabled||memberCaptchaWidget!==null)return;
+  var page=document.getElementById('page-signup');
+  if(!page||!page.classList.contains('active'))return;
+  var wrapper=document.getElementById('icf-turnstile-wrap');
+  var mount=document.getElementById('icf-turnstile');
+  if(wrapper)wrapper.hidden=false;
+  if(!mount)return;
+  function renderWidget(){
+    if(!window.turnstile||memberCaptchaWidget!==null)return;
+    try{
+      memberCaptchaWidget=window.turnstile.render(mount,{
+        sitekey:captchaSiteKey,
+        action:'icf_member_signup',
+        callback:function(token){memberCaptchaToken=token||'';},
+        'expired-callback':function(){memberCaptchaToken='';},
+        'error-callback':function(){memberCaptchaToken='';}
+      });
+    }catch(error){
+      captchaConfigFailed=true;
+      var text=wrapper&&wrapper.querySelector('p');
+      if(text)text.textContent='The security check could not be loaded. Refresh the page and try again.';
+    }
+  }
+  if(window.turnstile){renderWidget();return;}
+  if(turnstileScriptLoading)return;
+  turnstileScriptLoading=true;
+  var script=document.createElement('script');
+  script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+  script.async=true;script.defer=true;
+  script.onload=function(){turnstileScriptLoading=false;renderWidget();};
+  script.onerror=function(){
+    turnstileScriptLoading=false;captchaConfigFailed=true;
+    var text=wrapper&&wrapper.querySelector('p');
+    if(text)text.textContent='The security check could not be loaded. Check your connection and refresh the page.';
+  };
+  document.head.appendChild(script);
+}
 function initIcfAuthEnhancements() {
   var callback=window.ICFAuthCallback||null;
   if(callback){
@@ -395,43 +435,20 @@ function initIcfAuthEnhancements() {
     }
     try{delete window.ICFAuthCallback;}catch(_e){window.ICFAuthCallback=null;}
   }
+  window.addEventListener('icf:page-changed',function(event){
+    if(event&&event.detail&&event.detail.page==='signup')mountIcfTurnstile();
+  });
   request('/public/auth-config',{method:'GET'}).then(function(config){
     captchaConfigReady=true;
     captchaEnabled=!!config.turnstileEnabled;
+    captchaSiteKey=String(config.turnstileSiteKey||'');
     if(config.captchaConfigurationIncomplete){
       captchaConfigFailed=true;
       var wrap=document.getElementById('icf-turnstile-wrap');if(wrap)wrap.hidden=false;
       var text=wrap&&wrap.querySelector('p');if(text)text.textContent='Registration security verification is not fully configured. Please try again later.';
       return;
     }
-    if(!captchaEnabled)return;
-    var wrapper=document.getElementById('icf-turnstile-wrap');
-    if(wrapper)wrapper.hidden=false;
-    var mount=document.getElementById('icf-turnstile');
-    if(!mount)return;
-    var script=document.createElement('script');
-    script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-    script.async=true;script.defer=true;
-    script.onload=function(){
-      if(!window.turnstile)return;
-      try{
-        memberCaptchaWidget=window.turnstile.render(mount,{
-          sitekey:config.turnstileSiteKey,
-          action:'icf_member_signup',
-          callback:function(token){memberCaptchaToken=token||'';},
-          'expired-callback':function(){memberCaptchaToken='';},
-          'error-callback':function(){memberCaptchaToken='';}
-        });
-      }catch(error){
-        captchaConfigFailed=true;
-        var text=wrapper&&wrapper.querySelector('p');if(text)text.textContent='The security check could not be loaded. Refresh the page and try again.';
-      }
-    };
-    script.onerror=function(){
-      captchaConfigFailed=true;
-      var text=wrapper&&wrapper.querySelector('p');if(text)text.textContent='The security check could not be loaded. Check your connection and refresh the page.';
-    };
-    document.head.appendChild(script);
+    if(captchaEnabled)mountIcfTurnstile();
   }).catch(function(){
     captchaConfigReady=false;
     captchaConfigFailed=true;
@@ -439,7 +456,6 @@ function initIcfAuthEnhancements() {
     var text=wrap&&wrap.querySelector('p');if(text)text.textContent='The registration security settings could not be checked. Refresh the page before submitting.';
   });
 }
-
 window.submitPrayerForm = function () {
     var anonymous = !!(document.getElementById('anon-checkbox') && document.getElementById('anon-checkbox').checked);
     var name = (document.getElementById('pf-name') || {value:''}).value.trim();
