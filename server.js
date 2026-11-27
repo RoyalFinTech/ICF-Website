@@ -3,6 +3,9 @@ require('dotenv').config();
 const crypto = require('node:crypto');
 const path = require('node:path');
 const buildHomepage = require('./scripts/build-homepage');
+const registerAuthRoutes = require('./routes/auth');
+const registerPublicRoutes = require('./routes/public');
+const registerAdminRoutes = require('./routes/admin');
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -242,187 +245,9 @@ const publicLimit = rateLimit({ windowMs:15*60*1000, limit:30, standardHeaders:'
 
 app.get('/health', function (req,res) { res.json({ status:'ok', service:'icf-gambia', storageConfigured:configured, timestamp:new Date().toISOString() }); });
 
-app.post('/api/auth/login', loginLimit, requireStorage, async function (req,res) {
-  try {
-    const email = String((req.body || {}).email || '').trim().toLowerCase();
-    const password = String((req.body || {}).password || '');
-    if (!email || !password || password.length > 200) return fail(res,400,'Enter your administrator email and password.');
-    const result = await authClient().auth.signInWithPassword({ email:email, password:password });
-    if (result.error || !result.data || !result.data.session || !result.data.user) return fail(res,401,'Sign-in failed. Check your email and password.');
-    const role = await db().from('admin_users').select('role,display_name').eq('user_id',result.data.user.id).maybeSingle();
-    if (role.error) throw role.error;
-    if (!role.data) return fail(res,403,'This account has not been granted administrator access.');
-    res.json({ access_token:result.data.session.access_token, expires_at:result.data.session.expires_at,
-      user:{ id:result.data.user.id, email:result.data.user.email, name:role.data.display_name || result.data.user.email, role:role.data.role } });
-  } catch (error) {
-    console.error('Admin login failed:',error.message);
-    fail(res,503,'Sign-in is unavailable. Check the Supabase setup and try again.');
-  }
-});
-app.post('/api/auth/member-login', loginLimit, requireStorage, async function (req,res) {
-  try {
-    const email = String((req.body || {}).email || '').trim().toLowerCase();
-    const password = String((req.body || {}).password || '');
-    if (!email || !password) return fail(res,400,'Enter your email and password.');
-    const result = await authClient().auth.signInWithPassword({ email:email, password:password });
-    if (result.error || !result.data || !result.data.session || !result.data.user) return fail(res,401,'Sign-in failed. Check your email and password.');
-    const records = await db().from('app_records').select('data').eq('collection','members');
-    if (records.error) throw records.error;
-    const member = (records.data || []).map(function (row) { return row.data; }).find(function (row) { return row.authUserId === result.data.user.id; });
-    if (!member) return fail(res,403,'No membership application is linked to this account.');
-    if (member.status === 'pending') return fail(res,403,'Your membership is awaiting approval.');
-    if (member.status === 'suspended') return fail(res,403,'This account is suspended. Please contact the church office.');
-    res.json({ access_token:result.data.session.access_token, user:{ id:member.id, name:member.name, email:member.email, role:'member', status:member.status } });
-  } catch (error) {
-    console.error('Member login failed:',error.message);
-    fail(res,503,'Member sign-in is temporarily unavailable.');
-  }
-});
-app.post('/api/public/member-signup', publicLimit, requireStorage, async function (req,res) {
-  try {
-    const body = req.body || {};
-    const name = String(body.name || '').trim();
-    const email = String(body.email || '').trim().toLowerCase();
-    const password = String(body.password || '');
-    const phone = String(body.phone || '').trim();
-    const address = String(body.address || '').trim();
-    if (name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 12 || password.length > 200 || phone.length < 6 || address.length < 3) {
-      return fail(res,400,'Provide your name, a valid email, phone number, address, and a password of at least 12 characters.');
-    }
-    const auth = authClient();
-    const signup = await auth.auth.signUp({ email:email, password:password, options:{ data:{ full_name:name, church:'ICF Gambia' } } });
-    if (signup.error || !signup.data || !signup.data.user) return fail(res,400,signup.error ? signup.error.message : 'Could not create your account.');
-    if (Array.isArray(signup.data.user.identities) && signup.data.user.identities.length === 0) return fail(res,409,'An account with this email may already exist.');
-    const member = {
-      id:crypto.randomUUID(), authUserId:signup.data.user.id, name:name.slice(0,120), email:email.slice(0,254),
-      phone:((String(body.dialCode || '') + ' ' + phone).trim()).slice(0,50), phoneRaw:phone.slice(0,40),
-      dialCode:String(body.dialCode || '').slice(0,12), address:address.slice(0,500),
-      nationality:String(body.nationality || '').slice(0,100), nationalityCode:String(body.nationalityCode || '').slice(0,8),
-      role:'member', status:'pending', joinedAt:new Date().toISOString()
-    };
-    await insertRecord('members',member);
-    res.status(201).json({ message:signup.data.session ? 'Registration received. Your membership is pending approval.' : 'Registration received. Check your email if confirmation is enabled. Your membership is pending approval.' });
-  } catch (error) {
-    console.error('Member signup failed:',error.message);
-    fail(res,503,'Registration is temporarily unavailable. Please try again later.');
-  }
-});
-
-app.get('/api/public-data', requireStorage, async function (req,res) {
-  try {
-    const data = {};
-    // These collections are independent. Read them concurrently so one slow
-    // collection does not make the entire public homepage wait in series.
-    const entries = await Promise.all(PUBLIC_COLLECTIONS.map(async function (collection) {
-      let records = await readCollection(collection);
-      if (collection === 'sermons') records = records.filter(function (item) { return item.published !== false; });
-      if (collection === 'announcements') records = records.filter(function (item) { return !item.expiry || new Date(item.expiry) >= new Date(); });
-      if (collection === 'prayers') records = records.filter(function (item) { return item.status === 'praying' || item.status === 'answered'; }).map(function (item) {
-        return { id:item.id, requesterName:item.anonymous ? 'Anonymous' : String(item.requesterName || 'Church member'),
-          category:item.category, request:item.request, status:item.status,
-          adminNote:item.status === 'answered' ? item.adminNote : '', anonymous:Boolean(item.anonymous), createdAt:item.createdAt };
-      });
-      if (collection === 'baptisms') records = records.filter(function (item) { return item.status === 'approved'; }).map(function (item) {
-        return { id:item.id, fullName:item.fullName, preferredDate:item.preferredDate, status:item.status, createdAt:item.createdAt };
-      });
-      return [collection, records];
-    }));
-    entries.forEach(function (entry) { data[entry[0]] = entry[1]; });
-    res.json(data);
-  } catch (error) {
-    console.error('Public data read failed:',error.message);
-    fail(res,503,'Could not load church information from Supabase.');
-  }
-});
-app.post('/api/public/:collection', publicLimit, requireStorage, async function (req,res) {
-  const collection = req.params.collection;
-  if (!PUBLIC_SUBMISSIONS.has(collection)) return fail(res,404,'This submission type is not available.');
-  try {
-    const record = publicRecord(collection,req.body || {});
-    res.status(201).json(await insertRecord(collection,record));
-  } catch (error) {
-    if (/Please provide|not allowed|JSON object/.test(error.message || '')) return fail(res,400,error.message);
-    console.error('Public submission failed:',error.message);
-    fail(res,503,'Your submission could not be saved. Please try again later.');
-  }
-});
-app.get('/api/admin/records', requireStorage, requireAdmin, async function (req,res) {
-  try {
-    const data = {};
-    for (const collection of COLLECTIONS) data[collection] = await readCollection(collection);
-    res.json(data);
-  } catch (error) {
-    console.error('Admin data read failed:',error.message);
-    fail(res,503,'Could not load administration records.');
-  }
-});
-app.get('/api/admin/records/:collection', requireStorage, requireAdmin, async function (req,res) {
-  if (!validCollection(req.params.collection)) return fail(res,404,'Unknown record collection.');
-  try { res.json(await readCollection(req.params.collection)); }
-  catch (error) { console.error('Collection read failed:',error.message); fail(res,503,'Could not load records.'); }
-});
-app.put('/api/admin/records/:collection', requireStorage, requireAdmin, async function (req,res) {
-  const collection = req.params.collection;
-  if (!validCollection(collection)) return fail(res,404,'Unknown record collection.');
-  try { const saved = await replaceCollection(collection,req.body); res.json({ saved:saved.length }); }
-  catch (error) {
-    if (/array|Too many records|JSON object/.test(error.message || '')) return fail(res,400,error.message);
-    console.error('Collection save failed:',error.message);
-    fail(res,503,'Could not save records. Please retry.');
-  }
-});
-
-function hasValidFileSignature(buffer,mime) {
-  if (!Buffer.isBuffer(buffer)) return false;
-  const starts = function (bytes) { return buffer.length >= bytes.length && bytes.every(function (byte,index) { return buffer[index] === byte; }); };
-  const ascii = function (start,length) { return buffer.toString('ascii',start,start+length); };
-  if (mime === 'image/jpeg') return starts([0xff,0xd8,0xff]);
-  if (mime === 'image/png') return starts([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a]);
-  if (mime === 'image/gif') return ascii(0,6) === 'GIF87a' || ascii(0,6) === 'GIF89a';
-  if (mime === 'image/webp') return ascii(0,4) === 'RIFF' && ascii(8,4) === 'WEBP';
-  if (mime === 'application/pdf') return ascii(0,5) === '%PDF-';
-  if (mime === 'audio/mpeg') return ascii(0,3) === 'ID3' || (buffer.length > 1 && buffer[0] === 0xff && (buffer[1] & 0xe0) === 0xe0);
-  if (mime === 'audio/wav') return ascii(0,4) === 'RIFF' && ascii(8,4) === 'WAVE';
-  if (mime === 'audio/ogg') return ascii(0,4) === 'OggS';
-  if (mime === 'audio/webm' || mime === 'video/webm') return starts([0x1a,0x45,0xdf,0xa3]);
-  if (mime === 'audio/mp4' || mime === 'video/mp4') return ascii(4,4) === 'ftyp';
-  if (mime === 'video/quicktime') return ascii(4,4) === 'ftyp' && ascii(8,4).startsWith('qt');
-  return false;
-}
-const upload = multer({
-  storage:multer.memoryStorage(), limits:{ fileSize:MAX_UPLOAD_BYTES, files:1 },
-  fileFilter:function (req,file,callback) {
-    const allowed = /^(image\/(jpeg|png|webp|gif)|application\/pdf|audio\/(mpeg|mp4|wav|ogg|webm)|video\/(mp4|webm|quicktime))$/i;
-    if (!allowed.test(file.mimetype)) return callback(new Error('This file type is not allowed.'));
-    callback(null,true);
-  }
-});
-app.post('/api/admin/uploads', requireStorage, requireAdmin, upload.single('file'), async function (req,res) {
-  try {
-    if (!req.file) return fail(res,400,'Choose a file to upload.');
-    if (!hasValidFileSignature(req.file.buffer,req.file.mimetype)) {
-      return fail(res,400,'The file content does not match its declared file type. Please choose a valid image, document, audio, or video file.');
-    }
-    const bucket = String(req.query.bucket || PUBLIC_BUCKET);
-    if (bucket !== PUBLIC_BUCKET && bucket !== PRIVATE_BUCKET) return fail(res,400,'Invalid storage bucket.');
-    const ext = path.extname(req.file.originalname || '').toLowerCase().replace(/[^.a-z0-9]/g,'').slice(0,12);
-    const objectPath = 'uploads/' + new Date().toISOString().slice(0,10) + '/' + crypto.randomUUID() + ext;
-    const storage = db().storage.from(bucket);
-    const result = await storage.upload(objectPath,req.file.buffer,{ contentType:req.file.mimetype, upsert:false, cacheControl:'3600' });
-    if (result.error) throw result.error;
-    if (bucket === PUBLIC_BUCKET) return res.status(201).json({
-      bucket:bucket, path:objectPath, url:storage.getPublicUrl(objectPath).data.publicUrl,
-      name:req.file.originalname, contentType:req.file.mimetype, size:req.file.size
-    });
-    const signed = await storage.createSignedUrl(objectPath,3600);
-    if (signed.error) throw signed.error;
-    res.status(201).json({ bucket:bucket, path:objectPath, url:signed.data.signedUrl, name:req.file.originalname, contentType:req.file.mimetype, size:req.file.size, expiresIn:3600 });
-  } catch (error) {
-    console.error('Upload failed:',error.message);
-    fail(res,503,'Upload failed. Check that the Supabase Storage buckets exist and try again.');
-  }
-});
-
+registerAuthRoutes(app, { loginLimit, publicLimit, requireStorage, authClient, db, fail, insertRecord, crypto });
+registerPublicRoutes(app, { requireStorage, fail, PUBLIC_COLLECTIONS, readCollection, PUBLIC_SUBMISSIONS, publicLimit, publicRecord, insertRecord });
+registerAdminRoutes(app, { requireStorage, requireAdmin, fail, COLLECTIONS, readCollection, validCollection, replaceCollection, multer, MAX_UPLOAD_BYTES, path, crypto, PUBLIC_BUCKET, PRIVATE_BUCKET, db });
 let homepageHtml = null;
 app.get('/',function (req,res) {
   try {
@@ -438,7 +263,7 @@ app.get('/',function (req,res) {
 app.get('/index.html',function (req,res) { res.redirect(302,'/'); });
 app.get(['/server.js','/package.json','/package-lock.json','/README.md','/RENDER_DEPLOYMENT.md','/PROJECT_REPAIR_REPORT.md'],function (req,res) { res.sendStatus(404); });
 // Keep implementation and deployment-only files out of the public static surface.
-app.use(['/supabase','/scripts','/.github','/.git','/views'], function (req,res) { res.sendStatus(404); });
+app.use(['/supabase','/scripts','/.github','/.git','/views','/routes'], function (req,res) { res.sendStatus(404); });
 app.use(express.static(ROOT,{ index:false, dotfiles:'ignore', maxAge:process.env.NODE_ENV === 'production' ? '1h' : 0 }));
 app.use(function (error,req,res,next) {
   if (res.headersSent) return next(error);

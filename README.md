@@ -45,3 +45,8 @@ The Render application assembles the homepage from server-side partials in `view
 Styles live in `css/site.css`. Browser code is split into focused files in `js/` (hero slider, splash lifecycle, public application, admin modules, API bridge and UI repair). The favicon is served separately as `/favicon.png`.
 
 Run `npm run build:site` after changing view partials to regenerate the root `index.html` used by static hosting. Run `npm run validate:site` before committing to verify the assembled pages and assets.
+
+
+## Backend route structure
+
+Express route handlers are separated into `routes/auth.js`, `routes/public.js` and `routes/admin.js`. `server.js` owns application configuration, middleware, Supabase helpers and service startup, then injects those dependencies into each route module. A lightweight route-registration check runs in CI.

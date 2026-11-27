@@ -50,6 +50,13 @@ jobs:
           node --check js/admin-modules.js
           node --check js/api-bridge.js
           node --check js/ui-repair.js
+      - name: Validate modular backend routes
+        run: |
+          node --check routes/auth.js
+          node --check routes/public.js
+          node --check routes/admin.js
+          node --check scripts/validate-backend.js
+          npm run validate:backend
       - name: Check homepage view builder
         run: |
           node --check scripts/build-homepage.js
