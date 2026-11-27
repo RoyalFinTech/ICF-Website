@@ -87,9 +87,9 @@ process.stdout.write('Performance checks passed: concurrent admin reads, active-
 
 const siteTemplate = fs.readFileSync(path.join(ROOT, 'views/index.html'), 'utf8');
 const uiRepair = fs.readFileSync(path.join(ROOT, 'js/ui-repair.js'), 'utf8');
-if (!siteTemplate.includes('site.css?v=20261127-9') ||
-    !siteTemplate.includes('app.js?v=20261127-9') ||
-    !siteTemplate.includes('ui-repair.js?v=20261127-9')) {
+if (!siteTemplate.includes('site.css?v=20261127-10') ||
+    !siteTemplate.includes('app.js?v=20261127-10') ||
+    !siteTemplate.includes('ui-repair.js?v=20261127-10')) {
   throw new Error('Asset URLs must be cache-busted after frontend releases.');
 }
 if (!uiRepair.includes("btn.removeAttribute('onclick')") ||
@@ -153,3 +153,8 @@ const memberClient = fs.readFileSync(path.join(ROOT, 'js/member-directory.js'), 
 if (!memberClient.includes('publicProfileConsent:document.getElementById')) {
   throw new Error('Member public-directory consent must be saved as a distinct member-controlled setting.');
 }
+
+const worshipStudio = fs.readFileSync(path.join(ROOT, 'js/worship-studio.js'), 'utf8');
+for (const required of ['window.adminWorshipStudioHTML','navigator.mediaDevices.getUserMedia','window.LivekitClient','recordingEnabled','/admin/broadcast/sessions']) if (!worshipStudio.includes(required)) throw new Error('Worship Studio feature missing: '+required);
+const viewer = fs.readFileSync(path.join(ROOT, 'js/worship-viewer.js'), 'utf8');
+if (!viewer.includes('/api/public/live/token') || !viewer.includes('RoomEvent.TrackSubscribed')) throw new Error('Public LiveKit viewer is missing its secure subscribe flow.');

@@ -119,14 +119,14 @@ module.exports = function registerAdminRoutes(app, deps) {
     catch(e){if(e.message==='LIVEKIT_NOT_CONFIGURED')return fail(res,503,'Live broadcasting is not connected yet. Configure LIVEKIT_URL, LIVEKIT_API_KEY and LIVEKIT_API_SECRET in Render.');console.error('Broadcast token failed:',e.message);fail(res,503,'Could not prepare secure broadcast credentials.');}
   });
   app.post('/api/admin/broadcast/sessions/:id/start',requireStorage,requireAdmin,async function(req,res){
-    try{const r=await db().from('broadcast_sessions').update({status:'live',started_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',req.params.id).select('*').single();if(r.error)throw r.error;res.json({session:r.data});}
+    try{if(!process.env.LIVEKIT_URL||!process.env.LIVEKIT_API_KEY||!process.env.LIVEKIT_API_SECRET)return fail(res,503,'LiveKit credentials are not configured.');const r=await db().from('broadcast_sessions').update({status:'live',started_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',req.params.id).select('*').single();if(r.error)throw r.error;res.json({session:r.data});}
     catch(e){console.error('Broadcast publish update failed:',e.message);fail(res,503,'Could not publish the broadcast status.');}
   });
   app.patch('/api/admin/broadcast/sessions/:id/overlay',requireStorage,requireAdmin,async function(req,res){
     try{const b=req.body||{},r=await db().from('broadcast_sessions').update({overlay_text:String(b.overlayText||'').slice(0,500),scripture_reference:String(b.scriptureReference||'').slice(0,120),scripture_text:String(b.scriptureText||'').slice(0,1200),updated_at:new Date().toISOString()}).eq('id',req.params.id).eq('status','live').select('id').maybeSingle();if(r.error)throw r.error;if(!r.data)return fail(res,404,'Live broadcast not found.');res.json({updated:true});}
     catch(e){console.error('Broadcast overlay update failed:',e.message);fail(res,503,'Could not update the live presentation.');}
   });
-  app.post('/api/admin/broadcast/sessions/:id/end',requireStorage,requireAdmin,async function(req,res){
+  app.patch('/api/admin/broadcast/sessions/:id/recording',requireStorage,requireAdmin,async function(req,res){\n    try{const status=['downloaded','failed','not_requested'].includes((req.body||{}).status)?req.body.status:'failed';const r=await db().from('broadcast_sessions').update({recording_status:status,updated_at:new Date().toISOString()}).eq('id',req.params.id).select('id').maybeSingle();if(r.error)throw r.error;if(!r.data)return fail(res,404,'Broadcast session not found.');res.json({updated:true,recordingStatus:status});}\n    catch(e){console.error('Recording status update failed:',e.message);fail(res,503,'Could not update recording status.');}\n  });\n  app.post('/api/admin/broadcast/sessions/:id/end',requireStorage,requireAdmin,async function(req,res){
     try{const r=await db().from('broadcast_sessions').update({status:'ended',ended_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',req.params.id).in('status',['live','preparing','draft']).select('*').maybeSingle();if(r.error)throw r.error;if(!r.data)return fail(res,404,'Broadcast session is already closed.');res.json({session:r.data});}
     catch(e){console.error('Broadcast end failed:',e.message);fail(res,503,'Could not end the broadcast.');}
   });

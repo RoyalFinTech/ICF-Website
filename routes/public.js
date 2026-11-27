@@ -136,7 +136,7 @@ module.exports = function registerPublicRoutes(app, deps) {
       if(r.error)throw r.error;if(!r.data)return res.status(404).json({live:false});res.json({live:true,session:r.data});
     }catch(e){console.error('Public live lookup failed:',e.message);fail(res,503,'Live broadcast information is temporarily unavailable.');}
   });
-  app.post('/api/public/live/token',requireStorage,async function(req,res){
+  app.post('/api/public/live/token',publicLimit,requireStorage,async function(req,res){
     try{const slug=String((req.body||{}).slug||'').slice(0,40);if(!slug)return fail(res,400,'A broadcast link is required.');
       const r=await db().from('broadcast_sessions').select('room_name').eq('slug',slug).eq('status','live').eq('is_public',true).maybeSingle();if(r.error)throw r.error;if(!r.data)return fail(res,404,'This ICF broadcast is not live.');
       const key=process.env.LIVEKIT_API_KEY||'',secret=process.env.LIVEKIT_API_SECRET||'',serverUrl=process.env.LIVEKIT_URL||'';if(!key||!secret||!serverUrl)return fail(res,503,'The live viewing service is not connected.');
