@@ -80,107 +80,8 @@ function icfApplyThemeSettings(){
 /* Official PNG logo URLs are assigned in the HTML before the application boot. */
 
 /* ══ COUNTRY + PHONE CODE DATA ══ */
-const COUNTRIES = [
-  {code:'GM',name:'The Gambia',flag:'🇬🇲',dialCode:'+220'},
-  {code:'NG',name:'Nigeria',flag:'🇳🇬',dialCode:'+234'},
-  {code:'SN',name:'Senegal',flag:'🇸🇳',dialCode:'+221'},
-  {code:'GH',name:'Ghana',flag:'🇬🇭',dialCode:'+233'},
-  {code:'SL',name:'Sierra Leone',flag:'🇸🇱',dialCode:'+232'},
-  {code:'LR',name:'Liberia',flag:'🇱🇷',dialCode:'+231'},
-  {code:'GN',name:'Guinea',flag:'🇬🇳',dialCode:'+224'},
-  {code:'GW',name:'Guinea-Bissau',flag:'🇬🇼',dialCode:'+245'},
-  {code:'CV',name:'Cape Verde',flag:'🇨🇻',dialCode:'+238'},
-  {code:'MR',name:'Mauritania',flag:'🇲🇷',dialCode:'+222'},
-  {code:'ML',name:'Mali',flag:'🇲🇱',dialCode:'+223'},
-  {code:'BF',name:'Burkina Faso',flag:'🇧🇫',dialCode:'+226'},
-  {code:'CI',name:"Cote d'Ivoire",flag:'🇨🇮',dialCode:'+225'},
-  {code:'TG',name:'Togo',flag:'🇹🇬',dialCode:'+228'},
-  {code:'BJ',name:'Benin',flag:'🇧🇯',dialCode:'+229'},
-  {code:'NE',name:'Niger',flag:'🇳🇪',dialCode:'+227'},
-  {code:'CM',name:'Cameroon',flag:'🇨🇲',dialCode:'+237'},
-  {code:'KE',name:'Kenya',flag:'🇰🇪',dialCode:'+254'},
-  {code:'TZ',name:'Tanzania',flag:'🇹🇿',dialCode:'+255'},
-  {code:'UG',name:'Uganda',flag:'🇺🇬',dialCode:'+256'},
-  {code:'RW',name:'Rwanda',flag:'🇷🇼',dialCode:'+250'},
-  {code:'ET',name:'Ethiopia',flag:'🇪🇹',dialCode:'+251'},
-  {code:'ZA',name:'South Africa',flag:'🇿🇦',dialCode:'+27'},
-  {code:'ZW',name:'Zimbabwe',flag:'🇿🇼',dialCode:'+263'},
-  {code:'ZM',name:'Zambia',flag:'🇿🇲',dialCode:'+260'},
-  {code:'MW',name:'Malawi',flag:'🇲🇼',dialCode:'+265'},
-  {code:'MZ',name:'Mozambique',flag:'🇲🇿',dialCode:'+258'},
-  {code:'AO',name:'Angola',flag:'🇦🇴',dialCode:'+244'},
-  {code:'CD',name:'DR Congo',flag:'🇨🇩',dialCode:'+243'},
-  {code:'CG',name:'Congo',flag:'🇨🇬',dialCode:'+242'},
-  {code:'GA',name:'Gabon',flag:'🇬🇦',dialCode:'+241'},
-  {code:'GQ',name:'Equatorial Guinea',flag:'🇬🇶',dialCode:'+240'},
-  {code:'SD',name:'Sudan',flag:'🇸🇩',dialCode:'+249'},
-  {code:'SS',name:'South Sudan',flag:'🇸🇸',dialCode:'+211'},
-  {code:'EG',name:'Egypt',flag:'🇪🇬',dialCode:'+20'},
-  {code:'MA',name:'Morocco',flag:'🇲🇦',dialCode:'+212'},
-  {code:'TN',name:'Tunisia',flag:'🇹🇳',dialCode:'+216'},
-  {code:'DZ',name:'Algeria',flag:'🇩🇿',dialCode:'+213'},
-  {code:'LY',name:'Libya',flag:'🇱🇾',dialCode:'+218'},
-  {code:'SO',name:'Somalia',flag:'🇸🇴',dialCode:'+252'},
-  {code:'ER',name:'Eritrea',flag:'🇪🇷',dialCode:'+291'},
-  {code:'DJ',name:'Djibouti',flag:'🇩🇯',dialCode:'+253'},
-  {code:'MG',name:'Madagascar',flag:'🇲🇬',dialCode:'+261'},
-  {code:'SC',name:'Seychelles',flag:'🇸🇨',dialCode:'+248'},
-  {code:'MU',name:'Mauritius',flag:'🇲🇺',dialCode:'+230'},
-  {code:'BW',name:'Botswana',flag:'🇧🇼',dialCode:'+267'},
-  {code:'NA',name:'Namibia',flag:'🇳🇦',dialCode:'+264'},
-  {code:'LS',name:'Lesotho',flag:'🇱🇸',dialCode:'+266'},
-  {code:'SZ',name:'Eswatini',flag:'🇸🇿',dialCode:'+268'},
-  {code:'US',name:'United States',flag:'🇺🇸',dialCode:'+1'},
-  {code:'GB',name:'United Kingdom',flag:'🇬🇧',dialCode:'+44'},
-  {code:'CA',name:'Canada',flag:'🇨🇦',dialCode:'+1'},
-  {code:'AU',name:'Australia',flag:'🇦🇺',dialCode:'+61'},
-  {code:'NZ',name:'New Zealand',flag:'🇳🇿',dialCode:'+64'},
-  {code:'IE',name:'Ireland',flag:'🇮🇪',dialCode:'+353'},
-  {code:'DE',name:'Germany',flag:'🇩🇪',dialCode:'+49'},
-  {code:'FR',name:'France',flag:'🇫🇷',dialCode:'+33'},
-  {code:'ES',name:'Spain',flag:'🇪🇸',dialCode:'+34'},
-  {code:'IT',name:'Italy',flag:'🇮🇹',dialCode:'+39'},
-  {code:'PT',name:'Portugal',flag:'🇵🇹',dialCode:'+351'},
-  {code:'NL',name:'Netherlands',flag:'🇳🇱',dialCode:'+31'},
-  {code:'BE',name:'Belgium',flag:'🇧🇪',dialCode:'+32'},
-  {code:'SE',name:'Sweden',flag:'🇸🇪',dialCode:'+46'},
-  {code:'NO',name:'Norway',flag:'🇳🇴',dialCode:'+47'},
-  {code:'DK',name:'Denmark',flag:'🇩🇰',dialCode:'+45'},
-  {code:'FI',name:'Finland',flag:'🇫🇮',dialCode:'+358'},
-  {code:'CH',name:'Switzerland',flag:'🇨🇭',dialCode:'+41'},
-  {code:'AT',name:'Austria',flag:'🇦🇹',dialCode:'+43'},
-  {code:'PL',name:'Poland',flag:'🇵🇱',dialCode:'+48'},
-  {code:'RU',name:'Russia',flag:'🇷🇺',dialCode:'+7'},
-  {code:'TR',name:'Turkey',flag:'🇹🇷',dialCode:'+90'},
-  {code:'SA',name:'Saudi Arabia',flag:'🇸🇦',dialCode:'+966'},
-  {code:'AE',name:'UAE',flag:'🇦🇪',dialCode:'+971'},
-  {code:'IN',name:'India',flag:'🇮🇳',dialCode:'+91'},
-  {code:'CN',name:'China',flag:'🇨🇳',dialCode:'+86'},
-  {code:'JP',name:'Japan',flag:'🇯🇵',dialCode:'+81'},
-  {code:'KR',name:'South Korea',flag:'🇰🇷',dialCode:'+82'},
-  {code:'BR',name:'Brazil',flag:'🇧🇷',dialCode:'+55'},
-  {code:'MX',name:'Mexico',flag:'🇲🇽',dialCode:'+52'},
-  {code:'AR',name:'Argentina',flag:'🇦🇷',dialCode:'+54'},
-  {code:'CO',name:'Colombia',flag:'🇨🇴',dialCode:'+57'},
-  {code:'PH',name:'Philippines',flag:'🇵🇭',dialCode:'+63'},
-  {code:'SG',name:'Singapore',flag:'🇸🇬',dialCode:'+65'},
-  {code:'MY',name:'Malaysia',flag:'🇲🇾',dialCode:'+60'},
-  {code:'ID',name:'Indonesia',flag:'🇮🇩',dialCode:'+62'},
-  {code:'PK',name:'Pakistan',flag:'🇵🇰',dialCode:'+92'},
-  {code:'BD',name:'Bangladesh',flag:'🇧🇩',dialCode:'+880'},
-  {code:'GR',name:'Greece',flag:'🇬🇷',dialCode:'+30'},
-  {code:'CZ',name:'Czech Republic',flag:'🇨🇿',dialCode:'+420'},
-  {code:'HU',name:'Hungary',flag:'🇭🇺',dialCode:'+36'},
-  {code:'RO',name:'Romania',flag:'🇷🇴',dialCode:'+40'},
-  {code:'UA',name:'Ukraine',flag:'🇺🇦',dialCode:'+380'},
-  {code:'IL',name:'Israel',flag:'🇮🇱',dialCode:'+972'},
-  {code:'LB',name:'Lebanon',flag:'🇱🇧',dialCode:'+961'},
-  {code:'JO',name:'Jordan',flag:'🇯🇴',dialCode:'+962'},
-  {code:'TH',name:'Thailand',flag:'🇹🇭',dialCode:'+66'},
-  {code:'VN',name:'Vietnam',flag:'🇻🇳',dialCode:'+84'},
-  {code:'TW',name:'Taiwan',flag:'🇹🇼',dialCode:'+886'},
-  {code:'HK',name:'Hong Kong',flag:'🇭🇰',dialCode:'+852'},
-];
+const COUNTRIES = window.ICFCountryData.getAll();
+const PHONE_COUNTRIES = window.ICFCountryData.getPhoneCountries();
 
 /* ══ LANGUAGE DATA ══ */
 const LANGUAGES = [
@@ -494,25 +395,35 @@ var selectedDialCode = '+220';
 var selectedCountryCode = 'GM';
 
 /* ── Render country list into a container ────── */
+function countryHtmlEscape(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g,function (c) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
 function renderCountryList(listEl, type, idPrefix) {
   if (!listEl) return;
-  var html = '';
-  for (var i = 0; i < COUNTRIES.length; i++) {
-    var c = COUNTRIES[i];
-    html += '<div class="country-item"' +
-      ' data-code="' + c.code + '"' +
-      ' data-dial="' + c.dialCode + '"' +
-      ' data-name="' + c.name.replace(/"/g, '&quot;') + '"' +
-      ' data-flag="' + c.flag + '"' +
-      ' data-type="' + type + '"' +
-      ' data-prefix="' + idPrefix + '"' +
-      ' onclick="handleCountryClick(this)">' +
-      '<span>' + c.flag + '</span>' +
-      (type === 'phone' ? '<span style="min-width:52px;color:var(--text-muted)">' + c.dialCode + '</span>' : '') +
-      '<span>' + c.name + '</span>' +
-      '</div>';
-  }
-  listEl.innerHTML = html;
+  var available = type === 'phone' ? PHONE_COUNTRIES : COUNTRIES;
+  var groups = [];
+  available.forEach(function (country) {
+    var region = country.region || 'Other territories';
+    var group = groups.find(function (entry) { return entry.name === region; });
+    if (!group) { group = {name:region,countries:[]}; groups.push(group); }
+    group.countries.push(country);
+  });
+  listEl.innerHTML = groups.map(function (group) {
+    var items = group.countries.map(function (country) {
+      var code = countryHtmlEscape(country.code), name = countryHtmlEscape(country.name);
+      var dial = countryHtmlEscape(country.dialCode), flag = countryHtmlEscape(country.flag);
+      return '<button type="button" class="country-item" role="option" aria-label="'+flag+' '+name+'"'+
+        ' data-code="'+code+'" data-dial="'+dial+'" data-name="'+name+'" data-flag="'+flag+'"'+
+        ' data-type="'+type+'" data-prefix="'+idPrefix+'" onclick="handleCountryClick(this)">'+
+        '<span class="country-item-flag">'+flag+'</span>'+
+        (type === 'phone' ? '<span class="country-item-dial">'+dial+'</span>' : '')+
+        '<span class="country-item-name">'+name+'</span></button>';
+    }).join('');
+    return '<div class="country-group" data-country-group="'+countryHtmlEscape(group.name)+'">'+
+      '<div class="country-group-title">'+countryHtmlEscape(group.name)+'</div>'+items+'</div>';
+  }).join('');
 }
 
 /* ── Safe click handler using data attributes ── */
@@ -531,11 +442,10 @@ function toggleCountryDropdown(id) {
   var dd = document.getElementById('dd-' + id);
   if (!dd) return;
   var isOpen = dd.style.display !== 'none';
-  // Close all dropdowns first
   document.querySelectorAll('.country-dropdown').forEach(function(d) { d.style.display = 'none'; });
   if (!isOpen) {
     dd.style.display = 'block';
-    var si = dd.querySelector('input[type="text"]');
+    var si = dd.querySelector('.country-search-input');
     if (si) setTimeout(function() { si.focus(); }, 60);
   }
 }
@@ -576,11 +486,15 @@ function filterCountries(id, query, type) {
   var list = document.getElementById('list-' + id);
   if (!list) return;
   var q = (query || '').toLowerCase().trim();
-  var items = list.querySelectorAll('.country-item');
-  items.forEach(function(item) {
+  list.querySelectorAll('.country-item').forEach(function(item) {
     var name = (item.getAttribute('data-name') || '').toLowerCase();
     var dial = (item.getAttribute('data-dial') || '').toLowerCase();
-    item.style.display = (!q || name.indexOf(q) !== -1 || dial.indexOf(q) !== -1) ? 'flex' : 'none';
+    var code = (item.getAttribute('data-code') || '').toLowerCase();
+    item.style.display = (!q || name.indexOf(q) !== -1 || dial.indexOf(q) !== -1 || code.indexOf(q) !== -1) ? 'flex' : 'none';
+  });
+  list.querySelectorAll('.country-group').forEach(function(group) {
+    var visible = Array.from(group.querySelectorAll('.country-item')).some(function(item){return item.style.display !== 'none';});
+    group.style.display = visible ? '' : 'none';
   });
 }
 
@@ -619,11 +533,7 @@ document.addEventListener('input', function(e) {
     var list = document.getElementById('list-' + id);
     if (!list) return;
     var q = e.target.value.toLowerCase().trim();
-    list.querySelectorAll('.country-item').forEach(function(item) {
-      var name = (item.getAttribute('data-name') || '').toLowerCase();
-      var dial = (item.getAttribute('data-dial') || '').toLowerCase();
-      item.style.display = (!q || name.indexOf(q) !== -1 || dial.indexOf(q) !== -1) ? 'flex' : 'none';
-    });
+    filterCountries(id,q,id === 'phone' ? 'phone' : 'nationality');
   }
 });
 
