@@ -98,9 +98,32 @@ function normalizedLiveKitUrl(){var raw=String(process.env.LIVEKIT_URL||'').trim
   app.get('/api/admin/broadcast/config',requireStorage,requireAdmin,function(req,res){
     const configured=Boolean(process.env.LIVEKIT_URL&&process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET);let endpoint=null,urlValid=false,urlError=null;try{endpoint=normalizedLiveKitUrl();urlValid=true;}catch(e){urlError=e.message==='LIVEKIT_URL_INVALID'?'LIVEKIT_URL is not a valid URL.':null;}let host=null,protocol=null;if(endpoint){const u=new URL(endpoint);host=u.host;protocol=u.protocol;}res.json({provider:'LiveKit',configured:configured,urlValid:urlValid,host:host,protocol:protocol,error:urlError});
   });
-  app.post('/api/admin/broadcast/connection-test',requireStorage,requireAdmin,function(req,res){
-    try{const identity='icf-signal-check-'+crypto.randomBytes(6).toString('hex');res.json(createBroadcastToken('icf-signal-check',identity,false));}
-    catch(e){if(e.message==='LIVEKIT_NOT_CONFIGURED')return fail(res,503,'LiveKit credentials are missing.');if(e.message==='LIVEKIT_URL_INVALID')return fail(res,503,'LIVEKIT_URL must be a valid wss:// LiveKit Cloud endpoint.');console.error('LiveKit connection-test token failed:',e.message);fail(res,503,'Could not prepare the LiveKit signal test.');}
+  app.post('/api/admin/broadcast/connection-test',requireStorage,requireAdmin,async function(req,res){
+    try{
+      const key=process.env.LIVEKIT_API_KEY||'',secret=process.env.LIVEKIT_API_SECRET||'';
+      if(!key||!secret)throw new Error('LIVEKIT_NOT_CONFIGURED');
+      const wsUrl=normalizedLiveKitUrl(),apiUrl=wsUrl.replace(/^wss:/,'https:').replace(/^ws:/,'http:');
+      const now=Math.floor(Date.now()/1000),enc=function(v){return Buffer.from(JSON.stringify(v)).toString('base64url');};
+      const unsigned=enc({alg:'HS256',typ:'JWT'})+'.'+enc({iss:key,sub:'icf-health-'+crypto.randomBytes(6).toString('hex'),nbf:now-5,iat:now,exp:now+60,video:{roomList:true}});
+      const apiToken=unsigned+'.'+crypto.createHmac('sha256',secret).update(unsigned).digest('base64url');
+      let health;
+      try{
+        health=await fetch(apiUrl+'/twirp/livekit.RoomService/ListRooms',{method:'POST',headers:{'Authorization':'Bearer '+apiToken,'Content-Type':'application/json'},body:JSON.stringify({names:[]}),signal:AbortSignal.timeout(8000)});
+      }catch(networkError){const e=new Error('LIVEKIT_API_UNREACHABLE');e.cause=networkError;throw e;}
+      if(health.status===401||health.status===403)throw new Error('LIVEKIT_CREDENTIALS_REJECTED');
+      if(health.status===404)throw new Error('LIVEKIT_ENDPOINT_NOT_FOUND');
+      if(!health.ok)throw new Error('LIVEKIT_API_HTTP_'+health.status);
+      const identity='icf-signal-check-'+crypto.randomBytes(6).toString('hex');
+      res.json(Object.assign(createBroadcastToken('icf-signal-check',identity,false),{providerApi:'passed',endpoint:new URL(wsUrl).host}));
+    }catch(e){
+      if(e.message==='LIVEKIT_NOT_CONFIGURED')return fail(res,503,'LiveKit credentials are missing. Check LIVEKIT_URL, LIVEKIT_API_KEY and LIVEKIT_API_SECRET in Render.');
+      if(e.message==='LIVEKIT_URL_INVALID')return fail(res,503,'LIVEKIT_URL must be a valid wss:// LiveKit Cloud endpoint.');
+      if(e.message==='LIVEKIT_CREDENTIALS_REJECTED')return fail(res,503,'LiveKit rejected the API credentials. Confirm LIVEKIT_API_KEY and LIVEKIT_API_SECRET belong to the same LiveKit project as LIVEKIT_URL.');
+      if(e.message==='LIVEKIT_ENDPOINT_NOT_FOUND')return fail(res,503,'The LiveKit host was reached, but its RoomService API was not found. Check LIVEKIT_URL in Render.');
+      if(e.message==='LIVEKIT_API_UNREACHABLE')return fail(res,503,'Render could not reach the LiveKit API. Check the LiveKit project endpoint and network availability.');
+      if(e.message.indexOf('LIVEKIT_API_HTTP_')===0)return fail(res,503,'LiveKit RoomService returned '+e.message.replace('LIVEKIT_API_HTTP_','HTTP ')+'. Check the LiveKit project status.');
+      console.error('LiveKit connection-test failed:',e.message);fail(res,503,'Could not prepare the LiveKit signal test.');
+    }
   });
   app.get('/api/admin/broadcast/hymns',requireStorage,requireAdmin,async function(req,res){
     try{const r=await db().from('worship_hymns').select('id,title,hymn_number,lyrics,created_at').order('created_at',{ascending:false}).limit(300);if(r.error)throw r.error;res.json({hymns:r.data||[]});}
