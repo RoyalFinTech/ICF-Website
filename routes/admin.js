@@ -95,6 +95,19 @@ function normalizedLiveKitUrl(){var raw=String(process.env.LIVEKIT_URL||'').trim
     const body=enc({alg:'HS256',typ:'JWT'})+'.'+enc({iss:key,sub:identity,name:identity,nbf:now-5,iat:now,exp:now+3600,video:{roomJoin:true,room:room,canPublish:!!canPublish,canSubscribe:true}});
     return {serverUrl:serverUrl,token:body+'.'+crypto.createHmac('sha256',secret).update(body).digest('base64url')};
   }
+  async function terminateLiveKitRoom(roomName) {
+    if (!roomName) return false;
+    const key=process.env.LIVEKIT_API_KEY||'',secret=process.env.LIVEKIT_API_SECRET||'';
+    if (!key || !secret) return false;
+    const wsUrl=normalizedLiveKitUrl(),apiUrl=wsUrl.replace(/^wss:/,'https:').replace(/^ws:/,'http:');
+    const now=Math.floor(Date.now()/1000),enc=function(v){return Buffer.from(JSON.stringify(v)).toString('base64url');};
+    const unsigned=enc({alg:'HS256',typ:'JWT'})+'.'+enc({iss:key,sub:'icf-room-ender-'+crypto.randomBytes(6).toString('hex'),nbf:now-5,iat:now,exp:now+60,video:{roomAdmin:true,room:roomName}});
+    const token=unsigned+'.'+crypto.createHmac('sha256',secret).update(unsigned).digest('base64url');
+    const response=await fetch(apiUrl+'/twirp/livekit.RoomService/DeleteRoom',{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({room:roomName}),signal:AbortSignal.timeout(8000)});
+    if(response.status===404)return true;
+    if(!response.ok)throw new Error('LiveKit DeleteRoom returned HTTP '+response.status);
+    return true;
+  }
   app.get('/api/admin/broadcast/config',requireStorage,requireAdmin,function(req,res){
     const configured=Boolean(process.env.LIVEKIT_URL&&process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET);let endpoint=null,urlValid=false,urlError=null;try{endpoint=normalizedLiveKitUrl();urlValid=true;}catch(e){urlError=e.message==='LIVEKIT_URL_INVALID'?'LIVEKIT_URL is not a valid URL.':null;}let host=null,protocol=null;if(endpoint){const u=new URL(endpoint);host=u.host;protocol=u.protocol;}res.json({provider:'LiveKit',configured:configured,urlValid:urlValid,host:host,protocol:protocol,error:urlError});
   });
@@ -191,7 +204,18 @@ function normalizedLiveKitUrl(){var raw=String(process.env.LIVEKIT_URL||'').trim
     catch(e){console.error('Recording status update failed:',e.message);fail(res,503,'Could not update recording status.');}
   });
   app.post('/api/admin/broadcast/sessions/:id/end',requireStorage,requireAdmin,async function(req,res){
-    try{const r=await db().from('broadcast_sessions').update({status:'ended',ended_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',req.params.id).in('status',['live','preparing','draft']).select('*').maybeSingle();if(r.error)throw r.error;if(!r.data)return fail(res,404,'Broadcast session is already closed.');res.json({session:r.data});}
-    catch(e){console.error('Broadcast end failed:',e.message);fail(res,503,'Could not end the broadcast.');}
+    try{
+      const existing=await db().from('broadcast_sessions').select('id,room_name,status,ended_at').eq('id',req.params.id).maybeSingle();
+      if(existing.error)throw existing.error;
+      if(!existing.data)return fail(res,404,'Broadcast session not found.');
+      const endedAt=existing.data.ended_at||new Date().toISOString();
+      const saved=await db().from('broadcast_sessions').update({status:'ended',ended_at:endedAt,updated_at:new Date().toISOString()}).eq('id',req.params.id).select('*').single();
+      if(saved.error)throw saved.error;
+      res.set('Cache-Control','no-store, no-cache, must-revalidate, proxy-revalidate');
+      let roomTerminated=false,roomTerminationError=null;
+      try{roomTerminated=await terminateLiveKitRoom(existing.data.room_name);}
+      catch(roomError){roomTerminationError=roomError.message;console.error('LiveKit room termination failed after broadcast status closed:',roomError.message);}
+      res.json({session:saved.data,ended:true,roomTerminated:roomTerminated,roomTerminationError:roomTerminationError});
+    }catch(e){console.error('Broadcast end failed:',e.message);fail(res,503,'Could not confirm that the broadcast ended. Please retry End Service.');}
   });
 };
