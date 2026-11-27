@@ -20,6 +20,7 @@
       <li><a class="nav-link" data-page="announcements" onclick="navigate('announcements')" data-i18n="news">📢 News</a></li>
       <li><a class="nav-link" data-page="membership" onclick="navigate('membership')" title="Membership">🧾 ICF Membership Statement PDF</a></li>
       <li><a class="nav-link" data-page="workers" onclick="navigate('workers')" title="Worker's Manual">📘 ICF Workers’ Manual PDF</a></li>
+      <li><button class="btn nav-login" onclick="navigate('member-profile')">👤 My Profile</button></li>
       <li><button class="btn nav-login" onclick="navigate('login')">👤 Login</button></li>
       <li><button class="btn nav-signup" onclick="navigate('signup')">📝 Sign Up</button></li>
       <li><select class="lang-selector filter-select" style="font-size:11.5px;padding:4px 7px;max-width:130px" onchange="setLanguage(this.value)" title="Language"></select></li>
@@ -41,6 +42,7 @@
   <a onclick="navigate('prayers')">🙏 Prayer</a>
   <a onclick="navigate('baptisms')">💝 Baptism</a>
   <a onclick="navigate('contact')">📞 Contact</a>
+  <a onclick="navigate('member-profile')">👤 My Profile</a>
   <button class="mob-login" onclick="navigate('login')">👤 Login</button>
   <button class="mob-signup" onclick="navigate('signup')">📝 Sign Up</button>
   <a onclick="navigate('about');setTimeout(function(){var el=document.getElementById('leadership');if(el)el.scrollIntoView({behavior:'smooth'});},50)">🧑‍🤝‍🧑 Leadership</a>
