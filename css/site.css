@@ -732,3 +732,58 @@ body.icf-menu-open{overflow:hidden!important}
     line-height: 1.6;
   }
 }
+
+
+/* ICF admin tables: preserve readable columns on touch screens */
+@media (max-width: 720px) {
+  #page-admin-portal .admin-content {
+    min-width: 0;
+    width: 100%;
+    overflow-x: hidden;
+    padding: 12px;
+  }
+  #page-admin-portal .admin-content .section-title {
+    font-size: 1.2rem;
+    line-height: 1.35;
+    overflow-wrap: normal;
+  }
+  #page-admin-portal .table-wrap {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    touch-action: pan-x pan-y;
+  }
+  #page-admin-portal .table-wrap > table {
+    display: table !important;
+    width: 760px !important;
+    min-width: 760px !important;
+    max-width: none !important;
+    table-layout: auto;
+    overflow: visible !important;
+  }
+  #page-admin-portal .table-wrap th,
+  #page-admin-portal .table-wrap td {
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: break-word;
+    vertical-align: middle;
+  }
+  #page-admin-portal .table-wrap td[style*="display:flex"] {
+    display: table-cell !important;
+    white-space: nowrap;
+  }
+  #page-admin-portal .table-wrap td[style*="display:flex"] .btn {
+    margin: 2px 4px 2px 0;
+  }
+  #page-admin-portal .table-wrap select,
+  #page-admin-portal .table-wrap button {
+    min-height: 36px;
+    touch-action: manipulation;
+  }
+}

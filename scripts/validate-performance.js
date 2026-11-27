@@ -30,13 +30,54 @@ if (!siteCss.includes('Mobile worship schedule + footer layout repair') ||
   throw new Error('Mobile worship schedule and single-column footer repairs are missing.');
 }
 
+
+const mobileAdminCss = siteCss.slice(siteCss.indexOf('/* ICF admin tables: preserve readable columns'));
+if (!mobileAdminCss.includes('#page-admin-portal .table-wrap > table') ||
+    !mobileAdminCss.includes('min-width: 760px !important') ||
+    !mobileAdminCss.includes('overflow-x: auto')) {
+  throw new Error('Admin tables must remain readable and swipe-scrollable on mobile.');
+}
+
+const apiRoutes = {
+  admin: fs.readFileSync(path.join(ROOT, 'routes/admin.js'), 'utf8'),
+  public: fs.readFileSync(path.join(ROOT, 'routes/public.js'), 'utf8'),
+  auth: fs.readFileSync(path.join(ROOT, 'routes/auth.js'), 'utf8'),
+  bridge: fs.readFileSync(path.join(ROOT, 'js/api-bridge.js'), 'utf8')
+};
+for (const route of [
+  "app.get('/api/admin/records'",
+  "app.put('/api/admin/records/:collection'",
+  "app.post('/api/admin/uploads'"
+]) if (!apiRoutes.admin.includes(route)) throw new Error('Missing protected admin API route: ' + route);
+for (const route of [
+  "app.get('/api/public-data'",
+  "app.post('/api/public/:collection'"
+]) if (!apiRoutes.public.includes(route)) throw new Error('Missing public submission/data API route: ' + route);
+for (const route of [
+  "app.post('/api/public/member-signup'",
+  "app.post('/api/auth/member-login'",
+  "app.post('/api/auth/login'"
+]) if (!apiRoutes.auth.includes(route)) throw new Error('Missing authentication API route: ' + route);
+for (const endpoint of [
+  "'/public/prayers'",
+  "'/public/baptisms'",
+  "'/public/contactMessages'",
+  "'/public/member-signup'",
+  "'/admin/records'",
+  "'/admin/uploads?bucket='"
+]) if (!apiRoutes.bridge.includes(endpoint)) throw new Error('Frontend is not connected to API endpoint: ' + endpoint);
+if (!apiRoutes.bridge.includes("request('/admin/records/' + encodeURIComponent(collection)") ||
+    !apiRoutes.bridge.includes("method:'PUT',body:payload")) {
+  throw new Error('Admin changes must persist through the protected records API.');
+}
+
 process.stdout.write('Performance checks passed: concurrent admin reads, active-page refresh and direct admin entry.\n');
 
 const siteTemplate = fs.readFileSync(path.join(ROOT, 'views/index.html'), 'utf8');
 const uiRepair = fs.readFileSync(path.join(ROOT, 'js/ui-repair.js'), 'utf8');
-if (!siteTemplate.includes('site.css?v=20261127-4') ||
-    !siteTemplate.includes('app.js?v=20261127-4') ||
-    !siteTemplate.includes('ui-repair.js?v=20261127-4')) {
+if (!siteTemplate.includes('site.css?v=20261127-5') ||
+    !siteTemplate.includes('app.js?v=20261127-5') ||
+    !siteTemplate.includes('ui-repair.js?v=20261127-5')) {
   throw new Error('Asset URLs must be cache-busted after frontend releases.');
 }
 if (!uiRepair.includes("btn.removeAttribute('onclick')") ||
