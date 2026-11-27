@@ -53,6 +53,7 @@ app.get('/api/health', function (req, res) {
   res.status(200).json({
     status: 'ok',
     supabaseConfigured: Boolean(URL && ANON_KEY && SERVICE_KEY),
+    liveKitConfigured: Boolean(process.env.LIVEKIT_URL && process.env.LIVEKIT_API_KEY && process.env.LIVEKIT_API_SECRET),
     publicBucketNameConfigured: Boolean(PUBLIC_BUCKET),
     privateBucketNameConfigured: Boolean(PRIVATE_BUCKET),
     timestamp: new Date().toISOString()
