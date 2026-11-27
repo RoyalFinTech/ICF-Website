@@ -312,7 +312,9 @@ app.post('/api/public/member-signup', publicLimit, requireStorage, async functio
 app.get('/api/public-data', requireStorage, async function (req,res) {
   try {
     const data = {};
-    for (const collection of PUBLIC_COLLECTIONS) {
+    // These collections are independent. Read them concurrently so one slow
+    // collection does not make the entire public homepage wait in series.
+    const entries = await Promise.all(PUBLIC_COLLECTIONS.map(async function (collection) {
       let records = await readCollection(collection);
       if (collection === 'sermons') records = records.filter(function (item) { return item.published !== false; });
       if (collection === 'announcements') records = records.filter(function (item) { return !item.expiry || new Date(item.expiry) >= new Date(); });
@@ -324,8 +326,9 @@ app.get('/api/public-data', requireStorage, async function (req,res) {
       if (collection === 'baptisms') records = records.filter(function (item) { return item.status === 'approved'; }).map(function (item) {
         return { id:item.id, fullName:item.fullName, preferredDate:item.preferredDate, status:item.status, createdAt:item.createdAt };
       });
-      data[collection] = records;
-    }
+      return [collection, records];
+    }));
+    entries.forEach(function (entry) { data[entry[0]] = entry[1]; });
     res.json(data);
   } catch (error) {
     console.error('Public data read failed:',error.message);
