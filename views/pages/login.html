@@ -9,6 +9,11 @@
         <div class="form-group"><label class="form-label" for="login-email">Email Address</label><input class="form-input" type="email" id="login-email" placeholder="you@example.com" autocomplete="username" inputmode="email" required/></div>
         <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="login-pass" placeholder="Enter your password" autocomplete="current-password" required minlength="12"/><button type="button" class="password-visibility-toggle" onclick="toggleIcfPassword('login-pass',this)" aria-pressed="false">Show</button></div>
         <button type="button" class="btn btn-blue btn-full" style="margin-top:8px" id="member-login-submit" onclick="doMemberLogin()">👤 Sign In</button>
+        <div class="auth-inline-links">
+          <button type="button" onclick="openIcfPasswordReset()">Forgot password?</button>
+          <button type="button" onclick="resendIcfSignupConfirmation()">Resend confirmation email</button>
+        </div>
+        <p id="login-email-status" class="auth-inline-status" role="status" aria-live="polite"></p>
         <button type="button" class="btn btn-outline btn-full" style="margin-top:8px" onclick="navigate('admin-login')">🛡️ Admin Login</button>
       </div>
       <div class="sep"></div>
