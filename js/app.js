@@ -1047,8 +1047,9 @@ function initTheme(){
 }
 
 /* ── Router ── */
-const ROUTES=['home','about','services','events','prayers','baptisms','contact','login','signup','admin-login','admin-portal','sermons','gallery','announcements','membership','workers'];
+const ROUTES=['home','about','services','events','prayers','baptisms','contact','login','signup','admin-login','admin-portal','sermons','gallery','announcements','membership','workers','member-profile'];
 function navigate(page){
+  if(page==='member-profile'&&!_store.getItem('icf_member_token')){navigate('login');return}
   if(page==='admin-portal'){if(!_store.getItem('icf_admin_token')){navigate('admin-login');return}}
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const el=document.getElementById('page-'+page);
@@ -1072,6 +1073,7 @@ function renderPage(page){
     case 'gallery':renderGallery();break;
     case 'announcements':renderAnnouncements();break;
     case 'admin-portal':renderAdminPortal();break;
+    case 'member-profile':if(typeof window.renderMemberProfile==='function')window.renderMemberProfile();break;
   }
 }
 
@@ -1082,6 +1084,7 @@ function renderHome(){
   document.getElementById('stat-baptisms').textContent=DB.get('baptisms',[]).length;
   document.getElementById('stat-events').textContent=DB.get('events',[]).length;
   document.getElementById('stat-members').textContent=DB.get('members',[]).length;
+  if(typeof window.renderPublicDirectory==='function')window.renderPublicDirectory();
 }
 
 /* ── Prayers ── */

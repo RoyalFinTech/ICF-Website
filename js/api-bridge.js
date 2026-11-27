@@ -4,7 +4,7 @@
   var API = '/api';
   var TOKEN = 'icf_admin_token';
   var USER = 'icf_admin_user';
-  var collections = ['members','prayers','baptisms','events','sermons','media','announcements','contactMessages','emailHistory','livestream','siteSettings','enabledLangs'];
+  var collections = ['members','prayers','baptisms','events','sermons','media','announcements','contactMessages','emailHistory','livestream','siteSettings','enabledLangs','churchRoles'];
   var originalGet = DB.get.bind(DB);
   var originalSet = DB.set.bind(DB);
   var originalPush = DB.push.bind(DB);
@@ -189,7 +189,7 @@
   window.adminLogout = function () {
     localStorage.removeItem(TOKEN); localStorage.removeItem(USER);
     localStorage.removeItem('icf_member_token'); localStorage.removeItem('icf_member_user');
-    if (typeof navigate === 'function') navigate('home');
+    if (typeof navigate === 'function') navigate('member-profile');
     if (typeof toast === 'function') toast('Logged out','You have been signed out.','info');
   };
   window.doMemberLogin = function () {
