@@ -26,6 +26,13 @@ if (!/scriptSrc:\s*\["'self'",'https:\/\/cdn\.jsdelivr\.net'\]/.test(serverSourc
   throw new Error('CSP must allow legacy inline event attributes without allowing inline script elements.');
 }
 
+if (/\\bconst\\s+URL\\s*=/.test(serverSource) ||
+    !/const SUPABASE_URL =/.test(serverSource) ||
+    !/const endpoint = new URL\\(value\\)/.test(serverSource) ||
+    !/connectSrc:\\[[^\\]]*\\.\\.\\.liveKitConnectSrc/.test(serverSource)) {
+  throw new Error('LiveKit CSP must use the native URL constructor and include the configured LiveKit host allowlist.');
+}
+
 process.stdout.write('Backend routes registered: ' + required.length + '.\n');
 
 const broadcastRoutes = fs.readFileSync(path.join(__dirname, '..', 'routes/admin.js'), 'utf8');
