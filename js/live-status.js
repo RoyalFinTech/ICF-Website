@@ -1,1 +1,91 @@
-(function(){'use strict';var current=null,busy=false;function ensureFloating(){if(document.getElementById('icf-live-floating'))return;var a=document.createElement('a');a.id='icf-live-floating';a.className='icf-live-floating';a.href='/live.html';a.setAttribute('data-icf-watch-live','');a.setAttribute('aria-label','Watch ICF Gambia live broadcast');a.innerHTML='<span class="icf-live-floating-dot"></span><span>Join Us Live</span>';a.style.display='none';document.body.appendChild(a);}function setStatus(s){var live=!!(s&&s.live&&current&&current.slug),url=live?'/live.html?slug='+encodeURIComponent(current.slug):'/live.html';document.querySelectorAll('[data-icf-live-state]').forEach(function(e){if(live){e.textContent='🔴 LIVE NOW · ICF GAMBIA';e.classList.add('is-live');}else{e.textContent='ICF GAMBIA · WORSHIP & FELLOWSHIP';e.classList.remove('is-live');}});var section=document.getElementById('icf-live-join');if(section)section.style.display=live?'':'none';document.querySelectorAll('[data-icf-watch-live]').forEach(function(e){e.classList.toggle('is-live',live);e.style.display=live?'':'none';e.href=url;e.setAttribute('aria-label',live?'Join the ICF Gambia live broadcast':'ICF broadcast is currently offline');if(e.id==='icf-live-floating')e.innerHTML='<span class="icf-live-floating-dot"></span><span>Join Us Live</span>';else e.textContent='🔴 Join Us Live · ICF Broadcast';});}async function check(){if(busy)return;busy=true;try{var r=await fetch('/api/public/live?_='+Date.now(),{cache:'no-store',headers:{'Cache-Control':'no-cache'}});if(r.status===404){current=null;setStatus(null);return;}if(!r.ok)throw new Error('Live status unavailable');var d=await r.json();current=d.live&&d.session&&d.session.slug?d.session:null;setStatus(current?{live:true,session:current}:null);}catch(_){setStatus(null);}finally{busy=false;}}window.watchIcfLive=function(){if(current&&current.slug){location.href='/live.html?slug='+encodeURIComponent(current.slug);return;}check().then(function(){if(current&&current.slug)location.href='/live.html?slug='+encodeURIComponent(current.slug);else{var e=document.querySelector('[data-icf-live-state]');if(e)e.textContent='No service is live right now. Please check again during our next service.';}});};document.addEventListener('click',function(e){var a=e.target.closest('[data-icf-watch-live]');if(a){e.preventDefault();window.watchIcfLive();}});if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensureFloating);else ensureFloating();check();setInterval(check,15000);})();
+(function () {
+  'use strict';
+  var activeSession = null;
+  var checking = false;
+
+  function setHidden(el, hidden) {
+    if (!el) return;
+    el.style.setProperty('display', hidden ? 'none' : '', 'important');
+    el.setAttribute('aria-hidden', hidden ? 'true' : 'false');
+  }
+
+  function render() {
+    var live = !!(activeSession && activeSession.slug);
+    var href = live ? '/live.html?slug=' + encodeURIComponent(activeSession.slug) : '/live.html';
+    setHidden(document.getElementById('icf-live-join'), !live);
+    document.querySelectorAll('[data-icf-watch-live]').forEach(function (el) {
+      setHidden(el, !live);
+      el.href = href;
+    });
+    document.querySelectorAll('[data-icf-live-state]').forEach(function (el) {
+      el.textContent = live ? '🔴 LIVE NOW · ICF GAMBIA' : 'ICF GAMBIA · WORSHIP & FELLOWSHIP';
+      el.classList.toggle('is-live', live);
+    });
+    var floating = document.getElementById('icf-live-floating');
+    if (floating) setHidden(floating, !live);
+  }
+
+  async function check() {
+    if (checking) return;
+    checking = true;
+    try {
+      var response = await fetch('/api/public/live?fresh=' + Date.now(), {
+        method: 'GET',
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache, no-store, max-age=0', 'Pragma': 'no-cache' }
+      });
+      if (response.status === 404) {
+        activeSession = null;
+      } else if (!response.ok) {
+        throw new Error('Public live status returned HTTP ' + response.status);
+      } else {
+        var payload = await response.json();
+        activeSession = payload && payload.live === true && payload.session && payload.session.slug
+          ? payload.session : null;
+      }
+    } catch (error) {
+      // Fail closed: never advertise an unverified broadcast.
+      activeSession = null;
+      console.warn('[ICF live] Status check failed; live controls hidden.', error);
+    } finally {
+      render();
+      checking = false;
+    }
+  }
+
+  function addFloatingLink() {
+    if (document.getElementById('icf-live-floating')) return;
+    var link = document.createElement('a');
+    link.id = 'icf-live-floating';
+    link.className = 'icf-live-floating';
+    link.href = '/live.html';
+    link.textContent = '🔴 Join Us Live';
+    link.setAttribute('data-icf-watch-live', '');
+    link.style.setProperty('display', 'none', 'important');
+    link.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(link);
+  }
+
+  window.watchIcfLive = function () {
+    if (activeSession && activeSession.slug) {
+      window.location.href = '/live.html?slug=' + encodeURIComponent(activeSession.slug);
+    } else {
+      check();
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    addFloatingLink();
+    render();
+    check();
+    window.setInterval(check, 8000);
+  });
+  window.addEventListener('pageshow', check);
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) check();
+  });
+  // Hide immediately before DOM ready, so stale server markup cannot flash.
+  document.querySelectorAll('#icf-live-join,[data-icf-watch-live],#icf-live-floating').forEach(function (el) {
+    setHidden(el, true);
+  });
+})();
