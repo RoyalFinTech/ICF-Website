@@ -11,13 +11,14 @@ module.exports = function registerPublicRoutes(app, deps) {
     if (!token) return { error:'Please sign in to manage your profile.', status:401 };
     const checked = await authClient().auth.getUser(token);
     if (checked.error || !checked.data || !checked.data.user) return { error:'Your member session has expired. Please sign in again.', status:401 };
-    const result = await db().from('app_records').select('record_id,data').eq('collection','members');
+    const result = await db().from('app_records').select('record_id,data').eq('collection','members').contains('data',{authUserId:checked.data.user.id}).maybeSingle();
     if (result.error) throw result.error;
-    const row = (result.data || []).find(function(entry){return entry.data && entry.data.authUserId===checked.data.user.id;});
-    if (!row) return { error:'No membership profile is linked to this account.', status:404 };
-    if (row.data.status==='pending') return { error:'Your membership is awaiting approval.', status:403 };
-    if (row.data.status==='suspended') return { error:'Your membership is suspended. Contact the church office.', status:403 };
-    return { user:checked.data.user, member:row.data };
+    const member = result.data && result.data.data;
+    if (!member) return { error:'No membership profile is linked to this account.', status:404 };
+    if (member.status==='pending') return { error:'Your membership is awaiting approval.', status:403 };
+    if (member.status==='suspended') return { error:'Your membership is suspended. Contact the church office.', status:403 };
+    if (member.status!=='approved') return { error:'Your membership is not yet approved.', status:403 };
+    return { user:checked.data.user, member:member };
   }
   async function saveMember(member) {
     const result = await db().from('app_records').upsert({collection:'members',record_id:member.id,data:member,updated_at:new Date().toISOString()},{onConflict:'collection,record_id'});
@@ -32,7 +33,7 @@ module.exports = function registerPublicRoutes(app, deps) {
   }
   async function profileView(member) {
     return {id:member.id,name:member.name,email:member.email,phone:member.phone,address:member.address,
-      nationality:member.nationality,bio:member.bio||'',avatarUrl:await signedAvatarUrl(member),
+      nationality:member.nationality,nationalityCode:member.nationalityCode||'',bio:member.bio||'',avatarUrl:await signedAvatarUrl(member),
       publicProfileConsent:member.publicProfileConsent===true,status:member.status,roles:Array.isArray(member.roles)?member.roles:[],joinedAt:member.joinedAt};
   }
   function imageSignature(buffer,mime) {
