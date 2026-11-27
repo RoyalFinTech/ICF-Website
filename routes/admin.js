@@ -98,6 +98,10 @@ function normalizedLiveKitUrl(){var raw=String(process.env.LIVEKIT_URL||'').trim
   app.get('/api/admin/broadcast/config',requireStorage,requireAdmin,function(req,res){
     const configured=Boolean(process.env.LIVEKIT_URL&&process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET);let endpoint=null,urlValid=false,urlError=null;try{endpoint=normalizedLiveKitUrl();urlValid=true;}catch(e){urlError=e.message==='LIVEKIT_URL_INVALID'?'LIVEKIT_URL is not a valid URL.':null;}let host=null,protocol=null;if(endpoint){const u=new URL(endpoint);host=u.host;protocol=u.protocol;}res.json({provider:'LiveKit',configured:configured,urlValid:urlValid,host:host,protocol:protocol,error:urlError});
   });
+  app.post('/api/admin/broadcast/connection-test',requireStorage,requireAdmin,function(req,res){
+    try{const identity='icf-signal-check-'+crypto.randomBytes(6).toString('hex');res.json(createBroadcastToken('icf-signal-check',identity,false));}
+    catch(e){if(e.message==='LIVEKIT_NOT_CONFIGURED')return fail(res,503,'LiveKit credentials are missing.');if(e.message==='LIVEKIT_URL_INVALID')return fail(res,503,'LIVEKIT_URL must be a valid wss:// LiveKit Cloud endpoint.');console.error('LiveKit connection-test token failed:',e.message);fail(res,503,'Could not prepare the LiveKit signal test.');}
+  });
   app.get('/api/admin/broadcast/hymns',requireStorage,requireAdmin,async function(req,res){
     try{const r=await db().from('worship_hymns').select('id,title,hymn_number,lyrics,created_at').order('created_at',{ascending:false}).limit(300);if(r.error)throw r.error;res.json({hymns:r.data||[]});}
     catch(e){console.error('Hymn library read failed:',e.message);fail(res,503,'Could not load the ICF hymnary.');}
