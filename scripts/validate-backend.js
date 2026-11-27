@@ -21,7 +21,7 @@ const required=['POST /api/auth/login','POST /api/auth/member-login','POST /api/
 for (const route of required) if (!seen.includes(route)) throw new Error('Backend route not registered: ' + route);
 
 const serverSource = fs.readFileSync(path.join(__dirname, '..', 'server.js'), 'utf8');
-if (!/scriptSrc:\s*\["'self'"\]/.test(serverSource) ||
+if (!/scriptSrc:\s*\["'self'",'https:\/\/cdn\.jsdelivr\.net'\]/.test(serverSource) ||
     !/scriptSrcAttr:\s*\["'unsafe-inline'"\]/.test(serverSource)) {
   throw new Error('CSP must allow legacy inline event attributes without allowing inline script elements.');
 }
