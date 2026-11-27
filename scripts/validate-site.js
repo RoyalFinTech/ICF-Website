@@ -21,5 +21,7 @@ new Function(studioSource);
 new Function(viewerSource);
 for (const feature of ['ws-scroll-test','ws-bible-search','ws-camera-2','ws-flyer-file','ws-color','ws-quality','ws-frame','ws-hymn-save','root.dataset.wsReady']) if (!studioSource.includes(feature)) throw new Error('Worship Studio control missing: ' + feature);
 if (!viewerSource.includes('presentation_config')) throw new Error('Public viewer presentation configuration is missing.');
+const liveHtml = fs.readFileSync(path.join(ROOT, 'live.html'), 'utf8');
+for (const id of ['live-slide','live-slide-reference','live-flyer','live-video-secondary']) if (!liveHtml.includes('id=\"' + id + '\"')) throw new Error('Public live viewer element missing: ' + id);
 if (Buffer.byteLength(html, 'utf8') > 200 * 1024) throw new Error('Generated homepage exceeds the 200 KB HTML budget.');
 process.stdout.write('Homepage validated: ' + requiredPages.length + ' pages, ' + Buffer.byteLength(html, 'utf8') + ' HTML bytes.\n');
