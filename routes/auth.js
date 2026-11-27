@@ -165,6 +165,8 @@ module.exports = function registerAuthRoutes(app, deps) {
       if (member.status === 'pending') return fail(res,403,'Your membership application is awaiting church approval.');
       if (member.status === 'suspended') return fail(res,403,'This account is suspended. Please contact the church office.');
       if (member.status !== 'approved') return fail(res,403,'Your membership is not yet approved. Please contact the church office if you need help.');
+      if (emailFeatureConfiguration().verificationRequired && member.emailVerified !== true)
+        return fail(res,403,'Your email address has not been verified. If you registered before email delivery was configured, contact the church office to verify it.');
       res.set('Cache-Control','no-store');
       res.json({ access_token:result.data.session.access_token, expires_at:result.data.session.expires_at,
         token_type:'bearer', user:{ id:member.id, name:member.name, email:member.email, role:'member', status:member.status,
