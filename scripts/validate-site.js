@@ -40,6 +40,7 @@ if (!appSource.includes('function saveMemberChurchRoles') || !appSource.includes
 
 if (!publicRoutes.includes('/api/public/bible/kjv/:book')) throw new Error('Complete KJV Bible endpoint is missing.');
 if (!studioSource.includes('kjvBooks=') || !studioSource.includes('function stepKJV')) throw new Error('Complete KJV book and verse navigation is missing.');
+if (!studioSource.includes("putScreen('',item.text,ref,mode") || !studioSource.includes("function publishKJV")) throw new Error('Live Bible verse navigation must update the published slide automatically.');
 const cameraHtml = fs.readFileSync(path.join(ROOT, 'camera.html'), 'utf8');
 const cameraSource = fs.readFileSync(path.join(ROOT, 'js/camera-join.js'), 'utf8');
 new Function(cameraSource);
