@@ -33,7 +33,7 @@ if (!siteCss.includes('Mobile worship schedule + footer layout repair') ||
 
 const mobileAdminCss = siteCss.slice(siteCss.indexOf('/* ICF admin tables: preserve readable columns'));
 if (!mobileAdminCss.includes('#page-admin-portal .table-wrap > table') ||
-    !mobileAdminCss.includes('min-width: 760px !important') ||
+    !mobileAdminCss.includes('min-width: 900px !important') ||
     !mobileAdminCss.includes('overflow-x: auto')) {
   throw new Error('Admin tables must remain readable and swipe-scrollable on mobile.');
 }
@@ -71,13 +71,25 @@ if (!apiRoutes.bridge.includes("request('/admin/records/' + encodeURIComponent(c
   throw new Error('Admin changes must persist through the protected records API.');
 }
 
+
+const appSource = fs.readFileSync(path.join(ROOT, 'js/app.js'), 'utf8');
+if (!appSource.includes("'<th>Name / Email</th><th>Nationality</th><th>Phone</th><th>Address</th>")) {
+  throw new Error('Admin member list must expose the submitted residential address.');
+}
+if (!appSource.includes("(p.email?'<div class=\"text-xs text-dim\">'+p.email+'</div>':''")) {
+  throw new Error('Admin prayer list must expose the submitted contact email.');
+}
+if (!appSource.includes("(b.email?'<div class=\"text-xs text-dim\">'+b.email+'</div>':''")) {
+  throw new Error('Admin baptism list must expose the submitted contact email.');
+}
+
 process.stdout.write('Performance checks passed: concurrent admin reads, active-page refresh and direct admin entry.\n');
 
 const siteTemplate = fs.readFileSync(path.join(ROOT, 'views/index.html'), 'utf8');
 const uiRepair = fs.readFileSync(path.join(ROOT, 'js/ui-repair.js'), 'utf8');
-if (!siteTemplate.includes('site.css?v=20261127-5') ||
-    !siteTemplate.includes('app.js?v=20261127-5') ||
-    !siteTemplate.includes('ui-repair.js?v=20261127-5')) {
+if (!siteTemplate.includes('site.css?v=20261127-6') ||
+    !siteTemplate.includes('app.js?v=20261127-6') ||
+    !siteTemplate.includes('ui-repair.js?v=20261127-6')) {
   throw new Error('Asset URLs must be cache-busted after frontend releases.');
 }
 if (!uiRepair.includes("btn.removeAttribute('onclick')") ||

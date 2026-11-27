@@ -761,8 +761,8 @@ body.icf-menu-open{overflow:hidden!important}
   }
   #page-admin-portal .table-wrap > table {
     display: table !important;
-    width: 760px !important;
-    min-width: 760px !important;
+    width: 900px !important;
+    min-width: 900px !important;
     max-width: none !important;
     table-layout: auto;
     overflow: visible !important;

@@ -1304,6 +1304,7 @@ function adminMembersHTML(){
     '<td><strong>'+m.name+'</strong>'+(m.email?'<div class="text-xs text-dim">'+m.email+'</div>':'')+'</td>'+
     '<td class="text-dim">'+(m.nationality?((COUNTRIES.find(c=>c.name===m.nationality)||{flag:'🏳️'}).flag+' '+m.nationality):'—')+'</td>'+
     '<td class="text-dim">'+(m.phone||'—')+'</td>'+
+    '<td class="text-dim" style="max-width:180px;white-space:normal;overflow-wrap:anywhere">'+(m.address||'—')+'</td>'+
     '<td><span class="badge '+(m.role==='admin'?'badge-gold':m.role==='leader'?'badge-blue':'badge-gray')+'">'+m.role+'</span></td>'+
     '<td><select class="filter-select" style="font-size:11px;padding:3px 7px" onchange="updateMemberStatus(\''+m.id+'\',this.value)">'+
       '<option value="approved"'+(m.status==='approved'?' selected':'')+'>✅ Approved</option>'+
@@ -1322,17 +1323,17 @@ function adminMembersHTML(){
     '<button class="btn btn-outline btn-sm" onclick="openAddMemberModal()">+ Add Member</button>'+
     '</div></div>'+
     '<div class="table-wrap"><table id="members-table">'+
-    '<thead><tr><th>Name</th><th>Nationality</th><th>Phone</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>'+
-    '<tbody>'+rows+(members.length?'':'<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--text-dim)">No members yet</td></tr>')+'</tbody>'+
+    '<thead><tr><th>Name / Email</th><th>Nationality</th><th>Phone</th><th>Address</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>'+
+    '<tbody>'+rows+(members.length?'':'<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--text-dim)">No members yet</td></tr>')+'</tbody>'+
     '</table></div></div>';
 }
 
 function adminPrayersHTML(){
   const prayers=DB.get('prayers',[]);
   const rows=prayers.map(p=>'<tr>'+
-    '<td><strong>'+(p.anonymous?'Anonymous':p.requesterName)+'</strong></td>'+
+    '<td><strong>'+(p.anonymous?'Anonymous':p.requesterName)+'</strong>'+(p.email?'<div class="text-xs text-dim">'+p.email+'</div>':'')+'</td>'+
     '<td><span class="badge badge-gold">'+p.category+'</span></td>'+
-    '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-dim)">'+p.request+'</td>'+
+    '<td style="max-width:240px;white-space:normal;overflow-wrap:anywhere;color:var(--text-dim)">'+p.request+'</td>'+
     '<td><select class="filter-select" style="font-size:11px;padding:3px 7px" onchange="updatePrayerStatus(\''+p.id+'\',this.value)">'+
       '<option value="pending"'+(p.status==='pending'?' selected':'')+'>Pending</option>'+
       '<option value="praying"'+(p.status==='praying'?' selected':'')+'>Praying</option>'+
@@ -1352,7 +1353,7 @@ function adminPrayersHTML(){
 function adminBaptismsHTML(){
   const baptisms=DB.get('baptisms',[]);
   const rows=baptisms.map(b=>'<tr>'+
-    '<td><strong>'+b.fullName+'</strong>'+(b.testimony?'<div class="text-xs text-dim">"'+b.testimony.slice(0,50)+'..."</div>':'')+'</td>'+
+    '<td><strong>'+b.fullName+'</strong>'+(b.email?'<div class="text-xs text-dim">'+b.email+'</div>':'')+(b.testimony?'<div class="text-xs text-dim" style="white-space:normal;overflow-wrap:anywhere">Testimony: '+b.testimony+'</div>':'')+'</td>'+
     '<td>'+(b.phone||'—')+'</td>'+
     '<td><strong>'+b.preferredDate+'</strong></td>'+
     '<td><select class="filter-select" style="font-size:11px;padding:3px 7px" onchange="updateBaptismStatus(\''+b.id+'\',this.value)">'+
