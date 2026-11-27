@@ -87,7 +87,7 @@ process.stdout.write('Performance checks passed: concurrent admin reads, active-
 
 const siteTemplate = fs.readFileSync(path.join(ROOT, 'views/index.html'), 'utf8');
 const uiRepair = fs.readFileSync(path.join(ROOT, 'js/ui-repair.js'), 'utf8');
-if (!siteTemplate.includes('site.css?v=20261127-14') ||
+if (!siteTemplate.includes('site.css?v=20261127-15') ||
     !/app\.js\?v=\d{8}-\d+/.test(siteTemplate) ||
     !siteTemplate.includes('ui-repair.js?v=20261127-10')) {
   throw new Error('Asset URLs must be cache-busted after frontend releases.');
