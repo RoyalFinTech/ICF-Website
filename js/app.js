@@ -1226,7 +1226,7 @@ function adminMembersHTML(){
     const directoryAllowed=m.publicProfileConsent===true;
     return '<tr>'+
       '<td><strong>'+adminEscapeHtml(m.name)+'</strong>'+(m.email?'<div class="text-xs text-dim">'+adminEscapeHtml(m.email)+'</div>':'')+'</td>'+
-      '<td class="text-dim">'+(m.nationality?((COUNTRIES.find(c=>c.name===m.nationality)||{flag:'🏳️'}).flag+' '+adminEscapeHtml(m.nationality)):'—')+'</td>'+
+      '<td class="text-dim">'+(m.nationality?((window.ICFCountryData.getCountry(m.nationalityCode)||COUNTRIES.find(c=>c.name===m.nationality)||{flag:'🏳️',name:m.nationality}).flag+' '+adminEscapeHtml((window.ICFCountryData.getCountry(m.nationalityCode)||{}).name||m.nationality)):'—')+'</td>'+
       '<td class="text-dim">'+adminEscapeHtml(m.phone||'—')+'</td>'+
       '<td class="text-dim" style="max-width:180px;white-space:normal;overflow-wrap:anywhere">'+adminEscapeHtml(m.address||'—')+'</td>'+
       '<td><span class="badge '+(m.role==='admin'?'badge-gold':m.role==='leader'?'badge-blue':'badge-gray')+'">'+adminEscapeHtml(m.role||'member')+'</span></td>'+
