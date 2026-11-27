@@ -15,6 +15,8 @@ const passthrough = function (_req,_res,next) { if (next) next(); };
 const state = {
   signUpCalls:[],
   signupOverride:null,
+  createUserCalls:[],
+  createUserOverride:null,
   signInError:null,
   resetCalls:[],
   resendCalls:[],
@@ -51,7 +53,14 @@ registerAuthRoutes(app,{
   loginLimit:passthrough,publicLimit:passthrough,signupLimit:passthrough,
   recoveryLimit:passthrough,resendLimit:passthrough,requireStorage:passthrough,
   authClient:function(){return auth;},
-  db:function(){return {auth:{admin:{deleteUser:async function(){return {error:null};}}}};},
+  db:function(){return {auth:{admin:{
+    createUser:async function(input){
+      state.createUserCalls.push(input);
+      if(state.createUserOverride)return state.createUserOverride;
+      return {data:{user:{id:'auth-admin-created-'+state.createUserCalls.length,email:input.email}},error:null};
+    },
+    deleteUser:async function(){return {error:null};}
+  }}};},
   fail:function(res,status,error){return res.status(status).json({error:error});},
   insertRecord:async function(collection,record){state.members.push({collection:collection,record:record});},
   crypto:crypto
@@ -82,52 +91,76 @@ function signupBody(overrides) {
 
 (async function main(){
   const originalEnv={
-    site:process.env.TURNSTILE_SITE_KEY,secret:process.env.TURNSTILE_SECRET_KEY,publicUrl:process.env.PUBLIC_SITE_URL
+    site:process.env.TURNSTILE_SITE_KEY,secret:process.env.TURNSTILE_SECRET_KEY,publicUrl:process.env.PUBLIC_SITE_URL,
+    emailVerification:process.env.ICF_EMAIL_VERIFICATION_REQUIRED,passwordRecovery:process.env.ICF_PASSWORD_RECOVERY_ENABLED
   };
   const originalFetch=global.fetch;
   try {
     delete process.env.TURNSTILE_SITE_KEY;
     delete process.env.TURNSTILE_SECRET_KEY;
+    delete process.env.ICF_EMAIL_VERIFICATION_REQUIRED;
+    delete process.env.ICF_PASSWORD_RECOVERY_ENABLED;
     process.env.PUBLIC_SITE_URL='https://icf-website.onrender.com';
 
     const config=await call('GET','/api/public/auth-config');
     assert.equal(config.body.turnstileEnabled,false,'Turnstile is optional until real keys are configured');
+    assert.equal(config.body.emailVerificationRequired,false,'email verification stays deferred until delivery is configured');
+    assert.equal(config.body.passwordRecoveryEnabled,false,'password recovery stays disabled until delivery is configured');
 
-    const botCount=state.signUpCalls.length;
+    const botCount=state.createUserCalls.length;
     const bot=await call('POST','/api/public/member-signup',signupBody({companyWebsite:'filled-by-bot'}));
     assert.equal(bot.statusCode,201,'honeypot response stays non-descriptive');
-    assert.equal(state.signUpCalls.length,botCount,'honeypot does not create an Auth user');
+    assert.equal(state.createUserCalls.length,botCount,'honeypot does not create an Auth user');
 
     const created=await call('POST','/api/public/member-signup',signupBody());
     assert.equal(created.statusCode,201);
-    assert.equal(created.body.emailConfirmationRequired,true);
-    assert.match(created.body.message,/confirm your email/i);
+    assert.equal(created.body.emailConfirmationRequired,false);
+    assert.equal(created.body.emailVerificationPending,true);
+    assert.equal(created.body.membershipStatus,'pending');
+    assert.match(created.body.message,/saved as Pending/i);
+    assert.match(created.body.message,/Email verification is not enabled yet/i);
     const stored=state.members[state.members.length-1].record;
     assert.equal(stored.nationality,'The Gambia');
     assert.equal(stored.nationalityCode,'GM');
     assert.equal(stored.status,'pending');
-    assert.equal(state.signUpCalls[state.signUpCalls.length-1].options.emailRedirectTo,'https://icf-website.onrender.com');
+    assert.equal(stored.emailVerified,false);
+    assert.equal(stored.emailVerificationStatus,'not_verified_email_delivery_pending');
+    assert.equal(state.createUserCalls[state.createUserCalls.length-1].email_confirm,true);
+    assert.equal(state.createUserCalls[state.createUserCalls.length-1].user_metadata.icf_email_verification_status,'pending');
+    assert.equal(state.signUpCalls.length,0,'email-independent signup must not invoke the email-sending signup endpoint');
 
-    state.signupOverride={data:{user:{id:'duplicate-user',identities:[]},session:null},error:null};
+    state.createUserOverride={data:null,error:{code:'email_exists',message:'User already registered'}};
     const duplicate=await call('POST','/api/public/member-signup',signupBody());
     assert.equal(duplicate.statusCode,400);
-    assert.match(duplicate.body.error,/sign in or use password recovery/i);
+    assert.match(duplicate.body.error,/check your details or contact the church office/i);
     assert.doesNotMatch(duplicate.body.error,/already registered|email exists|account exists/i);
+    state.createUserOverride=null;
 
-    state.signupOverride={data:null,error:{code:'user_already_exists',message:'User already registered'}};
-    const duplicateError=await call('POST','/api/public/member-signup',signupBody());
-    assert.equal(duplicateError.statusCode,400);
-    assert.equal(duplicateError.body.error,duplicate.body.error,'provider duplicate errors use the same generic public response');
-    state.signupOverride=null;
-    
+    const disabledReset=await call('POST','/api/auth/password-reset-request',{email:'unknown@example.com'});
+    assert.equal(disabledReset.statusCode,503,'password recovery stays unavailable while email delivery is not configured');
+    assert.equal(state.resetCalls.length,0,'disabled recovery does not contact Supabase');
+
+    const disabledResend=await call('POST','/api/auth/resend-confirmation',{email:'unknown@example.com'});
+    assert.equal(disabledResend.statusCode,503,'email confirmation resend stays unavailable until enabled');
+    assert.equal(state.resendCalls.length,0,'disabled confirmation does not contact Supabase');
+
+    process.env.ICF_PASSWORD_RECOVERY_ENABLED='true';
     const reset=await call('POST','/api/auth/password-reset-request',{email:'unknown@example.com'});
     assert.equal(reset.statusCode,200);
     assert.match(reset.body.message,/If an account exists/i);
     assert.equal(state.resetCalls[0].options.redirectTo,'https://icf-website.onrender.com');
 
+    process.env.ICF_EMAIL_VERIFICATION_REQUIRED='true';
     const resend=await call('POST','/api/auth/resend-confirmation',{email:'unknown@example.com'});
-    assert.equal(resend.statusCode,200,'resend deliberately does not reveal whether the address exists');
+    assert.equal(resend.statusCode,200,'resend remains generic when future email verification is enabled');
     assert.match(resend.body.message,/If this account still needs email confirmation/i);
+
+    const futureEmailSignup=await call('POST','/api/public/member-signup',signupBody({email:'future-email@example.com'}));
+    assert.equal(futureEmailSignup.statusCode,201);
+    assert.equal(futureEmailSignup.body.emailConfirmationRequired,true,'future mode requests confirmation after delivery is configured');
+    assert.equal(futureEmailSignup.body.emailVerificationPending,true);
+    assert.equal(state.signUpCalls.length,1,'future mode uses Supabase signup email flow');
+    assert.equal(state.members[state.members.length-1].record.status,'pending');
 
     const completed=await call('POST','/api/auth/password-reset-complete',{
       accessToken:'a'.repeat(40),refreshToken:'r'.repeat(40),password:'Another-long-password-2026'
@@ -144,26 +177,30 @@ function signupBody(overrides) {
     assert.equal(unconfirmed.statusCode,403);
     assert.match(unconfirmed.body.error,/confirm your email/i);
 
+    delete process.env.ICF_EMAIL_VERIFICATION_REQUIRED;
     process.env.TURNSTILE_SITE_KEY='test-site-key';
     process.env.TURNSTILE_SECRET_KEY='test-secret-key';
     global.fetch=async function(){
       return {ok:true,json:async function(){return state.turnstileResponse;}};
     };
+    const beforeProtected=state.createUserCalls.length;
     const protectedSignup=await call('POST','/api/public/member-signup',signupBody({captchaToken:'test-turnstile-token'}));
     assert.equal(protectedSignup.statusCode,201,'valid Turnstile action and hostname permit signup');
-    assert.equal(state.signUpCalls[state.signUpCalls.length-1].options.captchaToken,'test-turnstile-token');
+    assert.equal(state.createUserCalls.length,beforeProtected+1,'valid CAPTCHA permits the server-side Auth creation path');
 
-    const beforeInvalid=state.signUpCalls.length;
+    const beforeInvalid=state.createUserCalls.length;
     state.turnstileResponse={success:true,action:'wrong_action',hostname:'icf-website.onrender.com'};
     const rejected=await call('POST','/api/public/member-signup',signupBody({captchaToken:'invalid-action-token'}));
     assert.equal(rejected.statusCode,400,'Turnstile action mismatch is rejected');
-    assert.equal(state.signUpCalls.length,beforeInvalid,'invalid CAPTCHA does not create an Auth user');
+    assert.equal(state.createUserCalls.length,beforeInvalid,'invalid CAPTCHA does not create an Auth user');
 
-    process.stdout.write('Auth flow tests passed: recovery, resend, email-confirmation messaging, honeypot and Turnstile validation.\n');
+    process.stdout.write('Auth flow tests passed: email-independent applications, deferred email verification, pending approval, feature-gated recovery and Turnstile validation.\\n');
   } finally {
     if(originalEnv.site===undefined)delete process.env.TURNSTILE_SITE_KEY;else process.env.TURNSTILE_SITE_KEY=originalEnv.site;
     if(originalEnv.secret===undefined)delete process.env.TURNSTILE_SECRET_KEY;else process.env.TURNSTILE_SECRET_KEY=originalEnv.secret;
     if(originalEnv.publicUrl===undefined)delete process.env.PUBLIC_SITE_URL;else process.env.PUBLIC_SITE_URL=originalEnv.publicUrl;
+    if(originalEnv.emailVerification===undefined)delete process.env.ICF_EMAIL_VERIFICATION_REQUIRED;else process.env.ICF_EMAIL_VERIFICATION_REQUIRED=originalEnv.emailVerification;
+    if(originalEnv.passwordRecovery===undefined)delete process.env.ICF_PASSWORD_RECOVERY_ENABLED;else process.env.ICF_PASSWORD_RECOVERY_ENABLED=originalEnv.passwordRecovery;
     global.fetch=originalFetch;
   }
 })().catch(function(error){
