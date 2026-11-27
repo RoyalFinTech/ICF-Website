@@ -37,6 +37,7 @@
 </head>
 <body data-theme="dark">
 <!-- ═══ NAVBAR ═══════════════════════════════ -->
+<!-- ═══ NAVBAR ═══════════════════════════════ -->
 <div id="icf-theme-ribbon" class="icf-theme-ribbon" role="region" aria-label="ICF monthly theme"><img src="/icf-logo-transparent.png"  data-logo="1" alt="ICF" class="icf-ribbon-logo"><div class="icf-ribbon-track"><div class="icf-ribbon-content"><span>✨ <strong>NOVEMBER THEME: LIVING BY GRACE IN HOLINESS</strong></span><span>📖 God’s grace trains us to live godly lives. — Titus 2:11–12</span><span>🙏 Grace • Holiness • Obedience • Christlikeness</span><span>✝ It’s All About Jesus.</span><span>✨ <strong>NOVEMBER THEME: LIVING BY GRACE IN HOLINESS</strong></span><span>📖 God’s grace trains us to live godly lives. — Titus 2:11–12</span><span>🙏 Grace • Holiness • Obedience • Christlikeness</span><span>✝ It’s All About Jesus.</span></div></div></div>
 <nav id="navbar">
   <div class="nav-inner">
@@ -53,7 +54,9 @@
       <li><a class="nav-link" data-page="prayers" onclick="navigate('prayers')" data-i18n="prayer">🙏 Prayer</a></li>
       <li><a class="nav-link" data-page="baptisms" onclick="navigate('baptisms')" data-i18n="baptism">💝 Baptism</a></li>
       <li><a class="nav-link" data-page="contact" onclick="navigate('contact')" data-i18n="contact">📞 Contact</a></li>
-      <li><a class="nav-link" data-page="sermons" onclick="navigate('sermons')" data-i18n="sermons">🎥 Sermons</a></li>
+      <li><a class="nav-link" data-page="sermons" onclick="navigate('sermons')" data-i18n="sermons">🎥 Sermons</a>
+  <a class="icf-watch-live-link" data-icf-watch-live onclick="watchIcfLive()">🔴 Watch ICF Live</a></li>
+      <li><a class="nav-link icf-watch-live-link" data-icf-watch-live onclick="watchIcfLive()">🔴 Watch Live</a></li>
       <li><a class="nav-link" data-page="gallery" onclick="navigate('gallery')" data-i18n="gallery">📷 Gallery</a></li>
       <li><a class="nav-link" data-page="announcements" onclick="navigate('announcements')" data-i18n="news">📢 News</a></li>
       <li><a class="nav-link" data-page="membership" onclick="navigate('membership')" title="Membership">🧾 ICF Membership Statement PDF</a></li>
@@ -97,7 +100,6 @@
   </div>
   <button onclick="toggleTheme()" style="margin-top:4px;text-align:left">🌙 Toggle Theme</button>
 </div>
-
 <main id="main">
 <div id="icf-splash" role="status" aria-live="polite" aria-label="Loading ICF Gambia website"><div class="splash-logo-wrap"><img src="/icf-logo-transparent.png" alt="International Christian Fellowship logo" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Cpath d=%22M50 14v72M18 45h64%22 stroke=%22white%22 stroke-width=%2210%22 stroke-linecap=%22round%22/%3E%3C/svg%3E'"></div>
 <h1 class="splash-title">ICF GAMBIA</h1><p class="splash-tagline">Solution Centre · It’s All About Jesus</p><div class="splash-loading"><span class="splash-spinner" aria-hidden="true"></span><span id="icf-splash-status">Preparing your experience</span></div><div class="splash-progress" aria-hidden="true"><span></span></div></div>
