@@ -34,6 +34,7 @@ module.exports = function registerPublicRoutes(app, deps) {
   async function profileView(member) {
     return {id:member.id,name:member.name,email:member.email,phone:member.phone,address:member.address,
       nationality:member.nationality,nationalityCode:member.nationalityCode||'',bio:member.bio||'',avatarUrl:await signedAvatarUrl(member),
+      emailVerified:member.emailVerified===true,emailVerificationStatus:member.emailVerificationStatus||'unknown',
       publicProfileConsent:member.publicProfileConsent===true,status:member.status,roles:Array.isArray(member.roles)?member.roles:[],joinedAt:member.joinedAt};
   }
   function imageSignature(buffer,mime) {
