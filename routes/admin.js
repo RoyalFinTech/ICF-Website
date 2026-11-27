@@ -86,4 +86,48 @@ module.exports = function registerAdminRoutes(app, deps) {
       fail(res,503,'Upload failed. Check that the Supabase Storage buckets exist and try again.');
     }
   });
+
+  function createBroadcastToken(room, identity, canPublish) {
+    const key=process.env.LIVEKIT_API_KEY||'', secret=process.env.LIVEKIT_API_SECRET||'', serverUrl=process.env.LIVEKIT_URL||'';
+    if(!key||!secret||!serverUrl) throw new Error('LIVEKIT_NOT_CONFIGURED');
+    const now=Math.floor(Date.now()/1000), enc=function(v){return Buffer.from(JSON.stringify(v)).toString('base64url');};
+    const body=enc({alg:'HS256',typ:'JWT'})+'.'+enc({iss:key,sub:identity,name:identity,nbf:now-5,iat:now,exp:now+3600,video:{roomJoin:true,room:room,canPublish:!!canPublish,canSubscribe:true}});
+    return {serverUrl:serverUrl,token:body+'.'+crypto.createHmac('sha256',secret).update(body).digest('base64url')};
+  }
+  app.get('/api/admin/broadcast/config',requireStorage,requireAdmin,function(req,res){
+    res.json({provider:'LiveKit',configured:Boolean(process.env.LIVEKIT_URL&&process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET)});
+  });
+  app.get('/api/admin/broadcast/sessions',requireStorage,requireAdmin,async function(req,res){
+    try{const r=await db().from('broadcast_sessions').select('*').order('created_at',{ascending:false}).limit(50);if(r.error)throw r.error;res.json({sessions:r.data||[]});}
+    catch(e){console.error('Broadcast history read failed:',e.message);fail(res,503,'Could not load broadcast history.');}
+  });
+  app.post('/api/admin/broadcast/sessions',requireStorage,requireAdmin,async function(req,res){
+    try{
+      const b=req.body||{},title=String(b.title||'').trim();if(title.length<3||title.length>180)return fail(res,400,'Enter a broadcast title between 3 and 180 characters.');
+      const slug=crypto.randomBytes(9).toString('hex'),id=crypto.randomUUID();
+      const row={id:id,slug:slug,title:title,description:String(b.description||'').slice(0,1200),room_name:'icf-'+slug,status:'draft',
+        is_public:b.isPublic!==false,recording_enabled:b.recordingEnabled===true,recording_status:b.recordingEnabled===true?'pending':'not_requested',
+        logo_url:String(b.logoUrl||'').slice(0,1000)||null,logo_position:['top-left','top-right','bottom-left','bottom-right'].includes(b.logoPosition)?b.logoPosition:'top-left',
+        overlay_text:String(b.overlayText||'').slice(0,500),scripture_reference:String(b.scriptureReference||'').slice(0,120),scripture_text:String(b.scriptureText||'').slice(0,1200),
+        scheduled_at:b.scheduledAt||null,created_by:req.identity.user.id};
+      const saved=await db().from('broadcast_sessions').insert(row).select('*').single();if(saved.error)throw saved.error;
+      res.status(201).json({session:saved.data,shareUrl:'/live.html?slug='+encodeURIComponent(slug)});
+    }catch(e){console.error('Broadcast draft save failed:',e.message);fail(res,503,'Could not save broadcast setup.');}
+  });
+  app.post('/api/admin/broadcast/sessions/:id/token',requireStorage,requireAdmin,async function(req,res){
+    try{const r=await db().from('broadcast_sessions').select('room_name').eq('id',req.params.id).maybeSingle();if(r.error)throw r.error;if(!r.data)return fail(res,404,'Broadcast session not found.');res.json(createBroadcastToken(r.data.room_name,'icf-admin-'+req.identity.user.id,true));}
+    catch(e){if(e.message==='LIVEKIT_NOT_CONFIGURED')return fail(res,503,'Live broadcasting is not connected yet. Configure LIVEKIT_URL, LIVEKIT_API_KEY and LIVEKIT_API_SECRET in Render.');console.error('Broadcast token failed:',e.message);fail(res,503,'Could not prepare secure broadcast credentials.');}
+  });
+  app.post('/api/admin/broadcast/sessions/:id/start',requireStorage,requireAdmin,async function(req,res){
+    try{const r=await db().from('broadcast_sessions').update({status:'live',started_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',req.params.id).select('*').single();if(r.error)throw r.error;res.json({session:r.data});}
+    catch(e){console.error('Broadcast publish update failed:',e.message);fail(res,503,'Could not publish the broadcast status.');}
+  });
+  app.patch('/api/admin/broadcast/sessions/:id/overlay',requireStorage,requireAdmin,async function(req,res){
+    try{const b=req.body||{},r=await db().from('broadcast_sessions').update({overlay_text:String(b.overlayText||'').slice(0,500),scripture_reference:String(b.scriptureReference||'').slice(0,120),scripture_text:String(b.scriptureText||'').slice(0,1200),updated_at:new Date().toISOString()}).eq('id',req.params.id).eq('status','live').select('id').maybeSingle();if(r.error)throw r.error;if(!r.data)return fail(res,404,'Live broadcast not found.');res.json({updated:true});}
+    catch(e){console.error('Broadcast overlay update failed:',e.message);fail(res,503,'Could not update the live presentation.');}
+  });
+  app.post('/api/admin/broadcast/sessions/:id/end',requireStorage,requireAdmin,async function(req,res){
+    try{const r=await db().from('broadcast_sessions').update({status:'ended',ended_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',req.params.id).in('status',['live','preparing','draft']).select('*').maybeSingle();if(r.error)throw r.error;if(!r.data)return fail(res,404,'Broadcast session is already closed.');res.json({session:r.data});}
+    catch(e){console.error('Broadcast end failed:',e.message);fail(res,503,'Could not end the broadcast.');}
+  });
 };

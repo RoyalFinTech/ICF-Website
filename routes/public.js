@@ -129,4 +129,20 @@ module.exports = function registerPublicRoutes(app, deps) {
       fail(res,503,'Your submission could not be saved. Please try again later.');
     }
   });
+
+  app.get('/api/public/live',requireStorage,async function(req,res){
+    try{let q=db().from('broadcast_sessions').select('id,slug,title,description,logo_url,logo_position,overlay_text,scripture_reference,scripture_text,started_at').eq('status','live').eq('is_public',true);
+      const slug=String(req.query.slug||'').slice(0,40);if(slug)q=q.eq('slug',slug);const r=await q.order('started_at',{ascending:false}).limit(1).maybeSingle();
+      if(r.error)throw r.error;if(!r.data)return res.status(404).json({live:false});res.json({live:true,session:r.data});
+    }catch(e){console.error('Public live lookup failed:',e.message);fail(res,503,'Live broadcast information is temporarily unavailable.');}
+  });
+  app.post('/api/public/live/token',requireStorage,async function(req,res){
+    try{const slug=String((req.body||{}).slug||'').slice(0,40);if(!slug)return fail(res,400,'A broadcast link is required.');
+      const r=await db().from('broadcast_sessions').select('room_name').eq('slug',slug).eq('status','live').eq('is_public',true).maybeSingle();if(r.error)throw r.error;if(!r.data)return fail(res,404,'This ICF broadcast is not live.');
+      const key=process.env.LIVEKIT_API_KEY||'',secret=process.env.LIVEKIT_API_SECRET||'',serverUrl=process.env.LIVEKIT_URL||'';if(!key||!secret||!serverUrl)return fail(res,503,'The live viewing service is not connected.');
+      const now=Math.floor(Date.now()/1000),enc=function(v){return Buffer.from(JSON.stringify(v)).toString('base64url');};
+      const body=enc({alg:'HS256',typ:'JWT'})+'.'+enc({iss:key,sub:'viewer-'+crypto.randomBytes(8).toString('hex'),name:'ICF Viewer',nbf:now-5,iat:now,exp:now+1800,video:{roomJoin:true,room:r.data.room_name,canPublish:false,canSubscribe:true}});
+      res.json({serverUrl:serverUrl,token:body+'.'+crypto.createHmac('sha256',secret).update(body).digest('base64url')});
+    }catch(e){console.error('Public viewer token failed:',e.message);fail(res,503,'Could not connect to the live broadcast.');}
+  });
 };
