@@ -22,7 +22,7 @@
     }
     if (getToken() && !headers.Authorization) headers.Authorization = 'Bearer ' + getToken();
     var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    var timeoutId = controller ? window.setTimeout(function () { controller.abort(); }, 15000) : null;
+    var timeoutId = controller ? window.setTimeout(function () { controller.abort(); }, 8000) : null;
     if (controller && !options.signal) options.signal = controller.signal;
     return fetch(API + url,Object.assign({},options,{headers:headers})).then(function (response) {
       return response.text().then(function (raw) {
@@ -54,6 +54,19 @@
     card.appendChild(copy); card.appendChild(close);
     host.insertBefore(card,host.firstChild);
   }
+  function showPublicDataFailure(error) {
+    var waiting = document.querySelectorAll('main .empty-state .spinner');
+    waiting.forEach(function (spinner) {
+      var state = spinner.closest('.empty-state');
+      if (!state) return;
+      state.innerHTML = '<div class="empty-state-emoji">📡</div><h3>Live updates are taking a break</h3><p>The rest of the ICF website is available. Please refresh to try loading this section again.</p>';
+    });
+    if (waiting.length) {
+      showErrorCard('Could not load live church updates','The homepage remains available. Refresh the page to retry the live events, sermons, gallery and announcements.');
+    }
+    if (error) console.warn('Public church data is unavailable:',error.message || error);
+  }
+
   function notifyError(error) {
     if (error && error.status === 401) { localStorage.removeItem(TOKEN); localStorage.removeItem(USER); }
     var message = error && error.message ? error.message : 'Please try again.';
@@ -119,7 +132,7 @@
   function loadPublic() {
     return request('/public-data').catch(function (firstError) {
       console.warn('Public data request did not complete; retrying once:',firstError.message);
-      return new Promise(function (resolve) { window.setTimeout(resolve,2200); })
+      return new Promise(function (resolve) { window.setTimeout(resolve,1200); })
         .then(function () { return request('/public-data'); });
     }).then(function (data) {
       hydrate(data);
@@ -376,7 +389,7 @@
     if (existingToken && existingToken.split('.').length !== 3) {
       localStorage.removeItem(TOKEN); localStorage.removeItem(USER); existingToken='';
     }
-    loadPublic().catch(function (error) { console.warn('Public data is not available yet:',error.message); })
+    loadPublic().catch(function (error) { showPublicDataFailure(error); })
       .then(function () {
         if (existingToken) return loadAdmin().catch(function (error) { console.warn('Admin session could not be restored:',error.message); });
       }).then(function () {
