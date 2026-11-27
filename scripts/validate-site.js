@@ -20,6 +20,8 @@ const countries = countryData.getAll();
 if (countries.length !== 249 || countries.some(function (country) { return !country.code || !country.name || !country.flag || !country.region; })) throw new Error('The full country and flag catalogue is incomplete.');
 if (!countryData.getCountry('GM') || countryData.getCountry('GM').name !== 'The Gambia' || !countryData.getCountry('NG') || !countryData.getCountry('US')) throw new Error('Required nationality country records are missing.');
 
+const signupHtml = fs.readFileSync(path.join(ROOT, 'views/pages/signup.html'), 'utf8');
+const loginHtml = fs.readFileSync(path.join(ROOT, 'views/pages/login.html'), 'utf8');
 const authActionsHtml = fs.readFileSync(path.join(ROOT, 'views/pages/auth-actions.html'), 'utf8');
 const authBridgeSource = fs.readFileSync(path.join(ROOT, 'js/api-bridge.js'), 'utf8');
 const appRouterSource = fs.readFileSync(path.join(ROOT, 'js/app.js'), 'utf8');
@@ -28,8 +30,6 @@ if (!loginHtml.includes('openIcfPasswordReset') || !loginHtml.includes('resendIc
 if (!authBridgeSource.includes('password-reset-complete') || !authBridgeSource.includes('password-reset-request') || !authBridgeSource.includes('resend-confirmation')) throw new Error('Browser password recovery and confirmation resend flows are not connected.');
 if (!appRouterSource.includes("callbackType==='recovery'?'password-reset'") || !appRouterSource.includes('history.replaceState')) throw new Error('Auth callback routing must safely consume and clear recovery tokens.');
 if (!signupHtml.includes('id="su-website"') || !signupHtml.includes('id="icf-turnstile"')) throw new Error('Signup honeypot or Turnstile widget mount is missing.');
-const signupHtml = fs.readFileSync(path.join(ROOT, 'views/pages/signup.html'), 'utf8');
-const loginHtml = fs.readFileSync(path.join(ROOT, 'views/pages/login.html'), 'utf8');
 const signupAuthSource = fs.readFileSync(path.join(ROOT, 'routes/auth.js'), 'utf8');
 const countryAppSource = fs.readFileSync(path.join(ROOT, 'js/app.js'), 'utf8');
 const signupBridgeSource = fs.readFileSync(path.join(ROOT, 'js/api-bridge.js'), 'utf8');
