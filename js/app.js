@@ -957,7 +957,7 @@ function initTheme(){
 }
 
 /* ── Router ── */
-const ROUTES=['home','about','services','events','prayers','baptisms','contact','login','signup','admin-login','admin-portal','sermons','gallery','announcements','membership','workers','member-profile'];
+const ROUTES=['home','about','services','events','prayers','baptisms','contact','login','signup','password-reset','email-confirmed','admin-login','admin-portal','sermons','gallery','announcements','membership','workers','member-profile'];
 function navigate(page){
   if(page==='member-profile'&&!_store.getItem('icf_member_token')){navigate('login');return}
   if(page==='admin-portal'){if(!_store.getItem('icf_admin_token')){navigate('admin-login');return}}
@@ -1463,8 +1463,28 @@ document.addEventListener('DOMContentLoaded',()=>{
   icfStartupStep('phone search',()=>setupCountrySearch('phone','phone'));
   icfStartupStep('nationality search',()=>setupCountrySearch('nationality','nationality'));
   let hash='home';
-  try{hash=window.location.hash.slice(1)||'home';}catch(error){}
-  const requestedPage=ROUTES.includes(hash)?hash:'home';
+  let callbackPage=null;
+  try{
+    const fragment=new URLSearchParams(window.location.hash.slice(1));
+    const callbackType=fragment.get('type')||'';
+    const callbackError=fragment.get('error_description')||fragment.get('error')||'';
+    const hasAuthCallback=fragment.has('access_token')||fragment.has('error')||fragment.has('error_description');
+    if(hasAuthCallback&&(callbackType==='recovery'||callbackType==='signup'||callbackError)){
+      callbackPage=callbackType==='recovery'?'password-reset':'email-confirmed';
+      window.ICFAuthCallback={
+        type:callbackType,
+        accessToken:fragment.get('access_token')||'',
+        refreshToken:fragment.get('refresh_token')||'',
+        error:callbackError
+      };
+      // Supabase returns short-lived credentials in the URL fragment. Keep them
+      // in memory only and remove them from the address bar before rendering.
+      history.replaceState({page:callbackPage},document.title,window.location.pathname+window.location.search);
+    }
+    hash=window.location.hash.slice(1)||'home';
+  }catch(error){console.warn('[ICF auth] Could not inspect the authentication redirect.',error);}
+  const queryPage=new URLSearchParams(window.location.search).get('page')||'';
+  const requestedPage=callbackPage||(ROUTES.includes(queryPage)?queryPage:(ROUTES.includes(hash)?hash:'home'));
   try{navigate(requestedPage);}
   catch(error){
     console.error('[ICF startup] initial route failed:',error);
