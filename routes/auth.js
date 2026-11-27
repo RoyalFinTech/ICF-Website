@@ -152,6 +152,16 @@ module.exports = function registerAuthRoutes(app, deps) {
       if (memberResult.error) throw memberResult.error;
       const member = memberResult.data && memberResult.data.data;
       if (!member) return fail(res,403,'No membership application is linked to this account.');
+      if (emailFeatureConfiguration().verificationRequired &&
+          member.emailVerificationStatus === 'pending' &&
+          result.data.user.email_confirmed_at) {
+        member.emailVerified = true;
+        member.emailVerificationStatus = 'verified';
+        const savedVerification = await db().from('app_records').upsert({
+          collection:'members',record_id:member.id,data:member,updated_at:new Date().toISOString()
+        },{onConflict:'collection,record_id'});
+        if (savedVerification.error) throw savedVerification.error;
+      }
       if (member.status === 'pending') return fail(res,403,'Your membership application is awaiting church approval.');
       if (member.status === 'suspended') return fail(res,403,'This account is suspended. Please contact the church office.');
       if (member.status !== 'approved') return fail(res,403,'Your membership is not yet approved. Please contact the church office if you need help.');
