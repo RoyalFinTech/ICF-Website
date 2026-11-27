@@ -276,6 +276,7 @@ app.use(function (error,req,res,next) {
 });
 app.listen(PORT,function () {
   console.log('ICF Gambia listening on port ' + PORT + '. Supabase configured: ' + configured);
+  console.log('LiveKit configured: ' + Boolean(process.env.LIVEKIT_URL && process.env.LIVEKIT_API_KEY && process.env.LIVEKIT_API_SECRET));
   ensureConfiguredAdmin().catch(function (error) {
     console.error('ICF administrator bootstrap failed:', error.message);
   });
