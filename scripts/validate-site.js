@@ -38,6 +38,9 @@ if (!viewerSource.includes('function goOffline') || !viewerSource.includes("cach
 if (!viewerSource.includes('function fitTextSize') || !viewerSource.includes('welcomeMode') || !viewerSource.includes('welcomeDuration')) throw new Error('Public viewer responsive text or welcome display settings are missing.');
 const liveHtml = fs.readFileSync(path.join(ROOT, 'live.html'), 'utf8');
 const publicRoutes = fs.readFileSync(path.join(ROOT, 'routes/public.js'), 'utf8');
+if (!publicRoutes.includes(".not('started_at','is',null)") || !publicRoutes.includes("r.data.status!=='live'||r.data.ended_at")) throw new Error('Public broadcast status must be based on the latest started service, including ended sessions.');
+if (!adminSource.includes("const previous=await db().from('broadcast_sessions')") || !adminSource.includes("Previous broadcast room cleanup failed")) throw new Error('Starting a new broadcast must close abandoned older live sessions.');
+
 const memberDirectorySource = fs.readFileSync(path.join(ROOT, 'js/member-directory.js'), 'utf8');
 const appSource = fs.readFileSync(path.join(ROOT, 'js/app.js'), 'utf8');
 if (!publicRoutes.includes("app.get('/api/public-directory'") || !memberDirectorySource.includes('renderPublicDirectory')) throw new Error('Public leadership directory route or renderer is missing.');
