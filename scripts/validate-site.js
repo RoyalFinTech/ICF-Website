@@ -17,6 +17,7 @@ if (!/worship-studio\.js\?v=\d{8}-\d+/.test(html)) throw new Error('Worship Stud
 if (!html.includes('/favicon.png')) throw new Error('External favicon is not linked.');
 const studioSource = fs.readFileSync(path.join(ROOT, 'js/worship-studio.js'), 'utf8');
 const viewerSource = fs.readFileSync(path.join(ROOT, 'js/worship-viewer.js'), 'utf8');
+const adminSource = fs.readFileSync(path.join(ROOT, 'routes/admin.js'), 'utf8');
 new Function(studioSource);
 new Function(viewerSource);
 new Function(fs.readFileSync(path.join(ROOT, 'js/camera-join.js'), 'utf8'));
@@ -37,7 +38,6 @@ if (!viewerSource.includes('function goOffline') || !viewerSource.includes("cach
 if (!viewerSource.includes('function fitTextSize') || !viewerSource.includes('welcomeMode') || !viewerSource.includes('welcomeDuration')) throw new Error('Public viewer responsive text or welcome display settings are missing.');
 const liveHtml = fs.readFileSync(path.join(ROOT, 'live.html'), 'utf8');
 const publicRoutes = fs.readFileSync(path.join(ROOT, 'routes/public.js'), 'utf8');
-const adminSource = fs.readFileSync(path.join(ROOT, 'routes/admin.js'), 'utf8');
 const memberDirectorySource = fs.readFileSync(path.join(ROOT, 'js/member-directory.js'), 'utf8');
 const appSource = fs.readFileSync(path.join(ROOT, 'js/app.js'), 'utf8');
 if (!publicRoutes.includes("app.get('/api/public-directory'") || !memberDirectorySource.includes('renderPublicDirectory')) throw new Error('Public leadership directory route or renderer is missing.');
