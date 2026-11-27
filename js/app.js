@@ -1306,22 +1306,34 @@ function adminDashHTML(){
     '</div></div>';
 }
 
+function adminEscapeHtml(value){
+  return String(value==null?'':value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
+}
 function adminMembersHTML(){
   const members=DB.get('members',[]);
-  const rows=members.map(m=>'<tr>'+
-    '<td><strong>'+m.name+'</strong>'+(m.email?'<div class="text-xs text-dim">'+m.email+'</div>':'')+'</td>'+
-    '<td class="text-dim">'+(m.nationality?((COUNTRIES.find(c=>c.name===m.nationality)||{flag:'🏳️'}).flag+' '+m.nationality):'—')+'</td>'+
-    '<td class="text-dim">'+(m.phone||'—')+'</td>'+
-    '<td class="text-dim" style="max-width:180px;white-space:normal;overflow-wrap:anywhere">'+(m.address||'—')+'</td>'+
-    '<td><span class="badge '+(m.role==='admin'?'badge-gold':m.role==='leader'?'badge-blue':'badge-gray')+'">'+m.role+'</span></td>'+
-    '<td><select class="filter-select" style="font-size:11px;padding:3px 7px" onchange="updateMemberStatus(\''+m.id+'\',this.value)">'+
-      '<option value="approved"'+(m.status==='approved'?' selected':'')+'>✅ Approved</option>'+
-      '<option value="pending"'+(m.status==='pending'?' selected':'')+'>⏳ Pending</option>'+
-      '<option value="suspended"'+(m.status==='suspended'?' selected':'')+'>🚫 Suspended</option>'+
-    '</select></td>'+
-    '<td class="text-dim text-sm">'+fmtDate(m.joinedAt)+'</td>'+
-    '<td><button class="btn btn-sm btn-danger" onclick="deleteRecord(\'members\',\''+m.id+'\')">Delete</button></td>'+
-  '</tr>').join('');
+  const rows=members.map(m=>{
+    const roles=Array.isArray(m.roles)?m.roles.map(r=>r&&r.name).filter(Boolean).join(', '):'';
+    const directoryAllowed=m.publicProfileConsent===true;
+    return '<tr>'+
+      '<td><strong>'+adminEscapeHtml(m.name)+'</strong>'+(m.email?'<div class="text-xs text-dim">'+adminEscapeHtml(m.email)+'</div>':'')+'</td>'+
+      '<td class="text-dim">'+(m.nationality?((COUNTRIES.find(c=>c.name===m.nationality)||{flag:'🏳️'}).flag+' '+adminEscapeHtml(m.nationality)):'—')+'</td>'+
+      '<td class="text-dim">'+adminEscapeHtml(m.phone||'—')+'</td>'+
+      '<td class="text-dim" style="max-width:180px;white-space:normal;overflow-wrap:anywhere">'+adminEscapeHtml(m.address||'—')+'</td>'+
+      '<td><span class="badge '+(m.role==='admin'?'badge-gold':m.role==='leader'?'badge-blue':'badge-gray')+'">'+adminEscapeHtml(m.role||'member')+'</span></td>'+
+      '<td><select class="filter-select" style="font-size:11px;padding:3px 7px" onchange="updateMemberStatus(\''+adminEscapeHtml(m.id)+'\',this.value)">'+
+        '<option value="approved"'+(m.status==='approved'?' selected':'')+'>✅ Approved</option>'+
+        '<option value="pending"'+(m.status==='pending'?' selected':'')+'>⏳ Pending</option>'+
+        '<option value="suspended"'+(m.status==='suspended'?' selected':'')+'>🚫 Suspended</option>'+
+      '</select></td>'+
+      '<td style="min-width:230px"><input class="form-input" id="member-roles-'+adminEscapeHtml(m.id)+'" value="'+adminEscapeHtml(roles)+'" placeholder="Senior Pastor, Usher, Media Team" style="min-width:210px;margin-bottom:5px"/>'+
+      '<select class="filter-select" id="member-role-type-'+adminEscapeHtml(m.id)+'" style="width:100%;margin-bottom:5px"><option value="office">Church office / leadership</option><option value="ministry"'+(m.roles&&m.roles.some(r=>r.type==='ministry')?' selected':'')+'>Ministry / service team</option></select>'+
+      '<label style="display:flex;gap:6px;align-items:center;font-size:11px"><input type="checkbox" id="member-directory-'+adminEscapeHtml(m.id)+'" '+(m.directoryVisible===true?'checked':'')+(directoryAllowed?'':' disabled')+'/> Show on public leadership page</label>'+
+      '<button class="btn btn-sm btn-outline" style="margin-top:6px" onclick="saveMemberChurchRoles(\''+adminEscapeHtml(m.id)+'\')">Save roles</button>'+
+      (!directoryAllowed?'<div class="text-xs text-dim">Member consent is required before public display.</div>':'')+'</td>'+
+      '<td class="text-dim text-sm">'+fmtDate(m.joinedAt)+'</td>'+
+      '<td><button class="btn btn-sm btn-danger" onclick="deleteRecord(\'members\',\''+adminEscapeHtml(m.id)+'\')">Delete</button></td>'+
+    '</tr>';
+  }).join('');
   return '<div>'+
     '<div class="flex items-center justify-between flex-wrap gap-3" style="margin-bottom:20px">'+
     '<h2 class="section-title">👥 Members ('+members.length+')</h2>'+
@@ -1330,10 +1342,23 @@ function adminMembersHTML(){
     '<button class="btn btn-primary btn-sm" onclick="exportMembers()">⬇️ Export CSV</button>'+
     '<button class="btn btn-outline btn-sm" onclick="openAddMemberModal()">+ Add Member</button>'+
     '</div></div>'+
+    '<p class="text-sm text-dim" style="margin-bottom:14px">Assign one or more church offices and ministry teams to each approved member. Public display requires the member’s profile consent and the visibility checkbox.</p>'+
     '<div class="table-wrap"><table id="members-table">'+
-    '<thead><tr><th>Name / Email</th><th>Nationality</th><th>Phone</th><th>Address</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>'+
-    '<tbody>'+rows+(members.length?'':'<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--text-dim)">No members yet</td></tr>')+'</tbody>'+
+    '<thead><tr><th>Name / Email</th><th>Nationality</th><th>Phone</th><th>Address</th><th>Account role</th><th>Status</th><th>Church roles & public listing</th><th>Joined</th><th>Actions</th></tr></thead>'+
+    '<tbody>'+rows+(members.length?'':'<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--text-dim)">No members yet</td></tr>')+'</tbody>'+
     '</table></div></div>';
+}
+function saveMemberChurchRoles(id){
+  const members=DB.get('members',[]),member=members.find(m=>String(m.id)===String(id));
+  if(!member){toast('Member not found','','error');return;}
+  const field=document.getElementById('member-roles-'+id),typeField=document.getElementById('member-role-type-'+id),visibleField=document.getElementById('member-directory-'+id);
+  const names=String(field&&field.value||'').split(',').map(x=>x.trim()).filter(Boolean).slice(0,12);
+  if(names.some(x=>x.length>100)){toast('Role name is too long','Keep each role under 100 characters.','error');return;}
+  member.roles=names.map((name,index)=>({id:'role-'+index+'-'+name.toLowerCase().replace(/[^a-z0-9]+/g,'-'),name:name,type:typeField&&typeField.value==='office'?'office':'ministry'}));
+  member.directoryVisible=Boolean(visibleField&&visibleField.checked&&member.publicProfileConsent===true);
+  DB.set('members',members);
+  toast('Church roles saved',member.directoryVisible?'Roles saved and member listed publicly.':'Roles saved. Public listing remains off unless consent and visibility are both enabled.','success');
+  renderAdminSection('members');
 }
 
 function adminPrayersHTML(){
