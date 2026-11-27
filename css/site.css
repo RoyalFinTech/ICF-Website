@@ -787,3 +787,82 @@ body.icf-menu-open{overflow:hidden!important}
     touch-action: manipulation;
   }
 }
+
+
+/* Independent administration shell: never reuse the public-site hamburger. */
+body.icf-admin-active #navbar,
+body.icf-admin-active #nav-mobile,
+body.icf-admin-active #icf-theme-ribbon { display:none !important; }
+body.icf-admin-active #main { padding-top:0; }
+#page-admin-portal .admin-topbar {
+  position:sticky; top:0; z-index:1050; display:flex; align-items:center;
+  gap:12px; min-height:66px; padding:9px 16px;
+  background:var(--nav-bg); border-bottom:1px solid var(--border2);
+  box-shadow:0 3px 16px rgba(0,0,0,.12);
+}
+#page-admin-portal .admin-menu-toggle {
+  width:42px; height:42px; flex:0 0 42px; border:1px solid var(--border);
+  border-radius:10px; background:var(--bg-card2); color:var(--text);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:5px; cursor:pointer; touch-action:manipulation;
+}
+#page-admin-portal .admin-menu-toggle span { width:19px; height:2px; border-radius:2px; background:var(--text); }
+#page-admin-portal .admin-topbar-title { display:flex; flex-direction:column; min-width:0; line-height:1.25; }
+#page-admin-portal .admin-topbar-title strong { font-family:var(--font-d); font-size:13px; color:var(--text); }
+#page-admin-portal .admin-topbar-title span { color:var(--text-muted); font-size:10px; }
+#page-admin-portal .admin-topbar-actions { margin-left:auto; display:flex; align-items:center; gap:6px; }
+#page-admin-portal .admin-topbar-btn {
+  min-width:38px; min-height:38px; padding:6px 9px; border:1px solid var(--border);
+  border-radius:9px; background:var(--bg-card2); color:var(--text);
+  cursor:pointer; touch-action:manipulation;
+}
+#page-admin-portal .admin-nav-backdrop { display:none; }
+#page-admin-portal .admin-layout { min-width:0; }
+@media(max-width:900px) {
+  #page-admin-portal .admin-layout { display:block; min-height:calc(100dvh - 66px); }
+  #page-admin-portal .admin-sidebar {
+    position:fixed !important; top:0 !important; left:0; bottom:0; z-index:1201;
+    display:flex !important; flex-direction:column !important; align-items:stretch !important;
+    gap:5px !important; width:min(84vw,330px) !important; max-width:330px;
+    height:100dvh !important; max-height:100dvh; padding:18px 12px !important;
+    overflow-y:auto !important; overflow-x:hidden !important; white-space:normal !important;
+    background:var(--bg-card) !important; border-right:1px solid var(--border2) !important;
+    border-bottom:0 !important; box-shadow:var(--shadow);
+    transform:translateX(-110%); transition:transform .24s ease;
+    overscroll-behavior:contain;
+  }
+  body.icf-admin-menu-open #page-admin-portal .admin-sidebar { transform:translateX(0); }
+  #page-admin-portal .admin-sidebar-title { display:block !important; padding:6px 10px 16px; }
+  #page-admin-portal .admin-sidebar .sidebar-item {
+    width:100% !important; min-width:0 !important; min-height:44px;
+    display:flex; align-items:center; text-align:left; white-space:normal !important;
+    flex:0 0 auto !important; padding:11px 12px !important; font-size:14px !important;
+  }
+  #page-admin-portal .admin-sidebar > div { display:none !important; }
+  #page-admin-portal .admin-nav-backdrop {
+    display:block; position:fixed; inset:0; z-index:1200; border:0;
+    background:rgba(0,0,0,.58); opacity:0; visibility:hidden;
+    transition:opacity .2s ease,visibility .2s ease;
+  }
+  body.icf-admin-menu-open #page-admin-portal .admin-nav-backdrop { opacity:1; visibility:visible; }
+  #page-admin-portal .admin-content { padding:14px !important; width:100%; min-width:0; }
+}
+@media(max-width:480px) {
+  #page-admin-portal .admin-topbar { min-height:60px; padding:8px 10px; gap:8px; }
+  #page-admin-portal .admin-topbar-title strong { font-size:11px; }
+  #page-admin-portal .admin-topbar-title span { font-size:9px; }
+  #page-admin-portal .admin-topbar-btn { min-width:34px; min-height:36px; padding:5px 7px; }
+  #page-admin-portal .admin-content { padding:10px !important; }
+}
+@media print {
+  #icf-theme-ribbon,#navbar,#nav-mobile,#footer,#icf-splash,
+  #page-admin-portal .admin-topbar,#page-admin-portal .admin-sidebar,
+  #page-admin-portal .admin-nav-backdrop,.no-print,.toast-container { display:none !important; }
+  #main,#page-admin-portal,#page-admin-portal .admin-layout,#page-admin-portal .admin-content {
+    display:block !important; position:static !important; width:100% !important;
+    max-width:none !important; height:auto !important; overflow:visible !important;
+    padding:0 !important; margin:0 !important; background:#fff !important; color:#111 !important;
+  }
+  #page-admin-portal .table-wrap { overflow:visible !important; }
+  #page-admin-portal .table-wrap table { width:100% !important; min-width:0 !important; }
+}

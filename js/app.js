@@ -1034,12 +1034,16 @@ function toggleTheme(){
   _store.setItem('icf_theme',next);
   const btn=document.getElementById('theme-btn');
   if(btn)btn.textContent=isDark?'🌙':'☀️';
+  const adminBtn=document.getElementById('admin-theme-btn');
+  if(adminBtn)adminBtn.textContent=isDark?'🌙':'☀️';
 }
 function initTheme(){
-  const saved=_store.getItem('icf_theme')||'light';
+  const saved=_store.getItem('icf_theme')||'dark';
   document.body.setAttribute('data-theme',saved);
   const btn=document.getElementById('theme-btn');
   if(btn)btn.textContent=saved==='dark'?'☀️':'🌙';
+  const adminBtn=document.getElementById('admin-theme-btn');
+  if(adminBtn)adminBtn.textContent=saved==='dark'?'☀️':'🌙';
 }
 
 /* ── Router ── */
@@ -1049,6 +1053,7 @@ function navigate(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const el=document.getElementById('page-'+page);
   if(el)el.classList.add('active');
+  document.body.classList.toggle('icf-admin-active',page==='admin-portal');
   document.querySelectorAll('.nav-link').forEach(l=>l.classList.toggle('active',l.dataset.page===page));
   if(page!=='home'&&window.ICFHeroSlider)window.ICFHeroSlider.stop();
   renderPage(page);
@@ -1534,6 +1539,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     const page=(event.state&&event.state.page)||'home';
     document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
     const element=document.getElementById('page-'+page);
+    document.body.classList.toggle('icf-admin-active',page==='admin-portal');
     if(element){
       element.classList.add('active');
       icfStartupStep('route render '+page,()=>renderPage(page));

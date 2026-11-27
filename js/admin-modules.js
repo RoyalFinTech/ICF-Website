@@ -807,3 +807,29 @@ function updateContactMessageStatus(id,status){
 window.adminContactMessagesHTML=adminContactMessagesHTML;
 window.updateContactMessageStatus=updateContactMessageStatus;
 
+
+/* Admin-only export: records are fetched into the authenticated dashboard before export. */
+window.exportChurchRecords = function () {
+  var names = ['members','prayers','baptisms','contactMessages','events','sermons','media','announcements','emailHistory','livestream','siteSettings','enabledLangs'];
+  var rows = [['Collection','Record ID','Created At','Record Data']];
+  names.forEach(function (name) {
+    var records = DB.get(name, []);
+    if (!Array.isArray(records)) records = records == null ? [] : [records];
+    records.forEach(function (record) {
+      rows.push([name, record && (record.id || record.userId) || '', record && (record.createdAt || record.updatedAt) || '', JSON.stringify(record)]);
+    });
+  });
+  function csv(value) {
+    var text = String(value == null ? '' : value);
+    return '"' + text.replace(/"/g, '""') + '"';
+  }
+  var content = '\uFEFF' + rows.map(function (row) { return row.map(csv).join(','); }).join('\r\n');
+  var blob = new Blob([content], {type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var link = document.createElement('a');
+  link.href = url;
+  link.download = 'icf-church-records-' + new Date().toISOString().slice(0,10) + '.csv';
+  document.body.appendChild(link); link.click(); link.remove();
+  window.setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  if (typeof toast === 'function') toast('Export prepared','Church records CSV downloaded. Keep this file secure.','success');
+};

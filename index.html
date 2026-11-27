@@ -20,19 +20,19 @@
 <link rel="icon" type="image/png" href="/favicon.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap"/>
-<link rel="stylesheet" href="/css/site.css?v=20261127-6"/>
+<link rel="stylesheet" href="/css/site.css?v=20261127-7"/>
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link rel="preload" as="image" href="/icf-logo-transparent.png" fetchpriority="high"/>
 <link rel="preload" as="image" href="/church-worship-service.jpg" fetchpriority="high"/>
-<script defer src="/js/hero-slider.js?v=20261127-6"></script>
-<script defer src="/js/splash.js?v=20261127-6"></script>
-<script defer src="/js/app.js?v=20261127-6"></script>
-<script defer src="/js/admin-modules.js?v=20261127-6"></script>
-<script defer src="/js/api-bridge.js?v=20261127-6"></script>
-<script defer src="/js/ui-repair.js?v=20261127-6"></script>
+<script defer src="/js/hero-slider.js?v=20261127-7"></script>
+<script defer src="/js/splash.js?v=20261127-7"></script>
+<script defer src="/js/app.js?v=20261127-7"></script>
+<script defer src="/js/admin-modules.js?v=20261127-7"></script>
+<script defer src="/js/api-bridge.js?v=20261127-7"></script>
+<script defer src="/js/ui-repair.js?v=20261127-7"></script>
 </head>
-<body data-theme="light">
+<body data-theme="dark">
 <!-- ═══ NAVBAR ═══════════════════════════════ -->
 <div id="icf-theme-ribbon" class="icf-theme-ribbon" role="region" aria-label="ICF monthly theme"><img src="/icf-logo-transparent.png"  data-logo="1" alt="ICF" class="icf-ribbon-logo"><div class="icf-ribbon-track"><div class="icf-ribbon-content"><span>✨ <strong>NOVEMBER THEME: LIVING BY GRACE IN HOLINESS</strong></span><span>📖 God’s grace trains us to live godly lives. — Titus 2:11–12</span><span>🙏 Grace • Holiness • Obedience • Christlikeness</span><span>✝ It’s All About Jesus.</span><span>✨ <strong>NOVEMBER THEME: LIVING BY GRACE IN HOLINESS</strong></span><span>📖 God’s grace trains us to live godly lives. — Titus 2:11–12</span><span>🙏 Grace • Holiness • Obedience • Christlikeness</span><span>✝ It’s All About Jesus.</span></div></div></div>
 <nav id="navbar">
@@ -506,8 +506,19 @@
 
 <!-- ═══ ADMIN PORTAL ══════════════════════════ -->
 <div id="page-admin-portal" class="page">
+  <header class="admin-topbar">
+  <button type="button" class="admin-menu-toggle" id="admin-menu-toggle" aria-label="Open administration menu" aria-controls="admin-sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+  <div class="admin-topbar-title"><strong>ICF Gambia</strong><span>Church Administration</span></div>
+  <div class="admin-topbar-actions">
+    <button type="button" class="admin-topbar-btn" id="admin-theme-btn" title="Toggle dark or light theme" aria-label="Toggle theme">☀️</button>
+    <button type="button" class="admin-topbar-btn no-print" onclick="window.print()" title="Print this page">🖨️</button>
+    <button type="button" class="admin-topbar-btn no-print" onclick="exportChurchRecords()" title="Export church records">⬇️</button>
+    <button type="button" class="admin-topbar-btn no-print" onclick="navigate('home')" title="Return to public website">🌐</button>
+  </div>
+</header>
   <div class="admin-layout">
-    <aside class="admin-sidebar">
+    <button type="button" class="admin-nav-backdrop" id="admin-nav-backdrop" aria-label="Close administration menu"></button>
+    <aside class="admin-sidebar" id="admin-sidebar" aria-label="Administration navigation">
       <div class="admin-sidebar-title">🛡️ Church Admin Portal</div>
       <button class="sidebar-item active" data-section="dashboard" onclick="setAdminSection('dashboard')"><span>📊</span> Dashboard</button>
       <button class="sidebar-item" data-section="members" onclick="setAdminSection('members')"><span>👥</span> Members</button>

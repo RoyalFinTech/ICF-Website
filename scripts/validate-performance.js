@@ -87,13 +87,41 @@ process.stdout.write('Performance checks passed: concurrent admin reads, active-
 
 const siteTemplate = fs.readFileSync(path.join(ROOT, 'views/index.html'), 'utf8');
 const uiRepair = fs.readFileSync(path.join(ROOT, 'js/ui-repair.js'), 'utf8');
-if (!siteTemplate.includes('site.css?v=20261127-6') ||
-    !siteTemplate.includes('app.js?v=20261127-6') ||
-    !siteTemplate.includes('ui-repair.js?v=20261127-6')) {
+if (!siteTemplate.includes('site.css?v=20261127-7') ||
+    !siteTemplate.includes('app.js?v=20261127-7') ||
+    !siteTemplate.includes('ui-repair.js?v=20261127-7')) {
   throw new Error('Asset URLs must be cache-busted after frontend releases.');
 }
 if (!uiRepair.includes("btn.removeAttribute('onclick')") ||
     !uiRepair.includes("btn.addEventListener('click'") ||
     !uiRepair.includes("btn.dataset.icfMenuBound='1'")) {
   throw new Error('Hamburger navigation must have one directly bound, idempotent click handler.');
+}
+
+const adminPortal = fs.readFileSync(path.join(ROOT, 'views/pages/admin-portal.html'), 'utf8');
+if (!adminPortal.includes('id="admin-menu-toggle"') ||
+    !adminPortal.includes('id="admin-sidebar"') ||
+    !adminPortal.includes('id="admin-nav-backdrop"') ||
+    !adminPortal.includes('exportChurchRecords()') ||
+    !adminPortal.includes('window.print()')) {
+  throw new Error('Admin portal must provide its own navigation, export, and print controls.');
+}
+if (!siteCss.includes('body.icf-admin-active #navbar') ||
+    !siteCss.includes('body.icf-admin-menu-open #page-admin-portal .admin-sidebar') ||
+    !siteCss.includes('@media print')) {
+  throw new Error('Admin shell must isolate its mobile menu and provide print styling.');
+}
+if (!appSource.includes("_store.getItem('icf_theme')||'dark'") ||
+    !fs.readFileSync(path.join(ROOT, 'views/index.html'), 'utf8').includes('<body data-theme="dark">')) {
+  throw new Error('The default website theme must be dark while preserving saved preferences.');
+}
+const uiSource = fs.readFileSync(path.join(ROOT, 'js/ui-repair.js'), 'utf8');
+if (!uiSource.includes("adminToggle.addEventListener('click'") ||
+    !uiSource.includes("adminBackdrop.addEventListener('click'") ||
+    !uiSource.includes("e.key==='Escape'")) {
+  throw new Error('The independent admin drawer must support open, backdrop close, and Escape.');
+}
+const adminModules = fs.readFileSync(path.join(ROOT, 'js/admin-modules.js'), 'utf8');
+if (!adminModules.includes('window.exportChurchRecords')) {
+  throw new Error('Authenticated church record export is missing.');
 }

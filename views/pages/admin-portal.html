@@ -1,7 +1,18 @@
 <!-- ═══ ADMIN PORTAL ══════════════════════════ -->
 <div id="page-admin-portal" class="page">
+  <header class="admin-topbar">
+  <button type="button" class="admin-menu-toggle" id="admin-menu-toggle" aria-label="Open administration menu" aria-controls="admin-sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+  <div class="admin-topbar-title"><strong>ICF Gambia</strong><span>Church Administration</span></div>
+  <div class="admin-topbar-actions">
+    <button type="button" class="admin-topbar-btn" id="admin-theme-btn" title="Toggle dark or light theme" aria-label="Toggle theme">☀️</button>
+    <button type="button" class="admin-topbar-btn no-print" onclick="window.print()" title="Print this page">🖨️</button>
+    <button type="button" class="admin-topbar-btn no-print" onclick="exportChurchRecords()" title="Export church records">⬇️</button>
+    <button type="button" class="admin-topbar-btn no-print" onclick="navigate('home')" title="Return to public website">🌐</button>
+  </div>
+</header>
   <div class="admin-layout">
-    <aside class="admin-sidebar">
+    <button type="button" class="admin-nav-backdrop" id="admin-nav-backdrop" aria-label="Close administration menu"></button>
+    <aside class="admin-sidebar" id="admin-sidebar" aria-label="Administration navigation">
       <div class="admin-sidebar-title">🛡️ Church Admin Portal</div>
       <button class="sidebar-item active" data-section="dashboard" onclick="setAdminSection('dashboard')"><span>📊</span> Dashboard</button>
       <button class="sidebar-item" data-section="members" onclick="setAdminSection('members')"><span>👥</span> Members</button>
