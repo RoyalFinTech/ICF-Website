@@ -935,3 +935,12 @@ body.icf-admin-active #main { padding-top:0; }
 #ws-slide-text{top:17%;bottom:18%;display:flex;align-items:center;justify-content:center;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.18;padding:0 3%;font-weight:750}
 #ws-slide-ref{font-size:clamp(13px,1.8vw,22px);font-weight:700}
 .worship-preview-frame{box-shadow:0 14px 38px #0005}
+
+/* Country search groups and member onboarding controls */
+.country-dropdown{max-height:320px;overflow:hidden}
+.country-list{max-height:250px;overflow-y:auto;overscroll-behavior:contain}
+.country-group-title{position:sticky;top:0;z-index:1;padding:7px 12px;background:var(--bg2);color:var(--text-muted);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.country-item{width:100%;border:0;background:transparent;text-align:left;font:inherit;cursor:pointer}
+.country-item:focus-visible,.country-search-input:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.country-item-flag{width:24px;flex:0 0 24px;font-size:18px}.country-item-dial{min-width:56px;color:var(--text-muted);font-size:12px}.country-item-name{flex:1;min-width:0}
+.password-visibility-toggle{display:inline-flex;align-items:center;justify-content:center;margin-top:6px;padding:4px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--bg2);color:var(--text);font-size:12px;cursor:pointer}
