@@ -18,6 +18,7 @@ const state = {
   createUserCalls:[],
   createUserOverride:null,
   signInError:null,
+  signInResult:null,
   resetCalls:[],
   resendCalls:[],
   sessions:[],
@@ -31,7 +32,7 @@ const auth = { auth:{
     if(state.signupOverride)return state.signupOverride;
     return {data:{user:{id:'auth-user-test',identities:[{id:'identity'}]},session:null},error:null};
   },
-  signInWithPassword:async function () { return {data:null,error:state.signInError}; },
+  signInWithPassword:async function () { return state.signInResult || {data:null,error:state.signInError}; },
   resetPasswordForEmail:async function (email,options) {
     state.resetCalls.push({email:email,options:options});
     return {data:{},error:null};
@@ -53,14 +54,34 @@ registerAuthRoutes(app,{
   loginLimit:passthrough,publicLimit:passthrough,signupLimit:passthrough,
   recoveryLimit:passthrough,resendLimit:passthrough,requireStorage:passthrough,
   authClient:function(){return auth;},
-  db:function(){return {auth:{admin:{
-    createUser:async function(input){
-      state.createUserCalls.push(input);
-      if(state.createUserOverride)return state.createUserOverride;
-      return {data:{user:{id:'auth-admin-created-'+state.createUserCalls.length,email:input.email}},error:null};
-    },
-    deleteUser:async function(){return {error:null};}
-  }}};},
+  db:function(){return {
+    auth:{admin:{
+      createUser:async function(input){
+        state.createUserCalls.push(input);
+        if(state.createUserOverride)return state.createUserOverride;
+        return {data:{user:{id:'auth-admin-created-'+state.createUserCalls.length,email:input.email}},error:null};
+      },
+      deleteUser:async function(){return {error:null};}
+    }},
+    from:function(){
+      let authUserId='';
+      const query={
+        select:function(){return this;},
+        eq:function(){return this;},
+        contains:function(_column,filter){authUserId=filter.authUserId;return this;},
+        maybeSingle:async function(){
+          const match=state.members.find(function(entry){return entry.record.authUserId===authUserId;});
+          return {data:match?{data:match.record}:null,error:null};
+        },
+        upsert:async function(payload){
+          const match=state.members.find(function(entry){return entry.record.id===payload.record_id;});
+          if(match)match.record=payload.data;
+          return {error:null};
+        }
+      };
+      return query;
+    }
+  };},
   fail:function(res,status,error){return res.status(status).json({error:error});},
   insertRecord:async function(collection,record){state.members.push({collection:collection,record:record});},
   crypto:crypto
@@ -129,6 +150,23 @@ function signupBody(overrides) {
     assert.equal(state.createUserCalls[state.createUserCalls.length-1].user_metadata.icf_email_verification_status,'pending');
     assert.equal(state.signUpCalls.length,0,'email-independent signup must not invoke the email-sending signup endpoint');
 
+    // An application must reach the administrator as Pending and remain blocked at login.
+    state.signInResult={data:{user:{id:stored.authUserId,email:stored.email,email_confirmed_at:null},session:{access_token:'member-test-token',expires_at:2000000000}},error:null};
+    const pendingLogin=await call('POST','/api/auth/member-login',{email:stored.email,password:'A-long-test-password-2026'});
+    assert.equal(pendingLogin.statusCode,403);
+    assert.match(pendingLogin.body.error,/awaiting church approval/i);
+    stored.status='approved';
+    const approvedLogin=await call('POST','/api/auth/member-login',{email:stored.email,password:'A-long-test-password-2026'});
+    assert.equal(approvedLogin.statusCode,200);
+    assert.equal(approvedLogin.body.user.role,'member');
+    assert.equal(approvedLogin.body.user.emailVerified,false);
+    stored.status='suspended';
+    const suspendedLogin=await call('POST','/api/auth/member-login',{email:stored.email,password:'A-long-test-password-2026'});
+    assert.equal(suspendedLogin.statusCode,403);
+    assert.match(suspendedLogin.body.error,/suspended/i);
+    stored.status='pending';
+    state.signInResult=null;
+
     state.createUserOverride={data:null,error:{code:'email_exists',message:'User already registered'}};
     const duplicate=await call('POST','/api/public/member-signup',signupBody());
     assert.equal(duplicate.statusCode,400);
@@ -160,7 +198,20 @@ function signupBody(overrides) {
     assert.equal(futureEmailSignup.body.emailConfirmationRequired,true,'future mode requests confirmation after delivery is configured');
     assert.equal(futureEmailSignup.body.emailVerificationPending,true);
     assert.equal(state.signUpCalls.length,1,'future mode uses Supabase signup email flow');
-    assert.equal(state.members[state.members.length-1].record.status,'pending');
+    const futureMember=state.members[state.members.length-1].record;
+    assert.equal(futureMember.status,'pending');
+
+    // When verification is enabled later, a confirmed Auth identity updates the member's email state.
+    state.signInResult={data:{user:{id:futureMember.authUserId,email:futureMember.email,email_confirmed_at:'2026-11-27T00:00:00Z'},session:{access_token:'future-member-token',expires_at:2000000000}},error:null};
+    const verifiedPending=await call('POST','/api/auth/member-login',{email:futureMember.email,password:'A-long-test-password-2026'});
+    assert.equal(verifiedPending.statusCode,403,'email verification does not bypass the church approval gate');
+    assert.equal(futureMember.emailVerified,true);
+    assert.equal(futureMember.emailVerificationStatus,'verified');
+    futureMember.status='approved';
+    const verifiedApproved=await call('POST','/api/auth/member-login',{email:futureMember.email,password:'A-long-test-password-2026'});
+    assert.equal(verifiedApproved.statusCode,200);
+    assert.equal(verifiedApproved.body.user.emailVerified,true);
+    state.signInResult=null;
 
     const completed=await call('POST','/api/auth/password-reset-complete',{
       accessToken:'a'.repeat(40),refreshToken:'r'.repeat(40),password:'Another-long-password-2026'
