@@ -23,9 +23,18 @@ new Function(fs.readFileSync(path.join(ROOT, 'js/camera-join.js'), 'utf8'));
 const studioElementIds = new Set(Array.from(studioSource.matchAll(/id="([^"]+)"/g), function (match) { return match[1]; }));
 for (const feature of ["ws-phone-copy","ws-onair-camera","ws-scroll-test","ws-bible-query","ws-bible-book","ws-bible-chapter","ws-bible-verse","ws-bible-prev","ws-bible-next","ws-bible-publish","ws-camera-2","ws-flyer-file","ws-color","ws-quality","ws-frame","ws-hymn-title","ws-hymn-lyrics","ws-hymn-prev","ws-hymn-next","ws-hymn-add","ws-hymn-publish","ws-go-live","ws-end-live"]) if (!studioElementIds.has(feature)) throw new Error('Worship Studio element missing: ' + feature);
 if (!studioSource.includes('/admin/broadcast/connection-test')) throw new Error('LiveKit browser signal diagnostic is missing.');
+for (const feature of ["ws-hymn-query","ws-hymn-results","ws-hymn-library","ws-hymn-save"]) if (!studioElementIds.has(feature)) throw new Error('Searchable hymn library control missing: ' + feature);
+if (!studioSource.includes("var BUILTIN_HYMNS") || !studioSource.includes("function renderHymnResults") || !studioSource.includes("function publishHymn")) throw new Error('Offline searchable hymn catalogue or stanza publishing is missing.');
+if (!studioSource.includes("All other ground is sinking sand") || !studioSource.includes("Rock of Ages")) throw new Error('Required classic hymn search text is missing.');
+
 if (!viewerSource.includes('presentation_config')) throw new Error('Public viewer presentation configuration is missing.');
 const liveHtml = fs.readFileSync(path.join(ROOT, 'live.html'), 'utf8');
 const publicRoutes = fs.readFileSync(path.join(ROOT, 'routes/public.js'), 'utf8');
+const memberDirectorySource = fs.readFileSync(path.join(ROOT, 'js/member-directory.js'), 'utf8');
+const appSource = fs.readFileSync(path.join(ROOT, 'js/app.js'), 'utf8');
+if (!publicRoutes.includes("app.get('/api/public-directory'") || !memberDirectorySource.includes('renderPublicDirectory')) throw new Error('Public leadership directory route or renderer is missing.');
+if (!appSource.includes('function saveMemberChurchRoles') || !appSource.includes('member.directoryVisible=Boolean')) throw new Error('Admin church-role assignment and public visibility controls are missing.');
+
 if (!publicRoutes.includes('/api/public/bible/kjv/:book')) throw new Error('Complete KJV Bible endpoint is missing.');
 if (!studioSource.includes('kjvBooks=') || !studioSource.includes('function stepKJV')) throw new Error('Complete KJV book and verse navigation is missing.');
 const cameraHtml = fs.readFileSync(path.join(ROOT, 'camera.html'), 'utf8');
