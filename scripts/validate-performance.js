@@ -73,7 +73,7 @@ if (!apiRoutes.bridge.includes("request('/admin/records/' + encodeURIComponent(c
 
 
 const appSource = fs.readFileSync(path.join(ROOT, 'js/app.js'), 'utf8');
-if (!appSource.includes("'<th>Name / Email</th><th>Nationality</th><th>Phone</th><th>Address</th>")) {
+if (!appSource.includes("<th>Name / Email</th><th>Nationality</th><th>Phone</th><th>Address</th>")) {
   throw new Error('Admin member list must expose the submitted residential address.');
 }
 if (!appSource.includes("(p.email?'<div class=\"text-xs text-dim\">'+p.email+'</div>':''")) {
