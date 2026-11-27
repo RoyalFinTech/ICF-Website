@@ -8,14 +8,15 @@
     "node": ">=20"
   },
   "scripts": {
-    "start": "npm test && node server.js",
+    "start": "node server.js",
     "dev": "node --watch server.js",
     "backup": "node scripts/backup-supabase.js",
     "build:site": "node scripts/build-homepage.js",
     "validate:site": "node scripts/validate-site.js",
     "validate:backend": "node scripts/validate-backend.js",
     "validate:performance": "node scripts/validate-performance.js",
-    "test": "npm run build:site && npm run validate:site && npm run validate:backend && npm run validate:performance"
+    "test": "npm run build:site && npm run validate:site && npm run validate:backend && npm run validate:performance",
+    "postinstall": "npm test"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.750.0",
