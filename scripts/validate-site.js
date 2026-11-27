@@ -12,15 +12,15 @@ for (const asset of ['favicon.png','css/site.css','js/hero-slider.js','js/splash
   if (!fs.existsSync(path.join(ROOT, asset))) throw new Error('Missing homepage asset: ' + asset);
 }
 if (html.includes('data:image/png;base64,')) throw new Error('A large embedded PNG remains in the homepage HTML.');
-if (!html.includes('/css/site.css?v=20261127-12')) throw new Error('External stylesheet is not linked.');
-if (!html.includes('worship-studio.js?v=20261127-15')) throw new Error('Worship Studio client script is not linked.');
+if (!html.includes('/css/site.css?v=20261127-13')) throw new Error('External stylesheet is not linked.');
+if (!html.includes('worship-studio.js?v=20261127-16')) throw new Error('Worship Studio client script is not linked.');
 if (!html.includes('/favicon.png')) throw new Error('External favicon is not linked.');
 const studioSource = fs.readFileSync(path.join(ROOT, 'js/worship-studio.js'), 'utf8');
 const viewerSource = fs.readFileSync(path.join(ROOT, 'js/worship-viewer.js'), 'utf8');
 new Function(studioSource);
 new Function(viewerSource);
 new Function(fs.readFileSync(path.join(ROOT, 'js/camera-join.js'), 'utf8'));
-for (const feature of ['ws-phone-copy','ws-onair-camera','ws-scroll-test','ws-bible-search','ws-bible-book','ws-bible-chapter','ws-bible-verse','ws-bible-next','ws-bible-prev','ws-camera-2','ws-flyer-file','ws-color','ws-quality','ws-frame','ws-hymn-save','root.dataset.wsReady']) if (!studioSource.includes(feature)) throw new Error('Worship Studio control missing: ' + feature);
+for (const feature of ['ws-phone-copy','ws-onair-camera','ws-scroll-test','ws-bible-search','ws-bible-book','ws-bible-chapter','ws-bible-verse','ws-bible-next','ws-bible-prev','ws-camera-2','ws-flyer-file','ws-color','ws-quality','ws-frame','ws-hymn-save','ws-hymn-prev','ws-hymn-next','root.dataset.wsReady']) if (!studioSource.includes(feature)) throw new Error('Worship Studio control missing: ' + feature);
 if (!viewerSource.includes('presentation_config')) throw new Error('Public viewer presentation configuration is missing.');
 const liveHtml = fs.readFileSync(path.join(ROOT, 'live.html'), 'utf8');
 const publicRoutes = fs.readFileSync(path.join(ROOT, 'routes/public.js'), 'utf8');
