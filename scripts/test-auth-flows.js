@@ -189,6 +189,23 @@ function signupBody(overrides) {
     assert.equal(state.resetCalls[0].options.redirectTo,'https://icf-website.onrender.com');
 
     process.env.ICF_EMAIL_VERIFICATION_REQUIRED='true';
+    stored.status='approved';
+    state.signInResult={data:{user:{id:stored.authUserId,email:stored.email,email_confirmed_at:'2026-11-27T00:00:00Z'},session:{access_token:'legacy-member-token',expires_at:2000000000}},error:null};
+    const legacyUnverified=await call('POST','/api/auth/member-login',{email:stored.email,password:'A-long-test-password-2026'});
+    assert.equal(legacyUnverified.statusCode,403,'legacy accounts from the no-email phase must be re-verified when the future email policy is enabled');
+    assert.match(legacyUnverified.body.error,/email address has not been verified/i);
+    assert.equal(stored.emailVerified,false,'Supabase Auth auto-confirmation from the no-email phase is not proof of email ownership');
+    stored.emailVerified=true;
+    stored.emailVerificationStatus='verified_manual';
+    stored.emailVerificationMethod='EMAIL_REPLY';
+    stored.emailVerificationNote='Member replied from the registered email';
+    stored.emailVerifiedAt='2026-11-27T00:01:00.000Z';
+    const legacyVerified=await call('POST','/api/auth/member-login',{email:stored.email,password:'A-long-test-password-2026'});
+    assert.equal(legacyVerified.statusCode,200,'admin-verified legacy members can sign in under future email policy');
+    stored.status='pending';
+    stored.emailVerified=false;
+    stored.emailVerificationStatus='not_verified_email_delivery_pending';
+    state.signInResult=null;
     const resend=await call('POST','/api/auth/resend-confirmation',{email:'unknown@example.com'});
     assert.equal(resend.statusCode,200,'resend remains generic when future email verification is enabled');
     assert.match(resend.body.message,/If this account still needs email confirmation/i);
