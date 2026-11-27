@@ -31,8 +31,8 @@ if (!authRouteSource.includes('verifyTurnstile(body.captchaToken)') || !authRout
 if (!authRouteSource.includes("body.companyWebsite") || !authRouteSource.includes("signupLimit||publicLimit")) throw new Error('Signup honeypot or dedicated rate limit is missing.');
 if (!serverSource.includes('https://challenges.cloudflare.com')) throw new Error('CSP must allow the Turnstile widget and Siteverify.');
 
-if (!/scriptSrc:\s*\["'self'",'https:\/\/cdn\.jsdelivr\.net'\]/.test(serverSource) ||
-    !/scriptSrcAttr:\s*\["'unsafe-inline'"\]/.test(serverSource)) {
+if (!/scriptSrc:\s*\["'self'",'https:\/\/cdn\.jsdelivr\.net','https:\/\/challenges\.cloudflare\.com'\]/.test(serverSource) ||
+    !/scriptSrcAttr:\s*\["'unsafe-inline'\]/.test(serverSource)) {
   throw new Error('CSP must allow legacy inline event attributes without allowing inline script elements.');
 }
 
