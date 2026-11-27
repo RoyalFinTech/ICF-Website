@@ -381,16 +381,24 @@
   function updateDocumentLinks() {
     document.querySelectorAll('a[href]').forEach(function (link) {
       var href = (link.getAttribute('href') || '').toLowerCase();
+      var label = '';
+      var accessibleLabel = '';
       if (href.indexOf('membership-statement.pdf') !== -1) {
-        link.textContent = 'ICF Membership Statement PDF';
-        link.setAttribute('aria-label','Open ICF Membership Statement PDF');
+        label = 'ICF Membership Statement PDF';
+        accessibleLabel = 'Open ICF Membership Statement PDF';
       } else if (href.indexOf('workers-manual.pdf') !== -1) {
-        link.textContent = 'ICF Workers’ Manual PDF';
-        link.setAttribute('aria-label','Open ICF Workers’ Manual PDF');
+        label = 'ICF Workers’ Manual PDF';
+        accessibleLabel = 'Open ICF Workers’ Manual PDF';
+      }
+      // Text changes create childList mutations. Only write when the value
+      // differs so our MutationObserver cannot trigger itself indefinitely.
+      if (label && link.textContent !== label) link.textContent = label;
+      if (accessibleLabel && link.getAttribute('aria-label') !== accessibleLabel) {
+        link.setAttribute('aria-label',accessibleLabel);
       }
       if (/\.pdf(?:[?#]|$)/i.test(href)) {
-        link.setAttribute('target','_blank');
-        link.setAttribute('rel','noopener noreferrer');
+        if (link.getAttribute('target') !== '_blank') link.setAttribute('target','_blank');
+        if (link.getAttribute('rel') !== 'noopener noreferrer') link.setAttribute('rel','noopener noreferrer');
       }
     });
   }

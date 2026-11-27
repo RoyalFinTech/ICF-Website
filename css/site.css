@@ -608,3 +608,30 @@ body.icf-menu-open{overflow:hidden!important}
  #page-home .module-link{opacity:1}
 }
 
+
+
+/* Mobile admin navigation: keep the dashboard near the top and make sections swipeable. */
+@media (max-width: 900px) {
+  #page-admin-portal .admin-layout { display:flex; flex-direction:column; min-height:auto; }
+  #page-admin-portal .admin-sidebar {
+    position:sticky; top:106px; z-index:900; display:flex; flex-direction:row;
+    align-items:center; gap:6px; width:100%; height:auto; box-sizing:border-box;
+    padding:9px 10px; overflow-x:auto; overflow-y:hidden; white-space:nowrap;
+    overscroll-behavior-x:contain; -webkit-overflow-scrolling:touch;
+    border-right:0; border-bottom:1px solid var(--border2); scrollbar-width:thin;
+  }
+  #page-admin-portal .admin-sidebar-title,
+  #page-admin-portal .admin-sidebar > .sep,
+  #page-admin-portal .admin-sidebar > div { display:none; }
+  #page-admin-portal .admin-sidebar .sidebar-item {
+    flex:0 0 auto; width:auto; min-width:max-content; padding:10px 12px; white-space:nowrap;
+  }
+  #page-admin-portal .admin-content {
+    width:100%; min-width:0; box-sizing:border-box; padding:14px; overflow-x:hidden;
+  }
+}
+@media (max-width:640px) {
+  #page-admin-portal .admin-sidebar { top:102px; padding-inline:8px; }
+  #page-admin-portal .admin-sidebar .sidebar-item { font-size:12px; padding:9px 10px; }
+  #page-admin-portal .admin-content { padding:12px; }
+}
