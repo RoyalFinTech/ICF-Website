@@ -42,7 +42,60 @@ function share(path){document.getElementById('ws-share').hidden=false;document.g
 function history(){req('/admin/broadcast/sessions').then(function(d){document.getElementById('ws-history').innerHTML=(d.sessions||[]).slice(0,12).map(function(s){return '<div class="worship-history-row"><span><strong>'+esc(s.title)+'</strong><small>'+esc(s.status)+' · '+esc(new Date(s.created_at).toLocaleString())+'</small></span><span>'+esc(s.recording_status)+'</span></div>';}).join('')||'<p>No broadcasts yet.</p>';}).catch(function(e){document.getElementById('ws-history').textContent=e.message;});}
 async function upload(id,target){var f=document.getElementById(id).files[0];if(!f)return '';if(f.size>15*1024*1024)throw new Error('File must be 15 MB or smaller.');var fd=new FormData();fd.append('file',f);var d=await req('/admin/uploads?bucket=church-public','POST',fd);document.getElementById(target).value=d.url;preview();return d.url;}
 async function saveDraft(){try{var p=payload();if(session){await req('/admin/broadcast/sessions/'+session.id+'/overlay','PATCH',{overlayText:p.overlayText,scriptureReference:p.scriptureReference,scriptureText:p.scriptureText,presentationConfig:p.presentationConfig});msg('Broadcast setup updated','success');return;}if(String(p.title).trim().length<3)throw new Error('Enter a broadcast title (at least 3 characters).');var d=await req('/admin/broadcast/sessions','POST',p);session=d.session;share(d.shareUrl);history();msg('Broadcast setup saved','success');}catch(e){msg(e.message,'error');}}
-async function startPreview(){var next=null;try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('Camera requires a secure HTTPS browser.');var id=val('ws-camera'),dims={'480p':[854,480],'720p':[1280,720],'1080p':[1920,1080]}[val('ws-quality')||'720p']||[1280,720],vc={width:{ideal:dims[0]},height:{ideal:dims[1]},frameRate:{ideal:30,max:30}};if(id)vc.deviceId={exact:id};else vc.facingMode={ideal:'environment'};next=await navigator.mediaDevices.getUserMedia({video:vc,audio:val('ws-mic')?{deviceId:{exact:val('ws-mic')}}:true});var nextVideo=next.getVideoTracks()[0],nextAudio=next.getAudioTracks()[0];if(room){var newTrack=new LivekitClient.LocalVideoTrack(nextVideo);if(videoTrack)await room.localParticipant.unpublishTrack(videoTrack);await room.localParticipant.publishTrack(newTrack,{name:'icf-camera-main'});videoTrack=newTrack;if(nextAudio){var newAudio=new LivekitClient.LocalAudioTrack(nextAudio);if(audioTrack)await room.localParticipant.unpublishTrack(audioTrack);await room.localParticipant.publishTrack(newAudio,{name:'icf-microphone'});audioTrack=newAudio;}}var previous=mainStream;mainStream=next;next=null;window.icfPreviewStream=mainStream;var v=document.getElementById('ws-preview');v.srcObject=mainStream;await v.play();if(previous)previous.getTracks().forEach(function(t){t.stop();});await devicesList();preview();msg(room?'Camera switched · LIVE output updated':'Camera and microphone preview ready','success');}catch(e){if(next)next.getTracks().forEach(function(t){t.stop();});msg(e.message,'error');}}
+async function startPreview(){
+  var previous=mainStream,oldVideo=videoTrack,oldAudio=audioTrack,nextVideoStream=null,nextAudioStream=null;
+  try{
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('Camera access requires HTTPS and a browser that supports camera capture.');
+    var id=val('ws-camera'),dims={'480p':[854,480],'720p':[1280,720],'1080p':[1920,1080]}[val('ws-quality')||'720p']||[1280,720];
+    if(room){
+      if(oldVideo)await room.localParticipant.unpublishTrack(oldVideo);
+      if(oldAudio)await room.localParticipant.unpublishTrack(oldAudio);
+      videoTrack=null;audioTrack=null;
+    }
+    if(previous){previous.getTracks().forEach(function(t){t.stop();});mainStream=null;}
+    var videoBase={width:{ideal:dims[0]},height:{ideal:dims[1]},frameRate:{ideal:30,max:30}};
+    var attempts=[];
+    if(id)attempts.push({video:Object.assign({},videoBase,{deviceId:{exact:id}}),audio:false});
+    attempts.push({video:Object.assign({},videoBase,{facingMode:{ideal:'environment'}}),audio:false});
+    attempts.push({video:true,audio:false});
+    var lastError=null;
+    for(var ai=0;ai<attempts.length;ai++){
+      try{nextVideoStream=await navigator.mediaDevices.getUserMedia(attempts[ai]);break;}
+      catch(cameraError){lastError=cameraError;}
+    }
+    if(!nextVideoStream)throw new Error('Camera could not start ('+(lastError&&lastError.name||'camera error')+'): '+(lastError&&lastError.message||'Check that the camera is not being used by another app, allow camera permission, and try Refresh devices.'));
+    var tracks=nextVideoStream.getVideoTracks();
+    if(!tracks.length)throw new Error('The selected device did not provide a video track.');
+    var micId=val('ws-mic');
+    try{nextAudioStream=await navigator.mediaDevices.getUserMedia({video:false,audio:micId?{deviceId:{exact:micId}}:true});}
+    catch(micError){nextAudioStream=null;msg('Camera ready. Microphone unavailable ('+(micError.name||'audio error')+'); you can continue with camera audio disabled.','warning');}
+    var allTracks=tracks.slice();
+    if(nextAudioStream)allTracks=allTracks.concat(nextAudioStream.getAudioTracks());
+    mainStream=new MediaStream(allTracks);
+    window.icfPreviewStream=mainStream;
+    var v=document.getElementById('ws-preview');v.srcObject=mainStream;v.muted=true;v.autoplay=true;v.playsInline=true;await v.play();
+    if(room){
+      var liveVideo=tracks[0];
+      if(liveVideo.readyState!=='live')throw new Error('The camera stopped before it could be published. Reopen the preview and try again.');
+      videoTrack=new LivekitClient.LocalVideoTrack(liveVideo);
+      await room.localParticipant.publishTrack(videoTrack,{name:'icf-camera-main'});
+      var micTrack=mainStream.getAudioTracks()[0];
+      if(micTrack){audioTrack=new LivekitClient.LocalAudioTrack(micTrack);await room.localParticipant.publishTrack(audioTrack,{name:'icf-microphone'});}
+    }
+    if(nextAudioStream)nextAudioStream=null;
+    await devicesList();preview();
+    msg(room?'Camera source switched · live output updated':'Camera preview ready · '+(mainStream.getAudioTracks().length?'camera and microphone connected':'camera connected without microphone'),'success');
+  }catch(e){
+    if(nextVideoStream)nextVideoStream.getTracks().forEach(function(t){t.stop();});
+    if(nextAudioStream)nextAudioStream.getTracks().forEach(function(t){t.stop();});
+    var label=document.querySelector('#ws-stage .worship-preview-label');
+    if(label&&!(room&&room.state==='connected'))label.textContent='PREVIEW · NOT PUBLIC';
+    var name=e&&e.name||'';
+    var hint=name==='NotAllowedError'?'Allow camera permission in your browser settings.':name==='NotFoundError'?'No camera was found on this device.':name==='NotReadableError'?'The camera is busy. Close other camera apps or browser tabs, then retry.':name==='OverconstrainedError'?'That camera does not support the requested setting. Refresh devices and retry.':'';
+    msg((e&&e.message||'Could not start video source.')+(hint?' '+hint:''),'error');
+    throw e;
+  }
+}
 async function addCamera(){try{var id=val('ws-camera-2');if(!id)throw new Error('Select a second camera first.');if(id==='remote'){if(!session||!room)throw new Error('Start the broadcast first, then connect the phone using the pairing link.');remoteCameraReady=true;preview();msg('Phone camera pairing enabled. Open the phone camera link on your phone.','success');return;}if(secondStream)secondStream.getTracks().forEach(function(t){t.stop();});secondStream=await navigator.mediaDevices.getUserMedia({video:{deviceId:{exact:id}},audio:false});var v=document.getElementById('ws-preview-2');v.srcObject=secondStream;v.hidden=false;await v.play();if(room){secondTrack=new LivekitClient.LocalVideoTrack(secondStream.getVideoTracks()[0]);await room.localParticipant.publishTrack(secondTrack,{name:'icf-camera-secondary'});}preview();msg('Second camera connected','success');}catch(e){msg('Second camera unavailable: '+e.message,'warning');}}
 async function switchCamera(){if(!devices.video.length)return msg('No camera detected','warning');var e=document.getElementById('ws-camera'),i=devices.video.findIndex(function(d){return d.deviceId===e.value;});e.value=devices.video[(i+1)%devices.video.length].deviceId;await startPreview();}
 function loadHymnary(){req('/admin/broadcast/hymns').then(function(d){hymnLibrary=d.hymns||[];var e=document.getElementById('ws-hymn-library');if(e)e.innerHTML=hymnLibrary.map(function(h){return '<button type="button" class="ws-slide-chip" data-hymn="'+esc(h.id)+'"><strong>'+esc(h.title)+'</strong><span>'+esc(h.hymn_number||'')+'</span></button>';}).join('')||'<p class="worship-hint">No saved hymns yet. Add an approved hymn above.</p>';}).catch(function(e){var h=document.getElementById('ws-hymn-library');if(h)h.textContent=e.message;});}
