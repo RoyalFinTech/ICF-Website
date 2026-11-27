@@ -96,7 +96,7 @@ function normalizedLiveKitUrl(){var raw=String(process.env.LIVEKIT_URL||'').trim
     return {serverUrl:serverUrl,token:body+'.'+crypto.createHmac('sha256',secret).update(body).digest('base64url')};
   }
   app.get('/api/admin/broadcast/config',requireStorage,requireAdmin,function(req,res){
-    res.json({provider:'LiveKit',configured:Boolean(process.env.LIVEKIT_URL&&process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET)});
+    const configured=Boolean(process.env.LIVEKIT_URL&&process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET);let endpoint=null,urlValid=false,urlError=null;try{endpoint=normalizedLiveKitUrl();urlValid=true;}catch(e){urlError=e.message==='LIVEKIT_URL_INVALID'?'LIVEKIT_URL is not a valid URL.':null;}let host=null,protocol=null;if(endpoint){const u=new URL(endpoint);host=u.host;protocol=u.protocol;}res.json({provider:'LiveKit',configured:configured,urlValid:urlValid,host:host,protocol:protocol,error:urlError});
   });
   app.get('/api/admin/broadcast/hymns',requireStorage,requireAdmin,async function(req,res){
     try{const r=await db().from('worship_hymns').select('id,title,hymn_number,lyrics,created_at').order('created_at',{ascending:false}).limit(300);if(r.error)throw r.error;res.json({hymns:r.data||[]});}
