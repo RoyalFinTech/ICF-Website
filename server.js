@@ -246,7 +246,7 @@ const publicLimit = rateLimit({ windowMs:15*60*1000, limit:30, standardHeaders:'
 app.get('/health', function (req,res) { res.json({ status:'ok', service:'icf-gambia', storageConfigured:configured, timestamp:new Date().toISOString() }); });
 
 registerAuthRoutes(app, { loginLimit, publicLimit, requireStorage, authClient, db, fail, insertRecord, crypto });
-registerPublicRoutes(app, { requireStorage, fail, PUBLIC_COLLECTIONS, readCollection, PUBLIC_SUBMISSIONS, publicLimit, publicRecord, insertRecord, authClient, db, multer, crypto, PUBLIC_BUCKET });
+registerPublicRoutes(app, { requireStorage, fail, PUBLIC_COLLECTIONS, readCollection, PUBLIC_SUBMISSIONS, publicLimit, publicRecord, insertRecord, authClient, db, multer, crypto, PRIVATE_BUCKET });
 registerAdminRoutes(app, { requireStorage, requireAdmin, fail, COLLECTIONS, readCollection, validCollection, replaceCollection, multer, MAX_UPLOAD_BYTES, path, crypto, PUBLIC_BUCKET, PRIVATE_BUCKET, db });
 let homepageHtml = null;
 app.get('/',function (req,res) {

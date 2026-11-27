@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function registerPublicRoutes(app, deps) {
-  const { requireStorage, fail, PUBLIC_COLLECTIONS, readCollection, PUBLIC_SUBMISSIONS, publicLimit, publicRecord, insertRecord, authClient, db, multer, crypto, PUBLIC_BUCKET } = deps;
+  const { requireStorage, fail, PUBLIC_COLLECTIONS, readCollection, PUBLIC_SUBMISSIONS, publicLimit, publicRecord, insertRecord, authClient, db, multer, crypto, PRIVATE_BUCKET } = deps;
   function getBearer(req) {
     const header = req.headers.authorization || '';
     return header.toLowerCase().startsWith('bearer ') ? header.slice(7).trim() : '';
@@ -24,9 +24,15 @@ module.exports = function registerPublicRoutes(app, deps) {
     if (result.error) throw result.error;
     return member;
   }
-  function profileView(member) {
+  async function signedAvatarUrl(member) {
+    if (!member.avatarPath) return member.avatarUrl || '';
+    const result = await db().storage.from(PRIVATE_BUCKET).createSignedUrl(member.avatarPath, 3600);
+    if (result.error) { console.error('Member avatar signing failed:',result.error.message); return ''; }
+    return result.data.signedUrl;
+  }
+  async function profileView(member) {
     return {id:member.id,name:member.name,email:member.email,phone:member.phone,address:member.address,
-      nationality:member.nationality,bio:member.bio||'',avatarUrl:member.avatarUrl||'',
+      nationality:member.nationality,bio:member.bio||'',avatarUrl:await signedAvatarUrl(member),
       publicProfile:member.publicProfile===true,status:member.status,roles:Array.isArray(member.roles)?member.roles:[],joinedAt:member.joinedAt};
   }
   function imageSignature(buffer,mime) {
@@ -38,7 +44,7 @@ module.exports = function registerPublicRoutes(app, deps) {
     return false;
   }
   const avatarUpload=multer({storage:multer.memoryStorage(),limits:{fileSize:5*1024*1024,files:1},fileFilter:function(req,file,cb){
-    if(!/^image\/(jpeg|png|webp|gif)$/i.test(file.mimetype))return cb(new Error('Profile photos must be JPG, PNG, WEBP, or GIF images.'));
+    if(!/^image\/(jpeg|png|webp)$/i.test(file.mimetype))return cb(new Error('Profile photos must be JPG, PNG, or WEBP images.'));
     cb(null,true);
   }});
 
@@ -72,15 +78,15 @@ module.exports = function registerPublicRoutes(app, deps) {
   app.get('/api/public-directory',requireStorage,async function(req,res){
     try {
       const members=await readCollection('members');
-      const people=members.filter(function(m){return m&&m.status==='approved'&&m.publicProfile===true;}).map(function(m){
-        return {id:m.id,name:String(m.name||'ICF Member').slice(0,120),avatarUrl:String(m.avatarUrl||''),bio:String(m.bio||'').slice(0,500),
+      const people=await Promise.all(members.filter(function(m){return m&&m.status==='approved'&&m.publicProfile===true;}).map(async function(m){
+        return {id:m.id,name:String(m.name||'ICF Member').slice(0,120),avatarUrl:await signedAvatarUrl(m),bio:String(m.bio||'').slice(0,500),
           roles:Array.isArray(m.roles)?m.roles.filter(function(r){return r&&r.name;}).map(function(r){return {id:String(r.id||''),name:String(r.name).slice(0,100),type:r.type==='office'?'office':'ministry'};}):[]};
-      }).filter(function(m){return m.roles.length>0;});
+      })).then(function(list){return list.filter(function(m){return m.roles.length>0;});});
       res.json({members:people});
     } catch(error){console.error('Public directory read failed:',error.message);fail(res,503,'The church directory is temporarily unavailable.');}
   });
   app.get('/api/member/profile',requireStorage,async function(req,res){
-    try{const identity=await memberIdentity(req);if(identity.error)return fail(res,identity.status,identity.error);res.json({member:profileView(identity.member)});}
+    try{const identity=await memberIdentity(req);if(identity.error)return fail(res,identity.status,identity.error);res.json({member:await profileView(identity.member)});}
     catch(error){console.error('Member profile read failed:',error.message);fail(res,503,'Could not load your member profile.');}
   });
   app.put('/api/member/profile',requireStorage,async function(req,res){
@@ -92,7 +98,7 @@ module.exports = function registerPublicRoutes(app, deps) {
       if(body.bio!==undefined)member.bio=String(body.bio||'').trim().slice(0,500);
       if(body.publicProfile!==undefined)member.publicProfile=body.publicProfile===true;
       // Membership status, roles, approval and Auth identity are admin-controlled.
-      await saveMember(member);res.json({member:profileView(member)});
+      await saveMember(member);res.json({member:await profileView(member)});
     }catch(error){console.error('Member profile update failed:',error.message);fail(res,503,'Could not save your member profile.');}
   });
   app.post('/api/member/avatar',requireStorage,avatarUpload.single('file'),async function(req,res){
@@ -100,13 +106,14 @@ module.exports = function registerPublicRoutes(app, deps) {
       const identity=await memberIdentity(req);if(identity.error)return fail(res,identity.status,identity.error);
       if(!req.file)return fail(res,400,'Choose a profile photo first.');
       if(!imageSignature(req.file.buffer,req.file.mimetype))return fail(res,400,'The selected file is not a valid image.');
-      const ext={'image/jpeg':'.jpg','image/png':'.png','image/webp':'.webp','image/gif':'.gif'}[req.file.mimetype];
+      const ext={'image/jpeg':'.jpg','image/png':'.png','image/webp':'.webp'}[req.file.mimetype];
       const objectPath='member-avatars/'+identity.user.id+'/'+crypto.randomUUID()+ext;
-      const storage=db().storage.from(PUBLIC_BUCKET);
+      const storage=db().storage.from(PRIVATE_BUCKET);
       const uploaded=await storage.upload(objectPath,req.file.buffer,{contentType:req.file.mimetype,upsert:false,cacheControl:'3600'});
       if(uploaded.error)throw uploaded.error;
-      const member=Object.assign({},identity.member,{avatarUrl:storage.getPublicUrl(objectPath).data.publicUrl});
-      await saveMember(member);res.status(201).json({member:profileView(member)});
+      const member=Object.assign({},identity.member,{avatarPath:objectPath});
+      if(identity.member.avatarPath && identity.member.avatarPath!==objectPath) await storage.remove([identity.member.avatarPath]);
+      await saveMember(member);res.status(201).json({member:await profileView(member)});
     }catch(error){console.error('Member avatar upload failed:',error.message);fail(res,503,'Profile photo upload failed. Please try again.');}
   });
 
