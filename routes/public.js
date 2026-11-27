@@ -139,10 +139,23 @@ module.exports = function registerPublicRoutes(app, deps) {
   });
   app.get('/api/public/live',requireStorage,async function(req,res){
     res.set('Cache-Control','no-store, no-cache, must-revalidate, proxy-revalidate');res.set('Pragma','no-cache');
-    try{let q=db().from('broadcast_sessions').select('id,slug,title,description,logo_url,logo_position,overlay_text,scripture_reference,scripture_text,presentation_config,started_at').eq('status','live').eq('is_public',true);
-      const slug=String(req.query.slug||'').slice(0,40);if(slug)q=q.eq('slug',slug);const r=await q.order('started_at',{ascending:false}).limit(1).maybeSingle();
-      if(r.error)throw r.error;if(!r.data)return res.status(404).json({live:false});res.json({live:true,session:r.data});
-    }catch(e){console.error('Public live lookup failed:',e.message);fail(res,503,'Live broadcast information is temporarily unavailable.');}
+    try{
+      // Resolve the most recently STARTED public service first, regardless of
+      // status. Filtering to status='live' before ordering resurrects an older
+      // abandoned test session after the newer service has ended.
+      let q=db().from('broadcast_sessions')
+        .select('id,slug,title,description,logo_url,logo_position,overlay_text,scripture_reference,scripture_text,presentation_config,started_at,status,ended_at')
+        .eq('is_public',true).not('started_at','is',null);
+      const slug=String(req.query.slug||'').slice(0,40);
+      if(slug)q=q.eq('slug',slug);
+      const r=await q.order('started_at',{ascending:false}).limit(1).maybeSingle();
+      if(r.error)throw r.error;
+      if(!r.data||r.data.status!=='live'||r.data.ended_at)return res.status(404).json({live:false});
+      res.json({live:true,session:r.data});
+    }catch(e){
+      console.error('Public live lookup failed:',e.message);
+      fail(res,503,'Live broadcast information is temporarily unavailable.');
+    }
   });
   app.post('/api/public/live/token',publicLimit,requireStorage,async function(req,res){
     res.set('Cache-Control','no-store, no-cache, must-revalidate, proxy-revalidate');
