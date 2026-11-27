@@ -16,6 +16,12 @@ function turnstileConfiguration() {
   const secretKey = String(process.env.TURNSTILE_SECRET_KEY || '').trim();
   return { siteKey:siteKey, secretKey:secretKey, enabled:Boolean(siteKey && secretKey), incomplete:Boolean(siteKey) !== Boolean(secretKey) };
 }
+function emailFeatureConfiguration() {
+  return {
+    verificationRequired:String(process.env.ICF_EMAIL_VERIFICATION_REQUIRED || '').toLowerCase() === 'true',
+    passwordRecoveryEnabled:String(process.env.ICF_PASSWORD_RECOVERY_ENABLED || '').toLowerCase() === 'true'
+  };
+}
 async function verifyTurnstile(token) {
   const config = turnstileConfiguration();
   if (config.incomplete) return { ok:false, configurationError:true };
@@ -43,11 +49,19 @@ module.exports = function registerAuthRoutes(app, deps) {
 
   app.get('/api/public/auth-config',function(req,res){
     const captcha = turnstileConfiguration();
+    const emailFeatures = emailFeatureConfiguration();
     res.set('Cache-Control','no-store');
-    res.json({turnstileEnabled:captcha.enabled,turnstileSiteKey:captcha.enabled?captcha.siteKey:'',captchaConfigurationIncomplete:captcha.incomplete});
+    res.json({
+      turnstileEnabled:captcha.enabled,
+      turnstileSiteKey:captcha.enabled?captcha.siteKey:'',
+      captchaConfigurationIncomplete:captcha.incomplete,
+      emailVerificationRequired:emailFeatures.verificationRequired,
+      passwordRecoveryEnabled:emailFeatures.passwordRecoveryEnabled
+    });
   });
 
   app.post('/api/auth/password-reset-request',recoveryLimit||loginLimit,requireStorage,async function(req,res){
+    if (!emailFeatureConfiguration().passwordRecoveryEnabled) return fail(res,503,'Password recovery is not available yet. Please contact the church office for assistance.');
     try {
       const email = String((req.body||{}).email||'').trim().toLowerCase();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return fail(res,400,'Enter a valid email address.');
@@ -62,6 +76,7 @@ module.exports = function registerAuthRoutes(app, deps) {
   });
 
   app.post('/api/auth/password-reset-complete',recoveryLimit||loginLimit,requireStorage,async function(req,res){
+    if (!emailFeatureConfiguration().passwordRecoveryEnabled) return fail(res,503,'Password recovery is not available yet. Please contact the church office for assistance.');
     try {
       const body = req.body||{};
       const accessToken = String(body.accessToken||'').trim();
@@ -89,6 +104,7 @@ module.exports = function registerAuthRoutes(app, deps) {
   });
 
   app.post('/api/auth/resend-confirmation',resendLimit||loginLimit,requireStorage,async function(req,res){
+    if (!emailFeatureConfiguration().verificationRequired) return fail(res,503,'Email verification is not enabled yet. Your membership application can still be submitted for church review.');
     try {
       const email = String((req.body||{}).email||'').trim().toLowerCase();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return fail(res,400,'Enter a valid email address.');
@@ -136,12 +152,23 @@ module.exports = function registerAuthRoutes(app, deps) {
       if (memberResult.error) throw memberResult.error;
       const member = memberResult.data && memberResult.data.data;
       if (!member) return fail(res,403,'No membership application is linked to this account.');
+      if (emailFeatureConfiguration().verificationRequired &&
+          member.emailVerificationStatus === 'pending' &&
+          result.data.user.email_confirmed_at) {
+        member.emailVerified = true;
+        member.emailVerificationStatus = 'verified';
+        const savedVerification = await db().from('app_records').upsert({
+          collection:'members',record_id:member.id,data:member,updated_at:new Date().toISOString()
+        },{onConflict:'collection,record_id'});
+        if (savedVerification.error) throw savedVerification.error;
+      }
       if (member.status === 'pending') return fail(res,403,'Your membership application is awaiting church approval.');
       if (member.status === 'suspended') return fail(res,403,'This account is suspended. Please contact the church office.');
       if (member.status !== 'approved') return fail(res,403,'Your membership is not yet approved. Please contact the church office if you need help.');
       res.set('Cache-Control','no-store');
       res.json({ access_token:result.data.session.access_token, expires_at:result.data.session.expires_at,
-        token_type:'bearer', user:{ id:member.id, name:member.name, email:member.email, role:'member', status:member.status } });
+        token_type:'bearer', user:{ id:member.id, name:member.name, email:member.email, role:'member', status:member.status,
+          emailVerified:member.emailVerified===true, emailVerificationStatus:member.emailVerificationStatus||'unknown' } });
     } catch (error) {
       console.error('Member login failed:',error.message);
       fail(res,503,'Member sign-in is temporarily unavailable.');
@@ -173,22 +200,52 @@ module.exports = function registerAuthRoutes(app, deps) {
       }
       if (!country) return fail(res,400,'Select a valid nationality from the country list.');
       if (!/^\+\d{1,4}$/.test(dialCode)) return fail(res,400,'Select a valid phone country code.');
-      const auth = authClient();
-      const signupOptions = {data:{full_name:name,church:'ICF Gambia'},emailRedirectTo:publicSiteUrl()};
-      if (captchaConfig.enabled) signupOptions.captchaToken=String(body.captchaToken||'');
-      const signup = await auth.auth.signUp({email:email,password:password,options:signupOptions});
-      const genericSignupFailure='We could not complete registration. If you already have an account, sign in or use password recovery. Otherwise, check your details and try again.';
-      if (signup.error || !signup.data || !signup.data.user) {
-        console.warn('Member signup Auth request rejected:',signup.error && (signup.error.code||signup.error.status)||'AUTH_ERROR');
-        return fail(res,400,genericSignupFailure);
+      const emailFeatures = emailFeatureConfiguration();
+      const genericSignupFailure='We could not complete registration. Check your details or contact the church office if you need assistance.';
+      let authUser = null;
+      let signupSession = null;
+      let emailConfirmationRequired = false;
+      let emailVerified = false;
+
+      if (emailFeatures.verificationRequired) {
+        // Future mode: only enable after the church has configured and tested
+        // its transactional email provider and Supabase confirmation templates.
+        const signupOptions = {data:{full_name:name,church:'ICF Gambia'},emailRedirectTo:publicSiteUrl()};
+        if (captchaConfig.enabled) signupOptions.captchaToken=String(body.captchaToken||'');
+        const signup = await authClient().auth.signUp({email:email,password:password,options:signupOptions});
+        if (signup.error || !signup.data || !signup.data.user ||
+            (Array.isArray(signup.data.user.identities) && signup.data.user.identities.length === 0)) {
+          console.warn('Member signup Auth request rejected:',signup.error && (signup.error.code||signup.error.status)||'AUTH_ERROR');
+          return fail(res,400,genericSignupFailure);
+        }
+        authUser = signup.data.user;
+        signupSession = signup.data.session || null;
+        emailVerified = Boolean(authUser.email_confirmed_at || signupSession);
+        emailConfirmationRequired = !emailVerified;
+      } else {
+        // Email delivery is not configured yet. Create the Auth identity on the
+        // server without sending email; the app's own emailVerified flag remains
+        // false. Membership approval is still required before member-area access.
+        const created = await db().auth.admin.createUser({
+          email:email,
+          password:password,
+          email_confirm:true,
+          user_metadata:{full_name:name,church:'ICF Gambia',icf_email_verification_status:'pending'}
+        });
+        if (created.error || !created.data || !created.data.user) {
+          console.warn('Member Auth identity creation rejected:',created.error && (created.error.code||created.error.status)||'AUTH_ERROR');
+          return fail(res,400,genericSignupFailure);
+        }
+        authUser = created.data.user;
       }
-      if (Array.isArray(signup.data.user.identities) && signup.data.user.identities.length === 0)
-        return fail(res,400,genericSignupFailure);
+
       const member = {
-        id:crypto.randomUUID(), authUserId:signup.data.user.id, name:name.slice(0,120), email:email.slice(0,254),
+        id:crypto.randomUUID(), authUserId:authUser.id, name:name.slice(0,120), email:email.slice(0,254),
         phone:(dialCode + ' ' + phone).trim().slice(0,50), phoneRaw:phone.slice(0,40),
         dialCode:dialCode, address:address.slice(0,500),
         nationality:country.name, nationalityCode:country.code,
+        emailVerified:emailVerified,
+        emailVerificationStatus:emailVerified?'verified':(emailFeatures.verificationRequired?'pending':'not_verified_email_delivery_pending'),
         role:'member', roles:[], publicProfileConsent:false, directoryVisible:false, bio:'', avatarUrl:'', status:'pending', joinedAt:new Date().toISOString()
       };
       try {
@@ -196,20 +253,23 @@ module.exports = function registerAuthRoutes(app, deps) {
       } catch (insertError) {
         // Do not leave an Auth identity behind without its matching pending member record.
         try {
-          const cleanup = await db().auth.admin.deleteUser(signup.data.user.id);
+          const cleanup = await db().auth.admin.deleteUser(authUser.id);
           if (cleanup.error) console.error('Orphan signup identity cleanup failed:',cleanup.error.message);
         } catch (cleanupError) {
           console.error('Orphan signup identity cleanup failed:',cleanupError.message);
         }
         throw insertError;
       }
-      const emailConfirmationRequired = !Boolean(signup.data.session);
       res.set('Cache-Control','no-store');
       res.status(201).json({
+        membershipStatus:'pending',
         emailConfirmationRequired:emailConfirmationRequired,
-        message:emailConfirmationRequired
-          ? 'Your application has been saved. Please confirm your email using the link we sent. ICF administrators will review your membership after email confirmation.'
-          : 'Your email is confirmed and your application has been received. ICF administrators must still approve your membership before you can sign in.'
+        emailVerificationPending:!emailVerified,
+        message:emailFeatures.verificationRequired
+          ? (emailConfirmationRequired
+            ? 'Your application has been saved as Pending. Please confirm your email using the link we sent. The church administration will review your membership.'
+            : 'Your application has been saved as Pending. The church administration must approve your membership before you can sign in.')
+          : 'Your application has been saved as Pending. Email verification is not enabled yet because email delivery has not been configured. The church administration will review your application. Keep your password safe; password recovery is coming later. You can sign in after your membership is approved.'
       });
     } catch (error) {
       console.error('Member signup failed:',error.message);

@@ -12,6 +12,8 @@
   var captchaConfigReady = false;
   var captchaConfigFailed = false;
   var captchaSiteKey = '';
+  var emailVerificationRequired = false;
+  var passwordRecoveryEnabled = false;
   var turnstileScriptLoading = false;
   var passwordRecoveryCredentials = null;
   var collections = ['members','prayers','baptisms','events','sermons','media','announcements','contactMessages','emailHistory','livestream','siteSettings','enabledLangs','churchRoles'];
@@ -285,7 +287,7 @@ window.submitSignup = function () {
     var heading=document.getElementById('signup-result-title'),message=document.getElementById('signup-result-message');
     if(form)form.hidden=true;
     if(panel)panel.hidden=false;
-    if(heading)heading.textContent=result.emailConfirmationRequired?'Confirm Your Email Address':'Membership Application Received';
+    if(heading)heading.textContent='Membership Application Received';
     if(message)message.textContent=result.message || 'Your ICF membership application has been received. Membership access requires church approval.';
     var loginEmail=document.getElementById('login-email');if(loginEmail)loginEmail.value=email;
     if (typeof toast === 'function') toast('Application received',result.message || 'Your membership application is awaiting review.','success');
@@ -305,10 +307,14 @@ window.openIcfPasswordReset = function (sourceId) {
   var source=document.getElementById(sourceId||'login-email');
   var email=document.getElementById('icf-reset-email');
   if(source&&email)email.value=source.value.trim();
-  var status=document.getElementById('password-reset-status');if(status)status.textContent='';
+  var status=document.getElementById('password-reset-status');
+  if(status)status.textContent=passwordRecoveryEnabled?'':'Password recovery is coming soon. Email delivery is not configured yet. Keep your password safe and contact the church office if you cannot sign in.';
+  var comingSoon=document.getElementById('password-recovery-coming-soon');if(comingSoon)comingSoon.hidden=passwordRecoveryEnabled;
+  var requestForm=document.getElementById('password-reset-request');if(requestForm)requestForm.hidden=!passwordRecoveryEnabled;
   if(typeof navigate==='function')navigate('password-reset');
 };
 window.requestIcfPasswordReset = function () {
+  if(!passwordRecoveryEnabled){var disabledStatus=document.getElementById('password-reset-status');if(disabledStatus)disabledStatus.textContent='Password recovery is coming soon. Email delivery is not configured yet. Please keep your password safe.';return;}
   var email=(document.getElementById('icf-reset-email')||{value:''}).value.trim().toLowerCase();
   var status=document.getElementById('password-reset-status');
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
@@ -357,6 +363,11 @@ window.completeIcfPasswordReset = function () {
   });
 };
 window.resendIcfSignupConfirmation = function () {
+  if(!emailVerificationRequired){
+    var disabledStatus=document.getElementById('login-email-status');
+    if(disabledStatus)disabledStatus.textContent='Email confirmation is not required for registration right now. Your application goes directly to the Pending review queue; keep your password safe and wait for church approval.';
+    return;
+  }
   var input=document.getElementById('login-email')||document.getElementById('admin-email-input');
   var email=(input||{value:''}).value.trim().toLowerCase();
   var status=document.getElementById('login-email-status');
@@ -440,6 +451,10 @@ function initIcfAuthEnhancements() {
   });
   request('/public/auth-config',{method:'GET'}).then(function(config){
     captchaConfigReady=true;
+    emailVerificationRequired=!!config.emailVerificationRequired;
+    passwordRecoveryEnabled=!!config.passwordRecoveryEnabled;
+    var recoveryNote=document.getElementById('password-recovery-coming-soon');if(recoveryNote)recoveryNote.hidden=passwordRecoveryEnabled;
+    var recoveryForm=document.getElementById('password-reset-request');if(recoveryForm)recoveryForm.hidden=!passwordRecoveryEnabled;
     captchaEnabled=!!config.turnstileEnabled;
     captchaSiteKey=String(config.turnstileSiteKey||'');
     if(config.captchaConfigurationIncomplete){
