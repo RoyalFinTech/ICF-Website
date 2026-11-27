@@ -4,6 +4,8 @@
   var API = '/api';
   var TOKEN = 'icf_admin_token';
   var USER = 'icf_admin_user';
+  var MEMBER_LOGIN_BUSY = false;
+  var MEMBER_SIGNUP_BUSY = false;
   var collections = ['members','prayers','baptisms','events','sermons','media','announcements','contactMessages','emailHistory','livestream','siteSettings','enabledLangs','churchRoles'];
   var originalGet = DB.get.bind(DB);
   var originalSet = DB.set.bind(DB);
@@ -193,41 +195,78 @@
     if (typeof toast === 'function') toast('Logged out','You have been signed out.','info');
   };
   window.doMemberLogin = function () {
-    var email = (document.getElementById('login-email') || {value:''}).value.trim();
-    var password = (document.getElementById('login-pass') || {value:''}).value;
-    if (!email || !password) { if (typeof toast === 'function') toast('Missing details','Enter your email and password.','error'); return; }
-    request('/auth/member-login',{method:'POST',body:{email:email,password:password}}).then(function (result) {
-      localStorage.setItem('icf_member_token',result.access_token);
-      localStorage.setItem('icf_member_user',JSON.stringify(result.user || {}));
-      if (typeof toast === 'function') toast('Welcome back','','success');
-      if (typeof navigate === 'function') navigate('member-profile');
-    }).catch(function (error) { if (typeof toast === 'function') toast('Sign-in failed',error.message || 'Please try again.','error'); });
-  };
-  window.submitSignup = function () {
-    var name = (document.getElementById('su-name') || {value:''}).value.trim();
-    var phone = (document.getElementById('su-phone') || {value:''}).value.trim();
-    var email = (document.getElementById('su-email') || {value:''}).value.trim();
-    var address = (document.getElementById('su-address') || {value:''}).value.trim();
-    var nationality = (document.getElementById('su-nationality-val') || {value:''}).value;
-    var nationalityCode = (document.getElementById('su-nationality-code') || {value:''}).value;
-    var password = (document.getElementById('su-pass') || {value:''}).value;
-    var confirm = (document.getElementById('su-confirm') || {value:''}).value;
-    var agreed = !!(document.getElementById('su-agree') || {checked:false}).checked;
-    if (name.length < 2 || phone.length < 6 || address.length < 3 || !nationality ||
-        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 12 || password !== confirm || !agreed) {
-      if (typeof toast === 'function') toast('Check the form','Enter your details, a valid email, matching password of at least 12 characters, and accept the terms.','error');
-      return;
-    }
-    var dialCode = typeof selectedDialCode !== 'undefined' ? selectedDialCode : '';
-    request('/public/member-signup',{method:'POST',body:{name:name,phone:phone,email:email,address:address,nationality:nationality,nationalityCode:nationalityCode,dialCode:dialCode,password:password}})
-      .then(function (result) {
-        ['su-name','su-phone','su-email','su-address','su-pass','su-confirm'].forEach(function (id) { var el=document.getElementById(id); if(el)el.value=''; });
-        var agree = document.getElementById('su-agree'); if(agree)agree.checked=false;
-        if (typeof toast === 'function') toast('Registration received',result.message || 'Your membership application is pending approval.','success');
-        if (typeof navigate === 'function') setTimeout(function () { navigate('home'); },1400);
-      }).catch(function (error) { if (typeof toast === 'function') toast('Registration failed',error.message || 'Please try again.','error'); });
-  };
-  window.submitPrayerForm = function () {
+  if (MEMBER_LOGIN_BUSY) return;
+  var email = (document.getElementById('login-email') || {value:''}).value.trim().toLowerCase();
+  var password = (document.getElementById('login-pass') || {value:''}).value;
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !password) {
+    if (typeof toast === 'function') toast('Check your details','Enter a valid email address and your password.','error');
+    return;
+  }
+  MEMBER_LOGIN_BUSY = true;
+  var button=document.getElementById('member-login-submit');
+  if(button){button.disabled=true;button.dataset.originalText=button.textContent;button.textContent='Signing in…';}
+  request('/auth/member-login',{method:'POST',body:{email:email,password:password}}).then(function (result) {
+    localStorage.setItem('icf_member_token',result.access_token);
+    localStorage.setItem('icf_member_token_expires_at',String(result.expires_at||''));
+    localStorage.setItem('icf_member_user',JSON.stringify(result.user || {}));
+    var pass=document.getElementById('login-pass');if(pass)pass.value='';
+    if (typeof toast === 'function') toast('Welcome back','Your ICF member account is ready.','success');
+    if (typeof navigate === 'function') navigate('member-profile');
+  }).catch(function (error) {
+    if (typeof toast === 'function') toast('Sign-in failed',error.message || 'Please check your details and try again.','error');
+  }).finally(function () {
+    MEMBER_LOGIN_BUSY=false;
+    if(button){button.disabled=false;button.textContent=button.dataset.originalText||'👤 Sign In';}
+  });
+};
+window.doMemberLogout = function () {
+  ['icf_member_token','icf_member_token_expires_at','icf_member_user'].forEach(function(key){localStorage.removeItem(key);});
+  if(typeof toast==='function')toast('Signed out','You have safely signed out of your member account.','success');
+  if(typeof navigate==='function')navigate('login');
+};
+window.toggleIcfPassword = function (id,button) {
+  var input=document.getElementById(id);if(!input)return;
+  var showing=input.type==='text';input.type=showing?'password':'text';
+  if(button){button.textContent=showing?'Show':'Hide';button.setAttribute('aria-pressed',showing?'false':'true');}
+};
+window.submitSignup = function () {
+  if (MEMBER_SIGNUP_BUSY) return;
+  var name = (document.getElementById('su-name') || {value:''}).value.trim();
+  var phone = (document.getElementById('su-phone') || {value:''}).value.trim();
+  var email = (document.getElementById('su-email') || {value:''}).value.trim().toLowerCase();
+  var address = (document.getElementById('su-address') || {value:''}).value.trim();
+  var nationalityCode = (document.getElementById('su-nationality-code') || {value:''}).value.trim().toUpperCase();
+  var country = window.ICFCountryData && window.ICFCountryData.getCountry(nationalityCode);
+  var nationality = country ? country.name : '';
+  var password = (document.getElementById('su-pass') || {value:''}).value;
+  var confirm = (document.getElementById('su-confirm') || {value:''}).value;
+  var agreed = !!(document.getElementById('su-agree') || {checked:false}).checked;
+  if (name.length < 2 || phone.length < 6 || address.length < 3 || !country ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 12 || password.length > 200 || password !== confirm || !agreed) {
+    if (typeof toast === 'function') toast('Check the form','Enter your details, select a nationality, use a valid email, set a matching password of at least 12 characters, and accept the terms.','error');
+    return;
+  }
+  var dialCode = typeof selectedDialCode !== 'undefined' ? selectedDialCode : '';
+  if(!/^\+\d{1,4}$/.test(dialCode)){if(typeof toast==='function')toast('Select a phone country','Choose a valid calling code before submitting.','error');return;}
+  MEMBER_SIGNUP_BUSY = true;
+  var button=document.getElementById('member-signup-submit');
+  if(button){button.disabled=true;button.dataset.originalText=button.textContent;button.textContent='Submitting application…';}
+  request('/public/member-signup',{method:'POST',body:{name:name,phone:phone,email:email,address:address,nationality:nationality,nationalityCode:country.code,dialCode:dialCode,password:password}})
+    .then(function (result) {
+      ['su-name','su-phone','su-email','su-address','su-pass','su-confirm'].forEach(function (id) { var el=document.getElementById(id); if(el)el.value=''; });
+      ['su-nationality-val','su-nationality-code'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+      var natDisplay=document.getElementById('nat-display-nationality');if(natDisplay)natDisplay.textContent='🌍 Select your nationality';
+      var agree = document.getElementById('su-agree'); if(agree)agree.checked=false;
+      if (typeof toast === 'function') toast('Application received',result.message || 'Your membership application is pending approval.','success');
+      if (typeof navigate === 'function') setTimeout(function () { navigate('home'); },1800);
+    }).catch(function (error) {
+      if (typeof toast === 'function') toast('Registration failed',error.message || 'Please try again.','error');
+    }).finally(function () {
+      MEMBER_SIGNUP_BUSY=false;
+      if(button){button.disabled=false;button.textContent=button.dataset.originalText||'📝 Create Account';}
+    });
+};
+window.submitPrayerForm = function () {
     var anonymous = !!(document.getElementById('anon-checkbox') && document.getElementById('anon-checkbox').checked);
     var name = (document.getElementById('pf-name') || {value:''}).value.trim();
     var email = (document.getElementById('pf-email') || {value:''}).value.trim();
