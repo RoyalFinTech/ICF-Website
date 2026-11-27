@@ -14,6 +14,7 @@ const app = {};
 const passthrough = function (_req,_res,next) { if (next) next(); };
 const state = {
   signUpCalls:[],
+  signupOverride:null,
   signInError:null,
   resetCalls:[],
   resendCalls:[],
@@ -25,6 +26,7 @@ const state = {
 const auth = { auth:{
   signUp:async function (input) {
     state.signUpCalls.push(input);
+    if(state.signupOverride)return state.signupOverride;
     return {data:{user:{id:'auth-user-test',identities:[{id:'identity'}]},session:null},error:null};
   },
   signInWithPassword:async function () { return {data:null,error:state.signInError}; },
@@ -105,6 +107,18 @@ function signupBody(overrides) {
     assert.equal(stored.nationalityCode,'GM');
     assert.equal(stored.status,'pending');
     assert.equal(state.signUpCalls[state.signUpCalls.length-1].options.emailRedirectTo,'https://icf-website.onrender.com');
+
+    state.signupOverride={data:{user:{id:'duplicate-user',identities:[]},session:null},error:null};
+    const duplicate=await call('POST','/api/public/member-signup',signupBody());
+    assert.equal(duplicate.statusCode,400);
+    assert.match(duplicate.body.error,/sign in or use password recovery/i);
+    assert.doesNotMatch(duplicate.body.error,/already registered|email exists|account exists/i);
+
+    state.signupOverride={data:null,error:{code:'user_already_exists',message:'User already registered'}};
+    const duplicateError=await call('POST','/api/public/member-signup',signupBody());
+    assert.equal(duplicateError.statusCode,400);
+    assert.equal(duplicateError.body.error,duplicate.body.error,'provider duplicate errors use the same generic public response');
+    state.signupOverride=null;
     
     const reset=await call('POST','/api/auth/password-reset-request',{email:'unknown@example.com'});
     assert.equal(reset.statusCode,200);
