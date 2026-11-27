@@ -13,6 +13,6 @@ for (const asset of ['favicon.png','css/site.css','js/hero-slider.js','js/splash
 }
 if (html.includes('data:image/png;base64,')) throw new Error('A large embedded PNG remains in the homepage HTML.');
 if (!html.includes('/css/site.css?v=20261127-10')) throw new Error('External stylesheet is not linked.');
-if (!html.includes('/favicon.png')) throw new Error('External favicon is not linked.');
+if (!html.includes('worship-studio.js?v=20261127-10')) throw new Error('Worship Studio client script is not linked.');\nif (!html.includes('/favicon.png')) throw new Error('External favicon is not linked.');
 if (Buffer.byteLength(html, 'utf8') > 200 * 1024) throw new Error('Generated homepage exceeds the 200 KB HTML budget.');
 process.stdout.write('Homepage validated: ' + requiredPages.length + ' pages, ' + Buffer.byteLength(html, 'utf8') + ' HTML bytes.\n');
