@@ -87,9 +87,9 @@ process.stdout.write('Performance checks passed: concurrent admin reads, active-
 
 const siteTemplate = fs.readFileSync(path.join(ROOT, 'views/index.html'), 'utf8');
 const uiRepair = fs.readFileSync(path.join(ROOT, 'js/ui-repair.js'), 'utf8');
-if (!siteTemplate.includes('site.css?v=20261127-8') ||
-    !siteTemplate.includes('app.js?v=20261127-8') ||
-    !siteTemplate.includes('ui-repair.js?v=20261127-8')) {
+if (!siteTemplate.includes('site.css?v=20261127-9') ||
+    !siteTemplate.includes('app.js?v=20261127-9') ||
+    !siteTemplate.includes('ui-repair.js?v=20261127-9')) {
   throw new Error('Asset URLs must be cache-busted after frontend releases.');
 }
 if (!uiRepair.includes("btn.removeAttribute('onclick')") ||
@@ -135,3 +135,8 @@ if (!adminModuleSource.includes("status:'draft',savedAt:new Date().toISOString()
 if (!adminModuleSource.includes("themeMode:'dark'")) {
   throw new Error('The admin settings fallback must use dark mode by default.');
 }
+
+const memberScript = fs.readFileSync(path.join(ROOT, 'js/member-directory.js'), 'utf8');
+for (const required of ['window.renderMemberProfile','window.saveMyMemberProfile','window.uploadMyMemberAvatar','window.renderPublicDirectory']) if (!memberScript.includes(required)) throw new Error('Member profile functionality missing: '+required);
+const adminScript = fs.readFileSync(path.join(ROOT, 'js/admin-modules.js'), 'utf8');
+for (const required of ['window.adminMembersHTML','window.icfAddChurchRole','window.icfUpdateMemberRoles']) if (!adminScript.includes(required)) throw new Error('Church role management missing: '+required);

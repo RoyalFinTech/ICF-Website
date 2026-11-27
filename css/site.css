@@ -866,3 +866,14 @@ body.icf-admin-active #main { padding-top:0; }
   #page-admin-portal .table-wrap { overflow:visible !important; }
   #page-admin-portal .table-wrap table { width:100% !important; min-width:0 !important; }
 }
+
+.member-role-options{display:grid;gap:7px;max-height:220px;overflow:auto;padding:8px;background:var(--bg-card2);border:1px solid var(--border2);border-radius:9px;min-width:230px}
+.member-role-options label{display:flex;align-items:center;gap:6px;font-size:12px}
+.public-directory-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+.public-person-card{padding:20px;border:1px solid var(--border2);border-radius:16px;background:var(--bg-card);text-align:center;min-width:0}
+.public-person-card img,.public-person-avatar{width:94px;height:94px;object-fit:cover;border-radius:50%;margin:0 auto 12px;border:3px solid var(--gold)}
+.public-person-avatar{display:grid;place-items:center;background:var(--bg-card2);font-size:36px}
+.public-person-card h3{font-size:16px;margin-bottom:6px}.public-person-card p{font-size:12px;color:var(--text-dim);margin:8px 0}
+.public-person-role,.member-profile-role{display:inline-flex;margin:3px;padding:5px 9px;border-radius:30px;background:var(--gold-dim);color:var(--gold);font-size:11px;font-weight:700}
+.member-profile-wrap{max-width:760px;margin:34px auto;padding:0 16px}.member-profile-photo{width:104px;height:104px;object-fit:cover;border-radius:50%;border:3px solid var(--gold)}
+@media(max-width:720px){.public-directory-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.public-person-card{padding:14px 9px}}
