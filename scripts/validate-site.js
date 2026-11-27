@@ -6,7 +6,7 @@ const ROOT = path.resolve(__dirname, '..');
 const html = buildHomepage();
 const checkedIn = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 if (html !== checkedIn) throw new Error('index.html is stale. Run npm run build:site and commit the generated file.');
-const requiredPages = ['home','about','services','events','prayers','baptisms','contact','login','signup','admin-login','admin-portal','sermons','gallery','announcements','membership','workers','member-profile'];
+const requiredPages = ['home','about','services','events','prayers','baptisms','contact','login','signup','admin-login','admin-portal','sermons','gallery','announcements','membership','workers','member-profile','password-reset','email-confirmed'];
 for (const page of requiredPages) if (!html.includes('id="page-' + page + '"')) throw new Error('Missing page: ' + page);
 for (const asset of ['favicon.png','css/site.css','js/hero-slider.js','js/splash.js','js/app.js','js/admin-modules.js','js/api-bridge.js','js/ui-repair.js','js/country-data.js','js/member-directory.js','js/worship-studio.js','js/worship-viewer.js','live.html','camera.html','js/camera-join.js','js/live-status.js','icf-logo-transparent.png','church-worship-service.jpg','church-mummy-prayer.jpg','church-baptism-group.jpg','membership-statement.pdf','workers-manual.pdf']) {
   if (!fs.existsSync(path.join(ROOT, asset))) throw new Error('Missing homepage asset: ' + asset);
@@ -19,6 +19,15 @@ const countryData = require('../js/country-data');
 const countries = countryData.getAll();
 if (countries.length !== 249 || countries.some(function (country) { return !country.code || !country.name || !country.flag || !country.region; })) throw new Error('The full country and flag catalogue is incomplete.');
 if (!countryData.getCountry('GM') || countryData.getCountry('GM').name !== 'The Gambia' || !countryData.getCountry('NG') || !countryData.getCountry('US')) throw new Error('Required nationality country records are missing.');
+
+const authActionsHtml = fs.readFileSync(path.join(ROOT, 'views/pages/auth-actions.html'), 'utf8');
+const authBridgeSource = fs.readFileSync(path.join(ROOT, 'js/api-bridge.js'), 'utf8');
+const appRouterSource = fs.readFileSync(path.join(ROOT, 'js/app.js'), 'utf8');
+if (!authActionsHtml.includes('id="page-password-reset"') || !authActionsHtml.includes('id="page-email-confirmed"')) throw new Error('Password recovery or email confirmation page is missing.');
+if (!loginHtml.includes('openIcfPasswordReset') || !loginHtml.includes('resendIcfSignupConfirmation')) throw new Error('Member login must expose password recovery and confirmation resend.');
+if (!authBridgeSource.includes('password-reset-complete') || !authBridgeSource.includes('password-reset-request') || !authBridgeSource.includes('resend-confirmation')) throw new Error('Browser password recovery and confirmation resend flows are not connected.');
+if (!appRouterSource.includes("callbackType==='recovery'?'password-reset'") || !appRouterSource.includes('history.replaceState')) throw new Error('Auth callback routing must safely consume and clear recovery tokens.');
+if (!signupHtml.includes('id="su-website"') || !signupHtml.includes('id="icf-turnstile"')) throw new Error('Signup honeypot or Turnstile widget mount is missing.');
 const signupHtml = fs.readFileSync(path.join(ROOT, 'views/pages/signup.html'), 'utf8');
 const loginHtml = fs.readFileSync(path.join(ROOT, 'views/pages/login.html'), 'utf8');
 const signupAuthSource = fs.readFileSync(path.join(ROOT, 'routes/auth.js'), 'utf8');
