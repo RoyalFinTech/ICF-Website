@@ -26,10 +26,10 @@ if (!/scriptSrc:\s*\["'self'",'https:\/\/cdn\.jsdelivr\.net'\]/.test(serverSourc
   throw new Error('CSP must allow legacy inline event attributes without allowing inline script elements.');
 }
 
-if (/\bconst\s+URL\s*=/.test(serverSource) ||
-    !/const SUPABASE_URL =/.test(serverSource) ||
-    !/const endpoint = new URL\(value\)/.test(serverSource) ||
-    !/connectSrc:\[[^\]]*\.\.\.liveKitConnectSrc/.test(serverSource)) {
+if (serverSource.includes('const URL =') ||
+    !serverSource.includes('const SUPABASE_URL =') ||
+    !serverSource.includes('const endpoint = new URL(value)') ||
+    !serverSource.includes('...liveKitConnectSrc')) {
   throw new Error('LiveKit CSP must use the native URL constructor and include the configured LiveKit host allowlist.');
 }
 
