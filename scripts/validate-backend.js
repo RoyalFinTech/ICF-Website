@@ -38,6 +38,14 @@ if (countryData.count() !== 249 || !countryData.getCountry('GM') || !countryData
 const signupAuthSource = fs.readFileSync(path.join(__dirname, '..', 'routes/auth.js'), 'utf8');
 if (!signupAuthSource.includes("countryData.getCountry(nationalityCode)") || !signupAuthSource.includes("nationality:country.name")) throw new Error('Server-side nationality validation and canonical persistence are missing.');
 if (!signupAuthSource.includes("member.status !== 'approved'")) throw new Error('Member login is missing the approval gate.');
+const publicAuthSource = fs.readFileSync(path.join(__dirname, '..', 'routes/public.js'), 'utf8');
+const adminBroadcastSource = fs.readFileSync(path.join(__dirname, '..', 'routes/admin.js'), 'utf8');
+if (!publicAuthSource.includes("Membership status, roles, approval and Auth identity are admin-controlled.")) throw new Error('Member self-service profile must not be able to change approval or church roles.');
+if (!publicAuthSource.includes("m.status==='approved'&&m.publicProfileConsent===true&&m.directoryVisible===true")) throw new Error('Public leadership directory must require approval, profile consent, and admin visibility.');
+if (!adminBroadcastSource.includes("app.post('/api/admin/broadcast/sessions/:id/token',requireStorage,requireAdmin") ||
+    !adminBroadcastSource.includes("app.get('/api/admin/broadcast/config',requireStorage,requireAdmin")) throw new Error('Broadcast publishing credentials and configuration must remain admin-protected.');
+if (!publicAuthSource.includes("canPublish:false,canSubscribe:true")) throw new Error('Public LiveKit viewer token must be read-only.');
+
 process.stdout.write('Backend routes registered: ' + required.length + '.\n');
 
 const broadcastRoutes = fs.readFileSync(path.join(__dirname, '..', 'routes/admin.js'), 'utf8');
