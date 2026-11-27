@@ -31,3 +31,16 @@ if (!siteCss.includes('Mobile worship schedule + footer layout repair') ||
 }
 
 process.stdout.write('Performance checks passed: concurrent admin reads, active-page refresh and direct admin entry.\n');
+
+const siteTemplate = fs.readFileSync(path.join(ROOT, 'views/index.html'), 'utf8');
+const uiRepair = fs.readFileSync(path.join(ROOT, 'js/ui-repair.js'), 'utf8');
+if (!siteTemplate.includes('site.css?v=20261127-4') ||
+    !siteTemplate.includes('app.js?v=20261127-4') ||
+    !siteTemplate.includes('ui-repair.js?v=20261127-4')) {
+  throw new Error('Asset URLs must be cache-busted after frontend releases.');
+}
+if (!uiRepair.includes("btn.removeAttribute('onclick')") ||
+    !uiRepair.includes("btn.addEventListener('click'") ||
+    !uiRepair.includes("btn.dataset.icfMenuBound='1'")) {
+  throw new Error('Hamburger navigation must have one directly bound, idempotent click handler.');
+}
