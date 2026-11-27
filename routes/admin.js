@@ -137,13 +137,13 @@ module.exports = function registerAdminRoutes(app, deps) {
   });
   app.patch('/api/admin/broadcast/sessions/:id/overlay',requireStorage,requireAdmin,async function(req,res){
     try{
-      const b=req.body||{},raw=b.presentationConfig||{},mode=['camera','slide','flyer','split','ticker'].includes(raw.mode)?raw.mode:'camera';
-      const config={mode:mode,quality:['480p','720p','1080p'].includes(raw.quality)?raw.quality:'720p',orientation:raw.orientation==='portrait'?'portrait':'landscape',cameraLayout:['single','pip','split'].includes(raw.cameraLayout)?raw.cameraLayout:'single',background:/^#[0-9a-f]{6}$/i.test(String(raw.background||''))?raw.background:'#071329',
+      const b=req.body||{},raw=b.presentationConfig||{},mode=['camera','overlay','slide','flyer','split','ticker'].includes(raw.mode)?raw.mode:'camera';
+      const config={mode:mode,quality:['480p','720p','1080p'].includes(raw.quality)?raw.quality:'720p',orientation:raw.orientation==='portrait'?'portrait':'landscape',cameraLayout:['single','pip','split'].includes(raw.cameraLayout)?raw.cameraLayout:'single',activeCamera:raw.activeCamera==='camera2'?'camera2':'camera1',background:/^#[0-9a-f]{6}$/i.test(String(raw.background||''))?raw.background:'#071329',
         textColor:/^#[0-9a-f]{6}$/i.test(String(raw.textColor||''))?raw.textColor:'#ffffff',
         fontSize:Math.max(18,Math.min(64,Number(raw.fontSize)||34)),textAlign:['left','center','right'].includes(raw.textAlign)?raw.textAlign:'center',
         scroll:raw.scroll===true,flyerUrl:String(raw.flyerUrl||'').slice(0,1200),slideTitle:String(raw.slideTitle||'').slice(0,180),
         slideBody:String(raw.slideBody||'').slice(0,3000),slideReference:String(raw.slideReference||'').slice(0,180),
-        slides:Array.isArray(raw.slides)?raw.slides.slice(0,60).map(function(s){return {type:['camera','slide','flyer','split','ticker'].includes(s.type)?s.type:'slide',
+        slides:Array.isArray(raw.slides)?raw.slides.slice(0,60).map(function(s){return {type:['camera','overlay','slide','flyer','split','ticker'].includes(s.type)?s.type:'slide',
           title:String(s.title||'').slice(0,180),body:String(s.body||'').slice(0,3000),reference:String(s.reference||'').slice(0,180),
           background:/^#[0-9a-f]{6}$/i.test(String(s.background||''))?s.background:'#071329',textColor:/^#[0-9a-f]{6}$/i.test(String(s.textColor||''))?s.textColor:'#ffffff',
           fontSize:Math.max(18,Math.min(64,Number(s.fontSize)||34)),textAlign:['left','center','right'].includes(s.textAlign)?s.textAlign:'center',
