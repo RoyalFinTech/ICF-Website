@@ -27,3 +27,6 @@ if (!/scriptSrc:\s*\["'self'",'https:\/\/cdn\.jsdelivr\.net'\]/.test(serverSourc
 }
 
 process.stdout.write('Backend routes registered: ' + required.length + '.\n');
+
+const broadcastRoutes = fs.readFileSync(path.join(__dirname, '..', 'routes/admin.js'), 'utf8');
+if (!/presentation_config:config/.test(broadcastRoutes)) throw new Error('Broadcast presentation settings must be persisted.');
