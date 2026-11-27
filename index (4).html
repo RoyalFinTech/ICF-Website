@@ -575,7 +575,7 @@ body.icf-menu-open{overflow:hidden!important}
 .stat-pill{min-width:0}
 .stat-pill-num{white-space:nowrap;overflow-wrap:normal;line-height:1.15;font-variant-numeric:tabular-nums}
 .stat-pill-label{overflow-wrap:normal;line-height:1.3}
-@media(max-width:1680px){
+@media(max-width:1920px){
   #navbar .nav-inner{height:64px;max-width:1440px}
   #navbar .nav-links{display:none!important}
   #navbar .nav-hamburger{display:block!important}
@@ -590,6 +590,24 @@ body.icf-menu-open{overflow:hidden!important}
   #navbar .nav-brand-text{white-space:nowrap;font-size:11.5px}
   #nav-mobile{top:100px!important;max-height:calc(100dvh - 100px)}
   .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+/* Home page content guards: prevent long labels and figures from colliding */
+#page-home{min-width:0;width:100%;max-width:100%}
+#page-home .stats-bar{width:100%;min-width:0}
+#page-home .stats-grid{width:min(100%,960px);grid-template-columns:repeat(4,minmax(0,1fr))}
+#page-home .stat-pill{min-width:0;max-width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#page-home .stat-pill-num{display:block;max-width:100%;font-size:clamp(1.2rem,2vw,1.6rem);white-space:nowrap;line-height:1.2;font-variant-numeric:tabular-nums}
+#page-home .stat-pill-label{max-width:100%;white-space:normal;text-align:center;line-height:1.35}
+#page-home .modules-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));align-items:stretch}
+#page-home .module-card{min-width:0;max-width:100%;overflow-wrap:anywhere}
+#page-home .module-title,#page-home .module-desc{min-width:0;overflow-wrap:anywhere}
+#page-home .icf-hero-copy{min-width:0}
+#page-home .icf-hero-copy h1,#page-home .icf-hero-copy p{max-width:100%;overflow-wrap:break-word}
+@media(max-width:640px){
+ #page-home .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #page-home .modules-grid{grid-template-columns:minmax(0,1fr)}
+ #page-home .icf-hero-copy h1{overflow-wrap:normal}
 }
 </style>
 </head>
@@ -647,6 +665,8 @@ body.icf-menu-open{overflow:hidden!important}
   <a onclick="navigate('gallery')">📷 Gallery</a>
   <a onclick="navigate('announcements')">📢 Announcements</a>
   <a onclick="navigate('membership')">🧾 Members</a>
+  <a onclick="navigate('membership')">📄 ICF Membership Statement PDF</a>
+  <a onclick="navigate('workers')">📘 ICF Workers’ Manual PDF</a>
   <a onclick="navigate('workers')">📘 Workers</a>
   <button class="mob-cta" onclick="navigate('admin-login')">🛡️ Admin Portal</button>
   <div style="padding:8px 12px">
