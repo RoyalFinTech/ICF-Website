@@ -230,10 +230,10 @@ const liveKitConnectSrc = (function () {
   } catch (_) { return []; }
 })();
 app.use(helmet({ contentSecurityPolicy: { directives: {
-  defaultSrc:["'self'"], scriptSrc:["'self'",'https://cdn.jsdelivr.net'], scriptSrcAttr:["'unsafe-inline'"], styleSrc:["'self'","'unsafe-inline'",'https:'],
+  defaultSrc:["'self'"], scriptSrc:["'self'",'https://cdn.jsdelivr.net','https://challenges.cloudflare.com'], scriptSrcAttr:["'unsafe-inline'"], styleSrc:["'self'","'unsafe-inline'",'https:'],
   imgSrc:["'self'",'data:','blob:','https:'], fontSrc:["'self'",'data:','https:'],
-  workerSrc:["'self'",'blob:'], connectSrc:["'self'",SUPABASE_URL,'https://nominatim.openstreetmap.org','https://bible-api.com',...liveKitConnectSrc].filter(Boolean),
-  frameSrc:["'self'",'https://www.youtube.com','https://www.youtube-nocookie.com','https://www.facebook.com'],
+  workerSrc:["'self'",'blob:'], connectSrc:["'self'",SUPABASE_URL,'https://nominatim.openstreetmap.org','https://bible-api.com','https://challenges.cloudflare.com',...liveKitConnectSrc].filter(Boolean),
+  frameSrc:["'self'",'https://challenges.cloudflare.com','https://www.youtube.com','https://www.youtube-nocookie.com','https://www.facebook.com'],
   objectSrc:["'self'"], baseUri:["'self'"], frameAncestors:["'self'"]
 } } }));
 function normalizeOrigin(value) {
@@ -257,10 +257,13 @@ app.use('/api/', function (req,res,next) {
 });
 const loginLimit = rateLimit({ windowMs:15*60*1000, limit:10, standardHeaders:'draft-7', legacyHeaders:false });
 const publicLimit = rateLimit({ windowMs:15*60*1000, limit:30, standardHeaders:'draft-7', legacyHeaders:false });
+const signupLimit = rateLimit({ windowMs:60*60*1000, limit:5, standardHeaders:'draft-7', legacyHeaders:false });
+const recoveryLimit = rateLimit({ windowMs:60*60*1000, limit:5, standardHeaders:'draft-7', legacyHeaders:false });
+const resendLimit = rateLimit({ windowMs:60*60*1000, limit:3, standardHeaders:'draft-7', legacyHeaders:false });
 
 app.get('/health', function (req,res) { res.json({ status:'ok', service:'icf-gambia', storageConfigured:configured, timestamp:new Date().toISOString() }); });
 
-registerAuthRoutes(app, { loginLimit, publicLimit, requireStorage, authClient, db, fail, insertRecord, crypto });
+registerAuthRoutes(app, { loginLimit, publicLimit, signupLimit, recoveryLimit, resendLimit, requireStorage, authClient, db, fail, insertRecord, crypto });
 registerPublicRoutes(app, { requireStorage, fail, PUBLIC_COLLECTIONS, readCollection, PUBLIC_SUBMISSIONS, publicLimit, publicRecord, insertRecord, authClient, db, multer, crypto, PRIVATE_BUCKET });
 registerAdminRoutes(app, { requireStorage, requireAdmin, fail, COLLECTIONS, readCollection, validCollection, replaceCollection, multer, MAX_UPLOAD_BYTES, path, crypto, PUBLIC_BUCKET, PRIVATE_BUCKET, db });
 let homepageHtml = null;
