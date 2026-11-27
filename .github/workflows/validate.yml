@@ -50,6 +50,10 @@ jobs:
           node --check js/admin-modules.js
           node --check js/api-bridge.js
           node --check js/ui-repair.js
+      - name: Validate page and database loading performance
+        run: |
+          node --check scripts/validate-performance.js
+          npm run validate:performance
       - name: Validate modular backend routes
         run: |
           node --check routes/auth.js

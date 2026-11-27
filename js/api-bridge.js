@@ -108,11 +108,29 @@
   };
 
   function refreshViews() {
-    ['renderHome','renderEvents','renderSermons','renderGallery','renderAnnouncements','renderPrayers','renderBaptisms'].forEach(function (name) {
-      if (typeof window[name] === 'function') { try { window[name](); } catch (e) {} }
-    });
-    if (document.getElementById('page-admin-portal') && document.getElementById('page-admin-portal').classList.contains('active') &&
-        typeof window.renderAdminPortal === 'function') window.renderAdminPortal();
+    var activePage = document.querySelector('main .page.active');
+    if (!activePage) return;
+    if (activePage.id === 'page-admin-portal') {
+      if (typeof window.renderAdminPortal === 'function') {
+        try { window.renderAdminPortal(); }
+        catch (error) { console.error('Could not refresh the admin portal:',error); }
+      }
+      return;
+    }
+    var renderers = {
+      'page-home':'renderHome',
+      'page-events':'renderEvents',
+      'page-sermons':'renderSermons',
+      'page-gallery':'renderGallery',
+      'page-announcements':'renderAnnouncements',
+      'page-prayers':'renderPrayers',
+      'page-baptisms':'renderBaptisms'
+    };
+    var renderer = renderers[activePage.id];
+    if (renderer && typeof window[renderer] === 'function') {
+      try { window[renderer](); }
+      catch (error) { console.error('Could not refresh ' + activePage.id + ':',error); }
+    }
   }
   function hydrate(data) {
     Object.keys(data || {}).forEach(function (key) {
@@ -390,12 +408,21 @@
     if (existingToken && existingToken.split('.').length !== 3) {
       localStorage.removeItem(TOKEN); localStorage.removeItem(USER); existingToken='';
     }
-    loadPublic().catch(function (error) { showPublicDataFailure(error); })
-      .then(function () {
-        if (existingToken) return loadAdmin().catch(function (error) { console.warn('Admin session could not be restored:',error.message); });
-      }).then(function () {
-        if (window.location.hash === '#admin-portal' && getToken() && typeof navigate === 'function') navigate('admin-portal');
-      });
+    var directAdminEntry = window.location.hash === '#admin-portal' && !!existingToken;
+    var initialDataLoad = directAdminEntry
+      ? loadAdmin().catch(function (error) {
+          console.warn('Admin session could not be restored:',error.message);
+          if (error.status === 401 && typeof navigate === 'function') navigate('admin-login');
+        })
+      : loadPublic().catch(function (error) { showPublicDataFailure(error); })
+          .then(function () {
+            if (existingToken) return loadAdmin().catch(function (error) {
+              console.warn('Admin session could not be restored:',error.message);
+            });
+          });
+    initialDataLoad.then(function () {
+      if (window.location.hash === '#admin-portal' && getToken() && typeof navigate === 'function') navigate('admin-portal');
+    });
     var panel = document.getElementById('admin-content');
     if (panel && typeof MutationObserver !== 'undefined') new MutationObserver(watchAdminForms).observe(panel,{childList:true,subtree:true});
     watchAdminForms();

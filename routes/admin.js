@@ -10,7 +10,10 @@ module.exports = function registerAdminRoutes(app, deps) {
   app.get('/api/admin/records', requireStorage, requireAdmin, async function (req,res) {
     try {
       const data = {};
-      for (const collection of COLLECTIONS) data[collection] = await readCollection(collection);
+      const entries = await Promise.all(COLLECTIONS.map(async function (collection) {
+        return [collection, await readCollection(collection)];
+      }));
+      entries.forEach(function (entry) { data[entry[0]] = entry[1]; });
       res.json(data);
     } catch (error) {
       console.error('Admin data read failed:',error.message);
