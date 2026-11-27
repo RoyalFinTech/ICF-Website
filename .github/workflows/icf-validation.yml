@@ -15,6 +15,4 @@ jobs:
           cache: npm
       - run: npm install
       - run: npm run build:site
-      - run: npm run validate:site
-      - run: npm run validate:backend
-      - run: npm run validate:performance
+      - run: npm test
