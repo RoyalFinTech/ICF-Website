@@ -925,3 +925,13 @@ body.icf-admin-active #main { padding-top:0; }
 /* Always-visible ICF live access, including mobile and desktop. */
 .icf-live-floating{position:fixed;z-index:9998;right:18px;bottom:22px;display:inline-flex;align-items:center;gap:9px;padding:12px 17px;border-radius:999px;background:#102747;color:#fff!important;border:1px solid #d4af37;box-shadow:0 8px 28px #0008;text-decoration:none!important;font-weight:800;font-size:13px;letter-spacing:.2px;transition:transform .2s,background .2s;}
 .icf-live-floating:hover{transform:translateY(-2px);background:#17365f}.icf-live-floating.is-live{background:#991b1b;border-color:#fca5a5;animation:icfLivePulse 1.8s infinite}.icf-live-floating-dot{width:9px;height:9px;border-radius:50%;background:#d4af37;display:inline-block;flex:0 0 9px}.icf-live-floating.is-live .icf-live-floating-dot{background:#fff;box-shadow:0 0 0 5px #ffffff25}@keyframes icfLivePulse{50%{box-shadow:0 8px 30px #ef444477}}@media(max-width:600px){.icf-live-floating{right:12px;bottom:14px;padding:11px 14px;font-size:12px}}
+
+/* ICF live presentation refinements */
+.worship-overlay-text{top:7%;left:8%;right:8%;font-size:clamp(13px,1.7vw,22px);line-height:1.25;overflow:hidden;pointer-events:none}
+.worship-overlay-text[data-behavior=scroll]{white-space:nowrap;animation:icfStudioWelcomeScroll 18s linear infinite}
+.worship-overlay-text[data-behavior=fade]{animation:icfStudioWelcomeFade 1.1s ease var(--welcome-duration,12s) forwards}
+@keyframes icfStudioWelcomeScroll{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+@keyframes icfStudioWelcomeFade{to{opacity:0;visibility:hidden}}
+#ws-slide-text{top:17%;bottom:18%;display:flex;align-items:center;justify-content:center;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.18;padding:0 3%;font-weight:750}
+#ws-slide-ref{font-size:clamp(13px,1.8vw,22px);font-weight:700}
+.worship-preview-frame{box-shadow:0 14px 38px #0005}
