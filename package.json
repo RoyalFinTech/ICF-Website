@@ -15,8 +15,9 @@
     "validate:site": "node scripts/validate-site.js",
     "validate:backend": "node scripts/validate-backend.js",
     "validate:performance": "node scripts/validate-performance.js",
-    "test": "npm run build:site && npm run validate:site && npm run validate:backend && npm run validate:performance",
-    "postinstall": "npm test"
+    "test": "npm run build:site && npm run validate:site && npm run validate:backend && npm run validate:performance && npm run test:auth",
+    "postinstall": "npm test",
+    "test:auth": "node scripts/test-auth-flows.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.750.0",
