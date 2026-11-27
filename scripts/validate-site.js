@@ -30,9 +30,14 @@ if (!studioSource.includes("var BUILTIN_HYMNS") || !studioSource.includes("funct
 if (!studioSource.includes("All other ground is sinking sand") || !studioSource.includes("Rock of Ages")) throw new Error('Required classic hymn search text is missing.');
 
 if (!viewerSource.includes('presentation_config')) throw new Error('Public viewer presentation configuration is missing.');
+if (!studioSource.includes("Closing the public broadcast") || !studioSource.includes("result.ended") || studioSource.indexOf("'/admin/broadcast/sessions/'+ending.id+'/end'") > studioSource.indexOf("if(room){try{await room.disconnect();}")) throw new Error('Studio must confirm server-side end before local LiveKit disconnect.');
+if (!adminSource.includes('terminateLiveKitRoom') || !adminSource.includes('livekit.RoomService/DeleteRoom') || !adminSource.includes('ended:true')) throw new Error('Server broadcast shutdown must terminate the LiveKit room and confirm offline status.');
+if (!viewerSource.includes('function goOffline') || !viewerSource.includes("cache:'no-store'") || !viewerSource.includes("ICF broadcast ended")) throw new Error('Public viewer must clear video and bypass cache when a service ends.');
+
 if (!viewerSource.includes('function fitTextSize') || !viewerSource.includes('welcomeMode') || !viewerSource.includes('welcomeDuration')) throw new Error('Public viewer responsive text or welcome display settings are missing.');
 const liveHtml = fs.readFileSync(path.join(ROOT, 'live.html'), 'utf8');
 const publicRoutes = fs.readFileSync(path.join(ROOT, 'routes/public.js'), 'utf8');
+const adminSource = fs.readFileSync(path.join(ROOT, 'routes/admin.js'), 'utf8');
 const memberDirectorySource = fs.readFileSync(path.join(ROOT, 'js/member-directory.js'), 'utf8');
 const appSource = fs.readFileSync(path.join(ROOT, 'js/app.js'), 'utf8');
 if (!publicRoutes.includes("app.get('/api/public-directory'") || !memberDirectorySource.includes('renderPublicDirectory')) throw new Error('Public leadership directory route or renderer is missing.');
