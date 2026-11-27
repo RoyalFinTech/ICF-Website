@@ -15,7 +15,7 @@ window.renderMemberProfile=function(){
  }).catch(function(e){host.innerHTML='<div class="icf-error-card"><strong>Profile unavailable</strong>'+esc(e.message)+'</div>';});
 };
 window.saveMyMemberProfile=function(){
- var data={phone:document.getElementById('member-profile-phone').value.trim(),address:document.getElementById('member-profile-address').value.trim(),bio:document.getElementById('member-profile-bio').value.trim(),publicProfile:document.getElementById('member-public-profile').checked};
+ var data={phone:document.getElementById('member-profile-phone').value.trim(),address:document.getElementById('member-profile-address').value.trim(),bio:document.getElementById('member-profile-bio').value.trim(),publicProfileConsent:document.getElementById('member-public-profile').checked};
  api('/member/profile',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(){if(window.toast)toast('Profile saved','','success');window.renderMemberProfile();}).catch(function(e){if(window.toast)toast('Save failed',e.message,'error');});
 };
 window.uploadMyMemberAvatar=function(){

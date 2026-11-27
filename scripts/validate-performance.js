@@ -140,3 +140,16 @@ const memberScript = fs.readFileSync(path.join(ROOT, 'js/member-directory.js'), 
 for (const required of ['window.renderMemberProfile','window.saveMyMemberProfile','window.uploadMyMemberAvatar','window.renderPublicDirectory']) if (!memberScript.includes(required)) throw new Error('Member profile functionality missing: '+required);
 const adminScript = fs.readFileSync(path.join(ROOT, 'js/admin-modules.js'), 'utf8');
 for (const required of ['window.adminMembersHTML','window.icfAddChurchRole','window.icfUpdateMemberRoles']) if (!adminScript.includes(required)) throw new Error('Church role management missing: '+required);
+
+const publicMemberRoutes = fs.readFileSync(path.join(ROOT, 'routes/public.js'), 'utf8');
+if (!publicMemberRoutes.includes('publicProfileConsent===true&&m.directoryVisible===true') ||
+    !publicMemberRoutes.includes('authClient().auth.getUser(token)') ||
+    !publicMemberRoutes.includes('from(PRIVATE_BUCKET).createSignedUrl') ||
+    !publicMemberRoutes.includes('member.roles') ||
+    publicMemberRoutes.includes('body.roles')) {
+  throw new Error('Member profile APIs must authenticate the owner, protect role assignments, and require consent for public listing.');
+}
+const memberClient = fs.readFileSync(path.join(ROOT, 'js/member-directory.js'), 'utf8');
+if (!memberClient.includes('publicProfileConsent:document.getElementById')) {
+  throw new Error('Member public-directory consent must be saved as a distinct member-controlled setting.');
+}
