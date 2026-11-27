@@ -616,7 +616,7 @@ body.icf-menu-open{overflow:hidden!important}
 
 
 <!-- ═══ NAVBAR ═══════════════════════════════ -->
-<div id="icf-theme-ribbon" class="icf-theme-ribbon" role="region" aria-label="ICF monthly theme"><img data-logo="1" alt="ICF" class="icf-ribbon-logo"><div class="icf-ribbon-track"><div class="icf-ribbon-content"><span>✨ <strong>OCTOBER THEME: THE POWER OF PRAYER</strong></span><span>📖 “Pray without ceasing.” — 1 Thessalonians 5:17</span><span>🙏 Pray • Trust • Believe • Walk in Faith</span><span>✝ It’s All About Jesus.</span><span>✨ <strong>OCTOBER THEME: THE POWER OF PRAYER</strong></span><span>📖 “Pray without ceasing.” — 1 Thessalonians 5:17</span><span>🙏 Pray • Trust • Believe • Walk in Faith</span><span>✝ It’s All About Jesus.</span></div></div></div>
+<div id="icf-theme-ribbon" class="icf-theme-ribbon" role="region" aria-label="ICF monthly theme"><img data-logo="1" alt="ICF" class="icf-ribbon-logo"><div class="icf-ribbon-track"><div class="icf-ribbon-content"><span>✨ <strong>NOVEMBER THEME: LIVING BY GRACE IN HOLINESS</strong></span><span>📖 God’s grace trains us to live godly lives. — Titus 2:11–12</span><span>🙏 Grace • Holiness • Obedience • Christlikeness</span><span>✝ It’s All About Jesus.</span><span>✨ <strong>NOVEMBER THEME: LIVING BY GRACE IN HOLINESS</strong></span><span>📖 God’s grace trains us to live godly lives. — Titus 2:11–12</span><span>🙏 Grace • Holiness • Obedience • Christlikeness</span><span>✝ It’s All About Jesus.</span></div></div></div>
 <nav id="navbar">
   <div class="nav-inner">
     <a class="nav-brand" onclick="navigate('home')">
@@ -681,7 +681,7 @@ body.icf-menu-open{overflow:hidden!important}
 <!-- ═══ HOME ═════════════════════════════════ -->
 <div id="page-home" class="page page-content active">
   <section class="icf-hero-slider" id="icf-hero-slider" aria-label="ICF featured messages">
-    <div class="icf-hero-slide active" data-slide="0"><img class="icf-hero-image" src="church-mummy-prayer.jpg" alt="October theme: The Power of Prayer"><div class="icf-hero-shade"></div><div class="icf-hero-copy"><span class="icf-eyebrow">✦ OCTOBER MONTHLY THEME ✦</span><h1>The Power of Prayer</h1><p class="icf-hero-verse">“Pray without ceasing.” <strong>— 1 Thessalonians 5:17</strong></p><p>Draw closer to God through worship, thanksgiving, intercession and faith.</p><div class="icf-hero-actions"><button class="btn btn-primary" onclick="navigate('prayers')">🙏 Submit a Prayer Request</button><button class="btn btn-outline" onclick="navigate('about')">✝ Discover ICF</button></div></div></div>
+    <div class="icf-hero-slide active" data-slide="0"><img class="icf-hero-image" src="church-worship-service.jpg" alt="November theme: Living by Grace in Holiness"><div class="icf-hero-shade"></div><div class="icf-hero-copy"><span class="icf-eyebrow">✦ NOVEMBER MONTHLY THEME ✦</span><h1>Living by Grace in Holiness</h1><p class="icf-hero-verse">📖 God’s grace trains us to live godly lives. — Titus 2:11–12</p><p>Live by God’s grace, grow in holiness, and reflect the character of Jesus in daily life.</p><div class="icf-hero-actions"><button class="btn btn-primary" onclick="navigate('prayers')">🙏 Submit a Prayer Request</button><button class="btn btn-outline" onclick="navigate('about')">✝ Discover ICF</button></div></div></div>
     <div class="icf-hero-slide" data-slide="1"><img class="icf-hero-image" src="church-worship-service.jpg" alt="Christian worship and fellowship"><div class="icf-hero-shade"></div><div class="icf-hero-copy"><span class="icf-eyebrow">WORSHIP • FELLOWSHIP • SERVICE</span><h1>It’s All About Jesus.</h1><p class="icf-hero-verse">“Oh come, let us worship and bow down.” <strong>— Psalm 95:6</strong></p><p>A Christ-centred family growing together in grace, truth and love.</p><div class="icf-hero-actions"><button class="btn btn-primary" onclick="navigate('services')">Explore Our Ministries</button><button class="btn btn-outline" onclick="navigate('events')">See Upcoming Events</button></div></div></div>
     <div class="icf-hero-slide" data-slide="2"><img class="icf-hero-image" src="church-baptism-group.jpg" alt="Christian baptism in water"><div class="icf-hero-shade"></div><div class="icf-hero-copy"><span class="icf-eyebrow">NEW LIFE • NEW HOPE</span><h1>Walk in Newness of Life</h1><p class="icf-hero-verse">“We were buried with him through baptism into death...” <strong>— Romans 6:4</strong></p><p>Celebrate faith, transformation and the promise of life in Christ.</p><div class="icf-hero-actions"><button class="btn btn-primary" onclick="navigate('baptisms')">Learn About Baptism</button><button class="btn btn-outline" onclick="navigate('signup')">Join Our Fellowship</button></div></div></div>
     <button class="icf-hero-arrow prev" type="button" aria-label="Previous slide" onclick="icfHeroMove(-1)">‹</button><button class="icf-hero-arrow next" type="button" aria-label="Next slide" onclick="icfHeroMove(1)">›</button><div class="icf-hero-dots"><button class="active" aria-label="Slide 1" onclick="icfHeroGo(0)"></button><button aria-label="Slide 2" onclick="icfHeroGo(1)"></button><button aria-label="Slide 3" onclick="icfHeroGo(2)"></button></div>
@@ -1438,10 +1438,48 @@ let icfHeroIndex=0,icfHeroTimer=null;
 function icfHeroGo(index){const slides=[...document.querySelectorAll(".icf-hero-slide")],dots=[...document.querySelectorAll(".icf-hero-dots button")];if(!slides.length)return;icfHeroIndex=(index+slides.length)%slides.length;slides.forEach((s,i)=>s.classList.toggle("active",i===icfHeroIndex));dots.forEach((d,i)=>d.classList.toggle("active",i===icfHeroIndex));}
 function icfHeroMove(step){icfHeroGo(icfHeroIndex+step);icfHeroStart();}
 function icfHeroStart(){if(icfHeroTimer)clearInterval(icfHeroTimer);icfHeroTimer=setInterval(()=>icfHeroGo(icfHeroIndex+1),5000);}
-function icfThemeData(){const settings=DB.get("siteSettings",{});return settings.icfThemeSlider||{enabled:true,theme:"The Power of Prayer",month:"October",verse:"Pray without ceasing. — 1 Thessalonians 5:17",ticker:"Pray • Trust • Believe • Walk in Faith",slide1:"church-mummy-prayer.jpg",slide2:"church-worship-service.jpg",slide3:"church-baptism-group.jpg"};}
+function icfThemeData(){
+ const settings=DB.get("siteSettings",{});
+ const defaults={enabled:true,theme:"Living by Grace in Holiness",month:"November",verse:"God’s grace trains us to live godly lives. — Titus 2:11–12",ticker:"Grace • Holiness • Obedience • Christlikeness",slide1:"church-worship-service.jpg",slide2:"church-mummy-prayer.jpg",slide3:"church-baptism-group.jpg"};
+ const saved=settings.icfThemeSlider;
+ if(!saved)return defaults;
+ const data=Object.assign({},defaults,saved);
+ if(String(data.month||"").toLowerCase()==="october" || data.theme==="The Power of Prayer"){
+  data.theme=defaults.theme;data.month=defaults.month;data.verse=defaults.verse;data.ticker=defaults.ticker;
+  if(!data.slide1 || data.slide1==="church-mummy-prayer.jpg")data.slide1=defaults.slide1;
+ }
+ return data;
+}
 function icfThemeSettingsHTML(){const s=icfThemeData();return '<div class="admin-section-head"><div><h2>🎞️ Theme & Hero Slider</h2><p>Manage the monthly theme ribbon and homepage slides.</p></div></div><div class="card"><div class="card-body"><label class="form-label">Monthly theme</label><input class="form-control" id="icf-theme-name" value="'+escH(s.theme||"The Power of Prayer")+'"><label class="form-label" style="margin-top:12px">Month label</label><input class="form-control" id="icf-theme-month" value="'+escH(s.month||"October")+'"><label class="form-label" style="margin-top:12px">Scripture / verse</label><input class="form-control" id="icf-theme-verse" value="'+escH(s.verse||"")+'"><label class="form-label" style="margin-top:12px">Scrolling message</label><textarea class="form-control" id="icf-theme-ticker" rows="2">'+escH(s.ticker||"")+'</textarea><label class="form-label" style="margin-top:12px">Hero image 1 URL / path</label><input class="form-control" id="icf-theme-slide1" value="'+escH(s.slide1||"church-mummy-prayer.jpg")+'"><label class="form-label" style="margin-top:12px">Hero image 2 URL / path</label><input class="form-control" id="icf-theme-slide2" value="'+escH(s.slide2||"church-worship-service.jpg")+'"><label class="form-label" style="margin-top:12px">Hero image 3 URL / path</label><input class="form-control" id="icf-theme-slide3" value="'+escH(s.slide3||"church-baptism-group.jpg")+'"><label style="display:flex;gap:10px;align-items:center;margin:16px 0"><input type="checkbox" id="icf-theme-enabled" '+(s.enabled!==false?"checked":"")+' > Show the monthly scrolling ribbon</label><button class="btn btn-primary" onclick="saveIcfThemeSettings()">💾 Save & Publish</button><p class="form-hint">The monthly theme appears consistently across pages. Hero image publishing will be available through the media library once the uploaded images are added.</p></div></div>';}
 function saveIcfThemeSettings(){const settings=DB.get("siteSettings",{});const old=icfThemeData();const value={...old,theme:document.getElementById("icf-theme-name").value.trim(),month:document.getElementById("icf-theme-month").value.trim(),verse:document.getElementById("icf-theme-verse").value.trim(),ticker:document.getElementById("icf-theme-ticker").value.trim(),slide1:document.getElementById("icf-theme-slide1").value.trim(),slide2:document.getElementById("icf-theme-slide2").value.trim(),slide3:document.getElementById("icf-theme-slide3").value.trim(),enabled:document.getElementById("icf-theme-enabled").checked,updatedAt:new Date().toISOString()};DB.set("siteSettings",{...settings,icfThemeSlider:value});icfApplyThemeSettings();toast("Theme settings published","Your monthly theme has been updated.","success");}
-function icfApplyThemeSettings(){const s=icfThemeData();if(!s)return;const imgs=document.querySelectorAll(".icf-hero-image");[s.slide1,s.slide2,s.slide3].forEach((src,i)=>{if(src&&imgs[i])imgs[i].src=src;});const ribbon=document.getElementById("icf-theme-ribbon");if(ribbon)ribbon.style.display=s.enabled===false?"none":"";const spans=document.querySelectorAll(".icf-ribbon-content span");if(spans.length){spans[0].innerHTML="✨ <strong>"+escH((s.month||"Monthly")+" THEME: "+(s.theme||""))+"</strong>";spans[1].textContent="📖 "+(s.verse||"");spans[2].textContent="🙏 "+(s.ticker||"");spans[4].innerHTML=spans[0].innerHTML;spans[5].textContent=spans[1].textContent;spans[6].textContent=spans[2].textContent;}}
+function icfApplyThemeSettings(){
+ const s=icfThemeData();if(!s)return;
+ const imgs=document.querySelectorAll(".icf-hero-image");
+ [s.slide1,s.slide2,s.slide3].forEach((src,i)=>{if(src&&imgs[i])imgs[i].src=src;});
+ const firstSlide=document.querySelector('.icf-hero-slide[data-slide="0"]');
+ if(firstSlide){
+  const eyebrow=firstSlide.querySelector(".icf-eyebrow");
+  const heading=firstSlide.querySelector("h1");
+  const verse=firstSlide.querySelector(".icf-hero-verse");
+  const description=firstSlide.querySelector(".icf-hero-copy > p:not(.icf-hero-verse)");
+  if(eyebrow)eyebrow.textContent="✦ "+String(s.month||"Monthly").toUpperCase()+" MONTHLY THEME ✦";
+  if(heading)heading.textContent=s.theme||"";
+  if(verse)verse.textContent="📖 "+(s.verse||"");
+  if(description)description.textContent="Live by God’s grace, grow in holiness, and reflect the character of Jesus in daily life.";
+  if(imgs[0])imgs[0].alt=String(s.month||"Monthly")+" theme: "+String(s.theme||"");
+ }
+ const ribbon=document.getElementById("icf-theme-ribbon");
+ if(ribbon)ribbon.style.display=s.enabled===false?"none":"";
+ const spans=document.querySelectorAll(".icf-ribbon-content span");
+ if(spans.length){
+  spans[0].innerHTML="✨ <strong>"+escH((s.month||"Monthly")+" THEME: "+(s.theme||""))+"</strong>";
+  spans[1].textContent="📖 "+(s.verse||"");
+  spans[2].textContent="🙏 "+(s.ticker||"");
+  spans[4].innerHTML=spans[0].innerHTML;
+  spans[5].textContent=spans[1].textContent;
+  spans[6].textContent=spans[2].textContent;
+ }
+}
 
 /* ══════════════════════════════════════════════════════════
    LOGO — inlined once as base64 and applied to every logo
