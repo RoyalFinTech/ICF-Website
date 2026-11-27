@@ -40,4 +40,4 @@ Then deploy and test confirmation, resend, recovery, and completed password rese
 - Keep Supabase `service_role` credentials server-side only.
 - Rotate any LiveKit API secret that has been exposed in a screenshot or other public context.
 - Review pending applications regularly; keep directory consent and directory visibility separate.
-- After enabling email verification in the future, review any applications created under the temporary deferred-verification mode. They are intentionally marked as unverified and should be confirmed before being publicly listed.
+- After enabling email verification in the future, review applications created during the deferred-verification period. Their Supabase Auth identity was internally confirmed to avoid blocking registration, but the ICF member record remains unverified. Approved legacy members must be explicitly re-verified by an administrator before sign-in is allowed under the future policy. In the Admin Portal, use **Mark verified** only after independently confirming that the member controls the email address and recording the verification method and evidence note.
