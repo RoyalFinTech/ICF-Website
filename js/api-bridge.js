@@ -200,7 +200,7 @@
       localStorage.setItem('icf_member_token',result.access_token);
       localStorage.setItem('icf_member_user',JSON.stringify(result.user || {}));
       if (typeof toast === 'function') toast('Welcome back','','success');
-      if (typeof navigate === 'function') navigate('home');
+      if (typeof navigate === 'function') navigate('member-profile');
     }).catch(function (error) { if (typeof toast === 'function') toast('Sign-in failed',error.message || 'Please try again.','error'); });
   };
   window.submitSignup = function () {
