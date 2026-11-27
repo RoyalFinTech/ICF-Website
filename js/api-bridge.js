@@ -21,6 +21,9 @@
       options.body = JSON.stringify(options.body);
     }
     if (getToken() && !headers.Authorization) headers.Authorization = 'Bearer ' + getToken();
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timeoutId = controller ? window.setTimeout(function () { controller.abort(); }, 15000) : null;
+    if (controller && !options.signal) options.signal = controller.signal;
     return fetch(API + url,Object.assign({},options,{headers:headers})).then(function (response) {
       return response.text().then(function (raw) {
         var data = {};
@@ -28,6 +31,8 @@
         if (!response.ok) { var error = new Error(data.error || 'Request failed (' + response.status + ').'); error.status = response.status; throw error; }
         return data;
       });
+    }).finally(function () {
+      if (timeoutId) window.clearTimeout(timeoutId);
     });
   }
   function showErrorCard(title,message) {
@@ -111,7 +116,20 @@
     });
     refreshViews();
   }
-  function loadPublic() { return request('/public-data').then(hydrate); }
+  function loadPublic() {
+    return request('/public-data').catch(function (firstError) {
+      console.warn('Public data request did not complete; retrying once:',firstError.message);
+      return new Promise(function (resolve) { window.setTimeout(resolve,2200); })
+        .then(function () { return request('/public-data'); });
+    }).then(function (data) {
+      hydrate(data);
+      window.dispatchEvent(new CustomEvent('icf:data-ready',{detail:{ok:true}}));
+      return data;
+    }).catch(function (error) {
+      window.dispatchEvent(new CustomEvent('icf:data-ready',{detail:{ok:false,message:error.message || 'Public data is unavailable.'}}));
+      throw error;
+    });
+  }
   function loadAdmin() {
     if (!getToken()) return Promise.resolve();
     return request('/admin/records').then(hydrate).catch(function (error) {
