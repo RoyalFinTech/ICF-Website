@@ -959,3 +959,26 @@ body.icf-admin-active #main { padding-top:0; }
 .password-visibility-toggle{display:inline-flex;align-items:center;justify-content:center;margin-top:6px;padding:4px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--bg2);color:var(--text);font-size:12px;cursor:pointer}
 .member-profile-nationality{margin:12px 0 0;color:var(--text-muted);font-size:13px}
 .member-profile-nationality strong{color:var(--text);margin-right:6px}
+
+/* Member authentication and account recovery */
+.auth-flow-wrap{max-width:560px;margin:28px auto 54px;padding:0 16px}
+.auth-flow-card{background:var(--bg-card);border:1px solid var(--border2);border-radius:18px;padding:clamp(20px,4vw,34px);box-shadow:var(--shadow)}
+.auth-flow-card>.site-logo{display:block;max-width:92px;max-height:82px;object-fit:contain;margin:0 auto 16px}
+.auth-flow-card h1{text-align:center;margin:0 0 8px;color:var(--text)}
+.auth-flow-card>p{text-align:center;line-height:1.65;margin:0 0 20px}
+.auth-flow-footer{display:flex;justify-content:center;margin-top:18px}
+.auth-inline-links{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;margin-top:12px}
+.auth-inline-links button{background:none;border:0;padding:4px 0;color:var(--blue-g);font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.auth-inline-links button:hover{text-decoration:underline}
+.auth-inline-status{min-height:20px;margin:8px 0 0;color:var(--text-muted);font-size:12px;line-height:1.5}
+.auth-status-card{margin-bottom:16px;padding:22px;border:1px solid var(--border2);border-radius:14px;background:var(--bg2)}
+.auth-status-card h2{margin:0 0 9px;color:var(--text);font-size:1.2rem}
+.auth-status-card p{margin:0 0 16px;color:var(--text-dim);line-height:1.7}
+.auth-help{color:var(--text-dim);font-size:13px;line-height:1.6}
+.auth-confirmation-card{text-align:center}
+.auth-confirmation-icon{font-size:42px;margin-bottom:12px}
+.auth-note{margin:18px 0;padding:14px 16px;text-align:left;background:var(--bg2);border-left:3px solid var(--gold);border-radius:8px;color:var(--text-dim);font-size:13px;line-height:1.65}
+.icf-turnstile-wrap{margin:12px 0 16px;padding:12px;border:1px solid var(--border2);border-radius:10px;background:var(--bg2)}
+.icf-turnstile-wrap p{margin:8px 0 0;color:var(--text-muted);font-size:12px}
+.icf-honeypot{position:absolute!important;left:-10000px!important;top:auto!important;width:1px!important;height:1px!important;overflow:hidden!important}
+@media(max-width:520px){.auth-inline-links{flex-direction:column;align-items:flex-start}.auth-flow-card{border-radius:14px}}
