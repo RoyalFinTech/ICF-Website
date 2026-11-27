@@ -87,9 +87,9 @@ process.stdout.write('Performance checks passed: concurrent admin reads, active-
 
 const siteTemplate = fs.readFileSync(path.join(ROOT, 'views/index.html'), 'utf8');
 const uiRepair = fs.readFileSync(path.join(ROOT, 'js/ui-repair.js'), 'utf8');
-if (!siteTemplate.includes('site.css?v=20261127-7') ||
-    !siteTemplate.includes('app.js?v=20261127-7') ||
-    !siteTemplate.includes('ui-repair.js?v=20261127-7')) {
+if (!siteTemplate.includes('site.css?v=20261127-8') ||
+    !siteTemplate.includes('app.js?v=20261127-8') ||
+    !siteTemplate.includes('ui-repair.js?v=20261127-8')) {
   throw new Error('Asset URLs must be cache-busted after frontend releases.');
 }
 if (!uiRepair.includes("btn.removeAttribute('onclick')") ||
@@ -124,4 +124,14 @@ if (!uiSource.includes("adminToggle.addEventListener('click'") ||
 const adminModules = fs.readFileSync(path.join(ROOT, 'js/admin-modules.js'), 'utf8');
 if (!adminModules.includes('window.exportChurchRecords')) {
   throw new Error('Authenticated church record export is missing.');
+}
+
+const adminModuleSource = fs.readFileSync(path.join(ROOT, 'js/admin-modules.js'), 'utf8');
+if (!adminModuleSource.includes("status:'draft',savedAt:new Date().toISOString()") ||
+    !adminModuleSource.includes('No email was sent. Connect an approved email delivery provider') ||
+    !adminModuleSource.includes('Draft History')) {
+  throw new Error('Email administration must not claim delivery when no provider is configured.');
+}
+if (!adminModuleSource.includes("themeMode:'dark'")) {
+  throw new Error('The admin settings fallback must use dark mode by default.');
 }

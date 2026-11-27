@@ -213,7 +213,7 @@ function adminNewsletterHTML(){
     '<h2 class="section-title" style="margin-bottom:20px">📧 Email Notifications</h2>'+
     '<div class="grid-2" style="margin-bottom:24px">'+
       '<div class="card">'+
-        '<div class="card-header"><div class="font-bold">✉️ Compose &amp; Send</div></div>'+
+        '<div class="card-header"><div class="font-bold">✉️ Compose Email Draft</div></div>'+
         '<div class="card-body">'+
           '<div class="form-group"><label class="form-label">Recipients</label>'+
             '<select class="form-select" id="em-recipients">'+
@@ -231,25 +231,25 @@ function adminNewsletterHTML(){
             '</select></div>'+
           '<div class="form-group"><label class="form-label">Subject *</label><input class="form-input" id="em-subject" placeholder="Email subject"/></div>'+
           '<div class="form-group"><label class="form-label">Message *</label><textarea class="form-textarea" id="em-body" rows="7" placeholder="Write your message here..."></textarea></div>'+
-          '<button class="btn btn-blue btn-full" onclick="sendEmail()">📧 Send Email</button>'+
+          '<button class="btn btn-blue btn-full" onclick="sendEmail()">💾 Save Email Draft</button>'+
         '</div>'+
       '</div>'+
       '<div>'+
         '<div class="card" style="margin-bottom:14px">'+
           '<div class="card-header"><div class="font-bold">📊 Email Stats</div></div>'+
           '<div class="card-body" style="display:flex;flex-direction:column;gap:10px">'+
-            '<div class="flex items-center justify-between"><span class="text-dim text-sm">Total Sent</span><strong>'+history.length+'</strong></div>'+
+            '<div class="flex items-center justify-between"><span class="text-dim text-sm">Drafts Saved</span><strong>'+history.length+'</strong></div>'+
             '<div class="flex items-center justify-between"><span class="text-dim text-sm">Members with Email</span><strong>'+members.length+'</strong></div>'+
           '</div>'+
         '</div>'+
         '<div class="card">'+
-          '<div class="card-header"><div class="font-bold">📜 Send History</div></div>'+
+          '<div class="card-header"><div class="font-bold">📜 Draft History</div></div>'+
           '<div style="max-height:280px;overflow-y:auto">'+
             (history.length?history.map(h=>'<div style="padding:11px 16px;border-bottom:1px solid var(--border2)">'+
               '<div class="font-semibold text-sm">'+h.subject+'</div>'+
-              '<div class="text-xs text-dim">'+fmtDate(h.sentAt)+' · To: '+h.recipients+' · '+h.count+' recipients</div>'+
+              '<div class="text-xs text-dim">'+fmtDate(h.savedAt||h.sentAt)+' · Draft · Audience: '+h.recipients+' · '+h.count+' matching members</div>'+
             '</div>').join(''):
-            '<div style="padding:22px;text-align:center;color:var(--text-muted);font-size:13px">No emails sent yet</div>')+
+            '<div style="padding:22px;text-align:center;color:var(--text-muted);font-size:13px">No email drafts saved yet</div>')+
           '</div>'+
         '</div>'+
       '</div>'+
@@ -277,10 +277,10 @@ function sendEmail(){
   const members=DB.get('members',[]);
   const count=recip==='test'?1:members.filter(m=>m.email&&(recip==='all'||m.status==='approved')).length;
   const history=DB.get('emailHistory',[]);
-  history.unshift({id:uid(),subject,body,recipients:recip,count,sentAt:new Date().toISOString()});
+  history.unshift({id:uid(),subject,body,recipients:recip,count,status:'draft',savedAt:new Date().toISOString()});
   DB.set('emailHistory',history);
   renderAdminSection('newsletter');
-  toast('Email queued for '+count+' recipient'+(count!==1?'s':''),'In production, connect an email API (SendGrid / Mailgun).','success');
+  toast('Email draft saved','No email was sent. Connect an approved email delivery provider before sending messages to members.','info');
 }
 
 /* ── LIVESTREAM MODULE ──────────────────────── */
@@ -452,7 +452,7 @@ function adminSettingsHTMLFull(){
     phone:'+220 9526987',
     email:'info@icfgambia.org',
     welcomeMsg:'Welcome and thank you for your visit today. We are delighted to have you visit International Christian Fellowship Solution Centre.',
-    themeMode:'light'
+    themeMode:'dark'
   });
   const admins=DB.get('members',[]).filter(m=>m.role==='admin');
 
