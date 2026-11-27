@@ -31,9 +31,11 @@ if (!authRouteSource.includes('verifyTurnstile(body.captchaToken)') || !authRout
 if (!authRouteSource.includes("body.companyWebsite") || !authRouteSource.includes("signupLimit||publicLimit")) throw new Error('Signup honeypot or dedicated rate limit is missing.');
 if (!serverSource.includes('https://challenges.cloudflare.com')) throw new Error('CSP must allow the Turnstile widget and Siteverify.');
 
-if (!/scriptSrc:\s*\["'self'",'https:\/\/cdn\.jsdelivr\.net','https:\/\/challenges\.cloudflare\.com'\]/.test(serverSource) ||
-    !/scriptSrcAttr:\s*\["'unsafe-inline'\]/.test(serverSource)) {
-  throw new Error('CSP must allow legacy inline event attributes without allowing inline script elements.');
+if (!serverSource.includes("scriptSrc:[\"'self'\",'https://cdn.jsdelivr.net','https://challenges.cloudflare.com']") ||
+    !serverSource.includes("scriptSrcAttr:[\"'unsafe-inline'\"]") ||
+    !serverSource.includes("connectSrc:[\"'self'\",SUPABASE_URL,'https://nominatim.openstreetmap.org','https://bible-api.com','https://challenges.cloudflare.com'") ||
+    !serverSource.includes("frameSrc:[\"'self'\",'https://challenges.cloudflare.com'")) {
+  throw new Error('CSP must explicitly allow the original CDN plus Turnstile script, connect and frame origins without broadening inline scripts.');
 }
 
 if (serverSource.includes('const URL =') ||
