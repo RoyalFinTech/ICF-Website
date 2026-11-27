@@ -245,7 +245,7 @@ function signupBody(overrides) {
     assert.equal(rejected.statusCode,400,'Turnstile action mismatch is rejected');
     assert.equal(state.createUserCalls.length,beforeInvalid,'invalid CAPTCHA does not create an Auth user');
 
-    process.stdout.write('Auth flow tests passed: email-independent applications, deferred email verification, pending approval, feature-gated recovery and Turnstile validation.\\n');
+    process.stdout.write('Auth flow tests passed: email-independent applications, deferred email verification, pending approval, feature-gated recovery and Turnstile validation.\n');
   } finally {
     if(originalEnv.site===undefined)delete process.env.TURNSTILE_SITE_KEY;else process.env.TURNSTILE_SITE_KEY=originalEnv.site;
     if(originalEnv.secret===undefined)delete process.env.TURNSTILE_SECRET_KEY;else process.env.TURNSTILE_SECRET_KEY=originalEnv.secret;
