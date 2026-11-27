@@ -1,12 +1,27 @@
 (function(){
 'use strict';
 function esc(v){return String(v||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-function api(path,options){options=options||{};options.headers=Object.assign({},options.headers||{},{Authorization:'Bearer '+(localStorage.getItem('icf_member_token')||'')});return fetch('/api'+path,options).then(function(r){return r.json().then(function(d){if(!r.ok)throw new Error(d.error||'Request failed');return d;});});}
+function api(path,options){
+ options=options||{};
+ var token=localStorage.getItem('icf_member_token')||'',expiryRaw=localStorage.getItem('icf_member_token_expires_at')||'',expiry=Number(expiryRaw);
+ if(expiryRaw&&Number.isFinite(expiry)&&expiry>0&&Date.now()/1000>=expiry){
+  ['icf_member_token','icf_member_token_expires_at','icf_member_user'].forEach(function(k){localStorage.removeItem(k);});
+  return Promise.reject(new Error('Your member session expired. Please sign in again.'));
+ }
+ options.headers=Object.assign({},options.headers||{},{Authorization:'Bearer '+token});
+ return fetch('/api'+path,options).then(function(r){return r.json().then(function(d){
+  if(!r.ok){
+   if(r.status===401){['icf_member_token','icf_member_token_expires_at','icf_member_user'].forEach(function(k){localStorage.removeItem(k);});}
+   throw new Error(d.error||'Request failed');
+  }
+  return d;
+ });});
+}
 window.renderMemberProfile=function(){
  var host=document.getElementById('member-profile-content');if(!host)return;
  host.innerHTML='<div class="card"><div class="card-body">Loading your profile…</div></div>';
  api('/member/profile').then(function(data){var m=data.member||{},roles=m.roles||[],country=window.ICFCountryData&&window.ICFCountryData.getCountry(m.nationalityCode),nationalityLabel=country?country.flag+' '+country.name:(m.nationality||'Not provided');
- host.innerHTML='<div class="card"><div class="card-body"><div class="flex items-center gap-3"><img class="member-profile-photo" src="'+esc(m.avatarUrl||'/icf-logo-transparent.png')+'" alt="Profile photo"/><div><h2>'+esc(m.name)+'</h2><p>'+esc(m.email)+'</p><span class="badge badge-green">'+esc(m.status)+'</span></div></div>'+
+ host.innerHTML='<div class="card"><div class="card-body"><div class="flex items-center gap-3"><img class="member-profile-photo" src="'+esc(m.avatarUrl||'/icf-logo-transparent.png')+'" alt="Profile photo"/><div><h2>'+esc(m.name)+'</h2><p>'+esc(m.email)+'</p><span class="badge badge-green">'+esc(m.status)+'</span></div><button class="btn btn-outline btn-sm" style="margin-left:auto" onclick="doMemberLogout()">Sign out</button></div></div>'+
  '<div class="member-profile-nationality"><strong>Nationality</strong><span>'+esc(nationalityLabel)+'</span></div><div class="form-group" style="margin-top:18px"><label class="form-label">Profile photo</label><input class="form-input" type="file" id="member-avatar-file" accept="image/jpeg,image/png,image/webp"/><small>Image up to 5 MB.</small><button class="btn btn-outline btn-sm" onclick="uploadMyMemberAvatar()">Upload photo</button></div>'+
  '<div class="form-row"><div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="member-profile-phone" value="'+esc(m.phone)+'"/></div><div class="form-group"><label class="form-label">Address</label><input class="form-input" id="member-profile-address" value="'+esc(m.address)+'"/></div></div>'+
  '<div class="form-group"><label class="form-label">Short biography</label><textarea class="form-textarea" id="member-profile-bio" maxlength="500">'+esc(m.bio)+'</textarea></div>'+
