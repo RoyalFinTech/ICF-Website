@@ -8,7 +8,7 @@ const checkedIn = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 if (html !== checkedIn) throw new Error('index.html is stale. Run npm run build:site and commit the generated file.');
 const requiredPages = ['home','about','services','events','prayers','baptisms','contact','login','signup','admin-login','admin-portal','sermons','gallery','announcements','membership','workers','member-profile'];
 for (const page of requiredPages) if (!html.includes('id="page-' + page + '"')) throw new Error('Missing page: ' + page);
-for (const asset of ['favicon.png','css/site.css','js/hero-slider.js','js/splash.js','js/app.js','js/admin-modules.js','js/api-bridge.js','js/ui-repair.js','js/member-directory.js','js/worship-studio.js','js/worship-viewer.js','live.html','icf-logo-transparent.png','church-worship-service.jpg','church-mummy-prayer.jpg','church-baptism-group.jpg','membership-statement.pdf','workers-manual.pdf']) {
+for (const asset of ['favicon.png','css/site.css','js/hero-slider.js','js/splash.js','js/app.js','js/admin-modules.js','js/api-bridge.js','js/ui-repair.js','js/member-directory.js','js/worship-studio.js','js/worship-viewer.js','live.html','camera.html','js/camera-join.js','icf-logo-transparent.png','church-worship-service.jpg','church-mummy-prayer.jpg','church-baptism-group.jpg','membership-statement.pdf','workers-manual.pdf']) {
   if (!fs.existsSync(path.join(ROOT, asset))) throw new Error('Missing homepage asset: ' + asset);
 }
 if (html.includes('data:image/png;base64,')) throw new Error('A large embedded PNG remains in the homepage HTML.');
@@ -19,7 +19,8 @@ const studioSource = fs.readFileSync(path.join(ROOT, 'js/worship-studio.js'), 'u
 const viewerSource = fs.readFileSync(path.join(ROOT, 'js/worship-viewer.js'), 'utf8');
 new Function(studioSource);
 new Function(viewerSource);
-for (const feature of ['ws-scroll-test','ws-bible-search','ws-bible-load-ref','ws-camera-2','ws-flyer-file','ws-color','ws-quality','ws-frame','ws-hymn-save','root.dataset.wsReady']) if (!studioSource.includes(feature)) throw new Error('Worship Studio control missing: ' + feature);
+new Function(fs.readFileSync(path.join(ROOT, 'js/camera-join.js'), 'utf8'));
+for (const feature of ['ws-phone-copy','ws-onair-camera','ws-scroll-test','ws-bible-search','ws-bible-load-ref','ws-camera-2','ws-flyer-file','ws-color','ws-quality','ws-frame','ws-hymn-save','root.dataset.wsReady']) if (!studioSource.includes(feature)) throw new Error('Worship Studio control missing: ' + feature);
 if (!viewerSource.includes('presentation_config')) throw new Error('Public viewer presentation configuration is missing.');
 const liveHtml = fs.readFileSync(path.join(ROOT, 'live.html'), 'utf8');
 for (const id of ['live-slide','live-slide-reference','live-flyer','live-video-secondary']) if (!liveHtml.includes('id=\"' + id + '\"')) throw new Error('Public live viewer element missing: ' + id);
