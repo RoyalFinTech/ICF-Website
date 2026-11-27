@@ -1326,7 +1326,7 @@ function adminMembersHTML(){
         '<option value="suspended"'+(m.status==='suspended'?' selected':'')+'>🚫 Suspended</option>'+
       '</select></td>'+
       '<td style="min-width:230px"><input class="form-input" id="member-roles-'+adminEscapeHtml(m.id)+'" value="'+adminEscapeHtml(roles)+'" placeholder="Senior Pastor, Usher, Media Team" style="min-width:210px;margin-bottom:5px"/>'+
-      '<select class="filter-select" id="member-role-type-'+adminEscapeHtml(m.id)+'" style="width:100%;margin-bottom:5px"><option value="office">Church office / leadership</option><option value="ministry"'+(m.roles&&m.roles.some(r=>r.type==='ministry')?' selected':'')+'>Ministry / service team</option></select>'+
+      '<select class="filter-select" id="member-role-type-'+adminEscapeHtml(m.id)+'" style="width:100%;margin-bottom:5px"><option value="office">Church office / leadership</option><option value="ministry"'+(Array.isArray(m.roles)&&m.roles.some(r=>r.type==='ministry')?' selected':'')+'>Ministry / service team</option></select>'+
       '<label style="display:flex;gap:6px;align-items:center;font-size:11px"><input type="checkbox" id="member-directory-'+adminEscapeHtml(m.id)+'" '+(m.directoryVisible===true?'checked':'')+(directoryAllowed?'':' disabled')+'/> Show on public leadership page</label>'+
       '<button class="btn btn-sm btn-outline" style="margin-top:6px" onclick="saveMemberChurchRoles(\''+adminEscapeHtml(m.id)+'\')">Save roles</button>'+
       (!directoryAllowed?'<div class="text-xs text-dim">Member consent is required before public display.</div>':'')+'</td>'+
