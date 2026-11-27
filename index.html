@@ -496,6 +496,53 @@
 </div>
 
 <div id="page-member-profile" class="page page-content"><div class="member-profile-wrap"><div class="page-header"><h1>My ICF Member Profile</h1><p>Update your details and choose whether to appear in the public church directory.</p></div><div id="member-profile-content"><div class="card"><div class="card-body">Sign in to load your member profile.</div></div></div></div></div>
+<!-- ═══ MEMBER AUTHENTICATION ACTIONS ═══════════════════ -->
+<div id="page-password-reset" class="page page-content">
+  <div class="container-sm auth-flow-wrap">
+    <div class="auth-flow-card">
+      <img src="/icf-logo-transparent.png" data-logo="1" alt="ICF" class="site-logo"/>
+      <h1>Reset Your Password</h1>
+      <p class="text-dim">We'll email you a secure link to choose a new password.</p>
+      <div id="password-reset-request">
+        <div class="form-group">
+          <label class="form-label" for="icf-reset-email">Email Address</label>
+          <input class="form-input" type="email" id="icf-reset-email" autocomplete="email" placeholder="you@example.com" required/>
+        </div>
+        <button type="button" class="btn btn-primary btn-full" id="icf-reset-request-button" onclick="requestIcfPasswordReset()">Send Password Reset Link</button>
+      </div>
+      <div id="password-reset-complete" hidden>
+        <p class="auth-help">Choose a new password for your ICF account.</p>
+        <div class="form-group">
+          <label class="form-label" for="icf-new-password">New Password</label>
+          <input class="form-input" type="password" id="icf-new-password" minlength="12" maxlength="200" autocomplete="new-password" placeholder="At least 12 characters"/>
+          <button type="button" class="password-visibility-toggle" onclick="toggleIcfPassword('icf-new-password',this)" aria-pressed="false">Show</button>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="icf-confirm-password">Confirm New Password</label>
+          <input class="form-input" type="password" id="icf-confirm-password" minlength="12" maxlength="200" autocomplete="new-password" placeholder="Repeat your new password"/>
+          <button type="button" class="password-visibility-toggle" onclick="toggleIcfPassword('icf-confirm-password',this)" aria-pressed="false">Show</button>
+        </div>
+        <button type="button" class="btn btn-primary btn-full" id="icf-reset-complete-button" onclick="completeIcfPasswordReset()">Update Password</button>
+      </div>
+      <p id="password-reset-status" class="auth-inline-status" role="status" aria-live="polite"></p>
+      <div class="auth-flow-footer"><button class="btn btn-outline btn-sm" onclick="navigate('login')">← Back to Sign In</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="page-email-confirmed" class="page page-content">
+  <div class="container-sm auth-flow-wrap">
+    <div class="auth-flow-card auth-confirmation-card">
+      <div class="auth-confirmation-icon" aria-hidden="true">✉️</div>
+      <h1>Email Confirmation</h1>
+      <p id="email-confirmed-message">Your email address has been confirmed. Your ICF membership application still requires approval by the church administration.</p>
+      <div class="auth-note">Once your membership is approved, you can sign in with your email address and password.</div>
+      <button type="button" class="btn btn-primary btn-full" onclick="navigate('login')">Continue to Sign In</button>
+      <button type="button" class="btn btn-outline btn-full" style="margin-top:9px" onclick="navigate('home')">Back to Website</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ ADMIN LOGIN ═══════════════════════════ -->
 <div id="page-admin-login" class="page">
   <div class="login-wrap">
