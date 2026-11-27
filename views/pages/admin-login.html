@@ -9,6 +9,7 @@
         <div class="form-group"><label class="form-label">Email / Username</label><input class="form-input" type="text" id="admin-email-input" placeholder="your-admin-email@example.com" autocomplete="username"/></div>
         <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="admin-pass-input" placeholder="••••••••••" autocomplete="current-password"/></div>
         <button type="button" class="btn btn-primary btn-full" style="margin-top:8px" onclick="doAdminLogin()">🛡️ Sign In</button>
+        <p class="auth-inline-links"><button type="button" onclick="openIcfPasswordReset('admin-email-input')">Forgot administrator password?</button></p>
       </div>
       <div class="sep"></div>
       <p class="text-xs text-dim">Administrator accounts are managed through Supabase.</p>
