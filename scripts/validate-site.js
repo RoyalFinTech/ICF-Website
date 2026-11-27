@@ -20,7 +20,9 @@ const viewerSource = fs.readFileSync(path.join(ROOT, 'js/worship-viewer.js'), 'u
 new Function(studioSource);
 new Function(viewerSource);
 new Function(fs.readFileSync(path.join(ROOT, 'js/camera-join.js'), 'utf8'));
-for (const feature of ['ws-phone-copy','ws-onair-camera','ws-scroll-test','ws-bible-search','ws-bible-book','ws-bible-chapter','ws-bible-verse','ws-bible-next','ws-bible-prev','ws-camera-2','ws-flyer-file','ws-color','ws-quality','ws-frame','ws-hymn-save','ws-hymn-prev','ws-hymn-next','connection-test','root.dataset.wsReady']) if (!studioSource.includes(feature)) throw new Error('Worship Studio control missing: ' + feature);
+const studioElementIds = new Set(Array.from(studioSource.matchAll(/id="([^"]+)"/g), function (match) { return match[1]; }));
+for (const feature of ["ws-phone-copy","ws-onair-camera","ws-scroll-test","ws-bible-query","ws-bible-book","ws-bible-chapter","ws-bible-verse","ws-bible-prev","ws-bible-next","ws-bible-publish","ws-camera-2","ws-flyer-file","ws-color","ws-quality","ws-frame","ws-hymn-title","ws-hymn-lyrics","ws-hymn-prev","ws-hymn-next","ws-hymn-add","ws-hymn-publish","ws-go-live","ws-end-live"]) if (!studioElementIds.has(feature)) throw new Error('Worship Studio element missing: ' + feature);
+if (!studioSource.includes('/admin/broadcast/connection-test')) throw new Error('LiveKit browser signal diagnostic is missing.');
 if (!viewerSource.includes('presentation_config')) throw new Error('Public viewer presentation configuration is missing.');
 const liveHtml = fs.readFileSync(path.join(ROOT, 'live.html'), 'utf8');
 const publicRoutes = fs.readFileSync(path.join(ROOT, 'routes/public.js'), 'utf8');
