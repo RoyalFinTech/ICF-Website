@@ -2,8 +2,107 @@
 
 const countryData = require('../js/country-data');
 
+function publicSiteUrl() {
+  const fallback = 'https://icf-website.onrender.com';
+  const candidate = String(process.env.PUBLIC_SITE_URL || process.env.RENDER_EXTERNAL_URL || fallback).trim();
+  try {
+    const parsed = new URL(candidate);
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return fallback;
+    return parsed.origin;
+  } catch (_) { return fallback; }
+}
+function turnstileConfiguration() {
+  const siteKey = String(process.env.TURNSTILE_SITE_KEY || '').trim();
+  const secretKey = String(process.env.TURNSTILE_SECRET_KEY || '').trim();
+  return { siteKey:siteKey, secretKey:secretKey, enabled:Boolean(siteKey && secretKey), incomplete:Boolean(siteKey) !== Boolean(secretKey) };
+}
+async function verifyTurnstile(token) {
+  const config = turnstileConfiguration();
+  if (config.incomplete) return { ok:false, configurationError:true };
+  if (!config.enabled) return { ok:true, disabled:true };
+  const value = String(token || '');
+  if (!value || value.length > 2048) return { ok:false };
+  try {
+    const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({secret:config.secretKey,response:value}),
+      signal:AbortSignal.timeout(8000)
+    });
+    if (!response.ok) return { ok:false, unavailable:true };
+    const result = await response.json();
+    const expectedHost = new URL(publicSiteUrl()).hostname.toLowerCase();
+    return { ok:Boolean(result.success && result.action === 'icf_member_signup' &&
+      String(result.hostname || '').toLowerCase() === expectedHost) };
+  } catch (_) { return { ok:false, unavailable:true }; }
+}
+
+
 module.exports = function registerAuthRoutes(app, deps) {
-  const { loginLimit, publicLimit, requireStorage, authClient, db, fail, insertRecord, crypto } = deps;
+  const { loginLimit, publicLimit, signupLimit, recoveryLimit, resendLimit, requireStorage, authClient, db, fail, insertRecord, crypto } = deps;
+
+  app.get('/api/public/auth-config',function(req,res){
+    const captcha = turnstileConfiguration();
+    res.set('Cache-Control','no-store');
+    res.json({turnstileEnabled:captcha.enabled,turnstileSiteKey:captcha.enabled?captcha.siteKey:'',captchaConfigurationIncomplete:captcha.incomplete});
+  });
+
+  app.post('/api/auth/password-reset-request',recoveryLimit||loginLimit,requireStorage,async function(req,res){
+    try {
+      const email = String((req.body||{}).email||'').trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return fail(res,400,'Enter a valid email address.');
+      const result = await authClient().auth.resetPasswordForEmail(email,{redirectTo:publicSiteUrl()});
+      if (result.error) throw result.error;
+      res.set('Cache-Control','no-store');
+      res.json({message:'If an account exists for this address, a password reset link will be sent. Check your inbox and spam folder.'});
+    } catch(error) {
+      console.error('Password reset request failed:',error.code||error.status||'AUTH_ERROR');
+      fail(res,503,'We could not send a reset link right now. Please try again later.');
+    }
+  });
+
+  app.post('/api/auth/password-reset-complete',recoveryLimit||loginLimit,requireStorage,async function(req,res){
+    try {
+      const body = req.body||{};
+      const accessToken = String(body.accessToken||'').trim();
+      const refreshToken = String(body.refreshToken||'').trim();
+      const password = String(body.password||'');
+      if (accessToken.length < 20 || accessToken.length > 8192 || refreshToken.length < 10 || refreshToken.length > 8192)
+        return fail(res,400,'This reset link is invalid or has expired. Request a new password reset link.');
+      if (password.length < 12 || password.length > 200)
+        return fail(res,400,'Your new password must contain at least 12 characters.');
+      const auth = authClient();
+      const session = await auth.auth.setSession({access_token:accessToken,refresh_token:refreshToken});
+      if (session.error || !session.data || !session.data.session)
+        return fail(res,400,'This reset link is invalid or has expired. Request a new password reset link.');
+      const updated = await auth.auth.updateUser({password:password});
+      if (updated.error) {
+        console.warn('Password reset completion rejected:',updated.error.code||updated.error.status||'AUTH_ERROR');
+        return fail(res,400,'The new password could not be saved. Check the password requirements and request a new link if needed.');
+      }
+      res.set('Cache-Control','no-store');
+      res.json({message:'Your password has been updated. You can now sign in.'});
+    } catch(error) {
+      console.error('Password reset completion failed:',error.code||error.status||'AUTH_ERROR');
+      fail(res,503,'We could not update your password. Request a new reset link and try again.');
+    }
+  });
+
+  app.post('/api/auth/resend-confirmation',resendLimit||loginLimit,requireStorage,async function(req,res){
+    try {
+      const email = String((req.body||{}).email||'').trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return fail(res,400,'Enter a valid email address.');
+      const result = await authClient().auth.resend({type:'signup',email:email,options:{emailRedirectTo:publicSiteUrl()}});
+      if (result.error) console.warn('Confirmation resend was not completed:',result.error.code||result.error.status||'AUTH_ERROR');
+      res.set('Cache-Control','no-store');
+      res.json({message:'If this account still needs email confirmation, a new confirmation link will be sent.'});
+    } catch(error) {
+      console.warn('Confirmation resend failed:',error.code||error.status||'AUTH_ERROR');
+      res.json({message:'If this account still needs email confirmation, a new confirmation link will be sent.'});
+    }
+  });
+
+
 
   app.post('/api/auth/login', loginLimit, requireStorage, async function (req,res) {
     try {
@@ -28,7 +127,10 @@ module.exports = function registerAuthRoutes(app, deps) {
       const password = String((req.body || {}).password || '');
       if (!email || !password) return fail(res,400,'Enter your email and password.');
       const result = await authClient().auth.signInWithPassword({ email:email, password:password });
-      if (result.error || !result.data || !result.data.session || !result.data.user) return fail(res,401,'Sign-in failed. Check your email and password.');
+      if (result.error || !result.data || !result.data.session || !result.data.user) {
+        if (result.error && /email not confirmed/i.test(String(result.error.message||''))) return fail(res,403,'Please confirm your email address using the link we sent before signing in.');
+        return fail(res,401,'Sign-in failed. Check your email and password.');
+      }
       const memberResult = await db().from('app_records').select('data')
         .eq('collection','members').contains('data',{authUserId:result.data.user.id}).maybeSingle();
       if (memberResult.error) throw memberResult.error;
@@ -45,9 +147,19 @@ module.exports = function registerAuthRoutes(app, deps) {
       fail(res,503,'Member sign-in is temporarily unavailable.');
     }
   });
-  app.post('/api/public/member-signup', publicLimit, requireStorage, async function (req,res) {
+  app.post('/api/public/member-signup', signupLimit||publicLimit, requireStorage, async function (req,res) {
     try {
       const body = req.body || {};
+      const websiteTrap = String(body.companyWebsite||'').trim();
+      if (websiteTrap) return res.status(201).json({message:'Your application has been received. Follow the next steps sent to your email.'});
+      const captchaConfig = turnstileConfiguration();
+      if (captchaConfig.incomplete) return fail(res,503,'The registration security check is not fully configured. Please try again later.');
+      if (captchaConfig.enabled) {
+        const captcha = await verifyTurnstile(body.captchaToken);
+        if (captcha.configurationError) return fail(res,503,'The registration security check is not fully configured.');
+        if (captcha.unavailable) return fail(res,503,'The security check is temporarily unavailable. Refresh the page and try again.');
+        if (!captcha.ok) return fail(res,400,'Please complete the security check and try again.');
+      }
       const name = String(body.name || '').trim();
       const email = String(body.email || '').trim().toLowerCase();
       const password = String(body.password || '');
@@ -62,7 +174,9 @@ module.exports = function registerAuthRoutes(app, deps) {
       if (!country) return fail(res,400,'Select a valid nationality from the country list.');
       if (!/^\+\d{1,4}$/.test(dialCode)) return fail(res,400,'Select a valid phone country code.');
       const auth = authClient();
-      const signup = await auth.auth.signUp({ email:email, password:password, options:{ data:{ full_name:name, church:'ICF Gambia' } } });
+      const signupOptions = {data:{full_name:name,church:'ICF Gambia'},emailRedirectTo:publicSiteUrl()};
+      if (captchaConfig.enabled) signupOptions.captchaToken=String(body.captchaToken||'');
+      const signup = await auth.auth.signUp({email:email,password:password,options:signupOptions});
       if (signup.error || !signup.data || !signup.data.user) return fail(res,400,signup.error ? signup.error.message : 'Could not create your account.');
       if (Array.isArray(signup.data.user.identities) && signup.data.user.identities.length === 0) return fail(res,409,'An account with this email may already exist.');
       const member = {
@@ -84,7 +198,14 @@ module.exports = function registerAuthRoutes(app, deps) {
         }
         throw insertError;
       }
-      res.status(201).json({ message:signup.data.session ? 'Registration received. Your membership is pending approval.' : 'Registration received. Check your email if confirmation is enabled. Your membership is pending approval.' });
+      const emailConfirmationRequired = !Boolean(signup.data.session);
+      res.set('Cache-Control','no-store');
+      res.status(201).json({
+        emailConfirmationRequired:emailConfirmationRequired,
+        message:emailConfirmationRequired
+          ? 'Your application has been saved. Please confirm your email using the link we sent. ICF administrators will review your membership after email confirmation.'
+          : 'Your email is confirmed and your application has been received. ICF administrators must still approve your membership before you can sign in.'
+      });
     } catch (error) {
       console.error('Member signup failed:',error.message);
       fail(res,503,'Registration is temporarily unavailable. Please try again later.');
