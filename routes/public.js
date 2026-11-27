@@ -138,12 +138,14 @@ module.exports = function registerPublicRoutes(app, deps) {
     catch(e){console.error('KJV Bible fetch failed for '+book+':',e.message);fail(res,503,'The KJV book could not be loaded right now. Please retry.');}
   });
   app.get('/api/public/live',requireStorage,async function(req,res){
+    res.set('Cache-Control','no-store, no-cache, must-revalidate, proxy-revalidate');res.set('Pragma','no-cache');
     try{let q=db().from('broadcast_sessions').select('id,slug,title,description,logo_url,logo_position,overlay_text,scripture_reference,scripture_text,presentation_config,started_at').eq('status','live').eq('is_public',true);
       const slug=String(req.query.slug||'').slice(0,40);if(slug)q=q.eq('slug',slug);const r=await q.order('started_at',{ascending:false}).limit(1).maybeSingle();
       if(r.error)throw r.error;if(!r.data)return res.status(404).json({live:false});res.json({live:true,session:r.data});
     }catch(e){console.error('Public live lookup failed:',e.message);fail(res,503,'Live broadcast information is temporarily unavailable.');}
   });
   app.post('/api/public/live/token',publicLimit,requireStorage,async function(req,res){
+    res.set('Cache-Control','no-store, no-cache, must-revalidate, proxy-revalidate');
     try{const slug=String((req.body||{}).slug||'').slice(0,40);if(!slug)return fail(res,400,'A broadcast link is required.');
       const r=await db().from('broadcast_sessions').select('room_name').eq('slug',slug).eq('status','live').eq('is_public',true).maybeSingle();if(r.error)throw r.error;if(!r.data)return fail(res,404,'This ICF broadcast is not live.');
       const key=process.env.LIVEKIT_API_KEY||'',secret=process.env.LIVEKIT_API_SECRET||'';let serverUrl=String(process.env.LIVEKIT_URL||'').trim();if(!serverUrl)return fail(res,503,'The live viewing service is not connected.');if(!/^https?:\/\//i.test(serverUrl)&&!/^wss?:\/\//i.test(serverUrl))serverUrl='wss://'+serverUrl;try{const u=new URL(serverUrl);if(u.protocol==='https:')u.protocol='wss:';else if(u.protocol==='http:')u.protocol='ws:';if(!['wss:','ws:'].includes(u.protocol)||!u.hostname)throw new Error('invalid');u.pathname='';u.search='';u.hash='';serverUrl=u.toString().replace(/\/$/,'');}catch(_){return fail(res,503,'The configured LiveKit server URL is invalid.');}if(!key||!secret||!serverUrl)return fail(res,503,'The live viewing service is not connected.');
