@@ -123,8 +123,23 @@ module.exports = function registerAdminRoutes(app, deps) {
     catch(e){console.error('Broadcast publish update failed:',e.message);fail(res,503,'Could not publish the broadcast status.');}
   });
   app.patch('/api/admin/broadcast/sessions/:id/overlay',requireStorage,requireAdmin,async function(req,res){
-    try{const b=req.body||{},r=await db().from('broadcast_sessions').update({overlay_text:String(b.overlayText||'').slice(0,500),scripture_reference:String(b.scriptureReference||'').slice(0,120),scripture_text:String(b.scriptureText||'').slice(0,1200),updated_at:new Date().toISOString()}).eq('id',req.params.id).eq('status','live').select('id').maybeSingle();if(r.error)throw r.error;if(!r.data)return fail(res,404,'Live broadcast not found.');res.json({updated:true});}
-    catch(e){console.error('Broadcast overlay update failed:',e.message);fail(res,503,'Could not update the live presentation.');}
+    try{
+      const b=req.body||{},raw=b.presentationConfig||{},mode=['camera','slide','flyer','split','ticker'].includes(raw.mode)?raw.mode:'camera';
+      const config={mode:mode,background:/^#[0-9a-f]{6}$/i.test(String(raw.background||''))?raw.background:'#071329',
+        textColor:/^#[0-9a-f]{6}$/i.test(String(raw.textColor||''))?raw.textColor:'#ffffff',
+        fontSize:Math.max(18,Math.min(64,Number(raw.fontSize)||34)),textAlign:['left','center','right'].includes(raw.textAlign)?raw.textAlign:'center',
+        scroll:raw.scroll===true,flyerUrl:String(raw.flyerUrl||'').slice(0,1200),slideTitle:String(raw.slideTitle||'').slice(0,180),
+        slideBody:String(raw.slideBody||'').slice(0,3000),slideReference:String(raw.slideReference||'').slice(0,180),
+        slides:Array.isArray(raw.slides)?raw.slides.slice(0,60).map(function(s){return {type:['camera','slide','flyer','split','ticker'].includes(s.type)?s.type:'slide',
+          title:String(s.title||'').slice(0,180),body:String(s.body||'').slice(0,3000),reference:String(s.reference||'').slice(0,180),
+          background:/^#[0-9a-f]{6}$/i.test(String(s.background||''))?s.background:'#071329',textColor:/^#[0-9a-f]{6}$/i.test(String(s.textColor||''))?s.textColor:'#ffffff',
+          fontSize:Math.max(18,Math.min(64,Number(s.fontSize)||34)),textAlign:['left','center','right'].includes(s.textAlign)?s.textAlign:'center',
+          scroll:s.scroll===true,flyerUrl:String(s.flyerUrl||'').slice(0,1200)};}):[],slideIndex:Math.max(0,Math.min(59,Number(raw.slideIndex)||0))};
+      const r=await db().from('broadcast_sessions').update({overlay_text:String(b.overlayText||'').slice(0,500),
+        scripture_reference:String(b.scriptureReference||'').slice(0,180),scripture_text:String(b.scriptureText||'').slice(0,3000),
+        presentation_config:config,updated_at:new Date().toISOString()}).eq('id',req.params.id).in('status',['draft','preparing','live']).select('id').maybeSingle();
+      if(r.error)throw r.error;if(!r.data)return fail(res,404,'Broadcast session not found.');res.json({updated:true,presentationConfig:config});
+    }catch(e){console.error('Broadcast presentation update failed:',e.message);fail(res,503,'Could not update the broadcast presentation.');}
   });
   app.patch('/api/admin/broadcast/sessions/:id/recording',requireStorage,requireAdmin,async function(req,res){
     try{const status=['local_recording','downloaded','failed','not_requested'].includes((req.body||{}).status)?req.body.status:'failed';const r=await db().from('broadcast_sessions').update({recording_status:status,updated_at:new Date().toISOString()}).eq('id',req.params.id).select('id').maybeSingle();if(r.error)throw r.error;if(!r.data)return fail(res,404,'Broadcast session not found.');res.json({updated:true,recordingStatus:status});}
