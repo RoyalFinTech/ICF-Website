@@ -1275,7 +1275,7 @@ function renderAdminSection(s){
     case 'announcements':c.innerHTML=adminAnnouncementsHTML();break;
     case 'theme-slider':c.innerHTML=icfThemeSettingsHTML();break;
     case 'newsletter':c.innerHTML=adminNewsletterHTML();break;
-    case 'livestream':c.innerHTML=adminLivestreamHTML();break;
+    case 'livestream':c.innerHTML=adminLivestreamHTML();if(window.initIcfWorshipStudio)window.initIcfWorshipStudio();break;
     case 'analytics':c.innerHTML=adminAnalyticsHTML();break;
     case 'nationality':c.innerHTML=adminNationalityHTML();break;
     case 'language':c.innerHTML=adminLanguageHTML();break;
