@@ -33,7 +33,7 @@ module.exports = function registerPublicRoutes(app, deps) {
   async function profileView(member) {
     return {id:member.id,name:member.name,email:member.email,phone:member.phone,address:member.address,
       nationality:member.nationality,bio:member.bio||'',avatarUrl:await signedAvatarUrl(member),
-      publicProfile:member.publicProfile===true,status:member.status,roles:Array.isArray(member.roles)?member.roles:[],joinedAt:member.joinedAt};
+      publicProfileConsent:member.publicProfileConsent===true,status:member.status,roles:Array.isArray(member.roles)?member.roles:[],joinedAt:member.joinedAt};
   }
   function imageSignature(buffer,mime) {
     if (!Buffer.isBuffer(buffer)) return false;
@@ -78,7 +78,7 @@ module.exports = function registerPublicRoutes(app, deps) {
   app.get('/api/public-directory',requireStorage,async function(req,res){
     try {
       const members=await readCollection('members');
-      const people=await Promise.all(members.filter(function(m){return m&&m.status==='approved'&&m.publicProfile===true;}).map(async function(m){
+      const people=await Promise.all(members.filter(function(m){return m&&m.status==='approved'&&m.publicProfileConsent===true&&m.directoryVisible===true;}).map(async function(m){
         return {id:m.id,name:String(m.name||'ICF Member').slice(0,120),avatarUrl:await signedAvatarUrl(m),bio:String(m.bio||'').slice(0,500),
           roles:Array.isArray(m.roles)?m.roles.filter(function(r){return r&&r.name;}).map(function(r){return {id:String(r.id||''),name:String(r.name).slice(0,100),type:r.type==='office'?'office':'ministry'};}):[]};
       })).then(function(list){return list.filter(function(m){return m.roles.length>0;});});
@@ -96,7 +96,7 @@ module.exports = function registerPublicRoutes(app, deps) {
       if(body.phone!==undefined){const value=String(body.phone||'').trim();if(value.length<6||value.length>50)return fail(res,400,'Enter a valid phone number.');member.phone=value;}
       if(body.address!==undefined){const value=String(body.address||'').trim();if(value.length<3||value.length>500)return fail(res,400,'Enter a valid address.');member.address=value;}
       if(body.bio!==undefined)member.bio=String(body.bio||'').trim().slice(0,500);
-      if(body.publicProfile!==undefined)member.publicProfile=body.publicProfile===true;
+      if(body.publicProfileConsent!==undefined)member.publicProfileConsent=body.publicProfileConsent===true;
       // Membership status, roles, approval and Auth identity are admin-controlled.
       await saveMember(member);res.json({member:await profileView(member)});
     }catch(error){console.error('Member profile update failed:',error.message);fail(res,503,'Could not save your member profile.');}
