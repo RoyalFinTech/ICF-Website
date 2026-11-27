@@ -639,31 +639,7 @@ body.icf-menu-open{overflow:hidden!important}
 <script defer src="/js/api-bridge.js?v=20261127-2"></script>
 </head>
 <body data-theme="light">
-<div id="icf-splash" role="status" aria-live="polite" aria-label="Loading ICF Gambia website"><div class="splash-logo-wrap"><img src="/icf-logo-transparent.png" alt="International Christian Fellowship logo" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Cpath d=%22M50 14v72M18 45h64%22 stroke=%22white%22 stroke-width=%2210%22 stroke-linecap=%22round%22/%3E%3C/svg%3E'"></div>
-<h1 class="splash-title">ICF GAMBIA</h1><p class="splash-tagline">Solution Centre · It’s All About Jesus</p><div class="splash-loading"><span class="splash-spinner" aria-hidden="true"></span><span id="icf-splash-status">Preparing your experience</span></div><div class="splash-progress" aria-hidden="true"><span></span></div></div>
-<script>
-/* Splash lifecycle: wait for app initialization, but never cover or trap the homepage. */
-(function(){
- var startedAt=Date.now(), finished=false;
- function dismiss(timedOut){
-  if(finished)return;
-  finished=true;
-  var splash=document.getElementById('icf-splash');
-  if(!splash)return;
-  if(timedOut){
-   var status=document.getElementById('icf-splash-status');
-   if(status)status.textContent='Homepage is available · some live updates may still be connecting';
-  }
-  splash.classList.add('is-leaving');
-  window.setTimeout(function(){if(splash.parentNode)splash.parentNode.removeChild(splash);},260);
- }
- window.addEventListener('icf:app-ready',function(){
-  var remaining=Math.max(0,900-(Date.now()-startedAt));
-  window.setTimeout(function(){dismiss(false);},remaining);
- },{once:true});
- window.setTimeout(function(){dismiss(true);},12000);
-})();
-</script>
+
 
 
 <!-- ═══ NAVBAR ═══════════════════════════════ -->
@@ -727,6 +703,32 @@ body.icf-menu-open{overflow:hidden!important}
 </div>
 
 <main id="main">
+<div id="icf-splash" role="status" aria-live="polite" aria-label="Loading ICF Gambia website"><div class="splash-logo-wrap"><img src="/icf-logo-transparent.png" alt="International Christian Fellowship logo" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Cpath d=%22M50 14v72M18 45h64%22 stroke=%22white%22 stroke-width=%2210%22 stroke-linecap=%22round%22/%3E%3C/svg%3E'"></div>
+<h1 class="splash-title">ICF GAMBIA</h1><p class="splash-tagline">Solution Centre · It’s All About Jesus</p><div class="splash-loading"><span class="splash-spinner" aria-hidden="true"></span><span id="icf-splash-status">Preparing your experience</span></div><div class="splash-progress" aria-hidden="true"><span></span></div></div>
+<script>
+/* Splash lifecycle: wait for app initialization, but never cover or trap the homepage. */
+(function(){
+ var startedAt=Date.now(), finished=false;
+ function dismiss(timedOut){
+  if(finished)return;
+  finished=true;
+  var splash=document.getElementById('icf-splash');
+  if(!splash)return;
+  if(timedOut){
+   var status=document.getElementById('icf-splash-status');
+   if(status)status.textContent='Homepage is available · some live updates may still be connecting';
+  }
+  splash.classList.add('is-leaving');
+  window.setTimeout(function(){if(splash.parentNode)splash.parentNode.removeChild(splash);},260);
+ }
+ window.addEventListener('icf:app-ready',function(){
+  var remaining=Math.max(0,900-(Date.now()-startedAt));
+  window.setTimeout(function(){dismiss(false);},remaining);
+ },{once:true});
+ window.setTimeout(function(){dismiss(true);},12000);
+})();
+</script>
+
 
 <!-- ═══ HOME ═════════════════════════════════ -->
 <div id="page-home" class="page page-content active">
