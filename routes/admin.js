@@ -131,6 +131,10 @@ module.exports = function registerAdminRoutes(app, deps) {
     try{const r=await db().from('broadcast_sessions').select('room_name').eq('id',req.params.id).maybeSingle();if(r.error)throw r.error;if(!r.data)return fail(res,404,'Broadcast session not found.');res.json(createBroadcastToken(r.data.room_name,'icf-admin-'+req.identity.user.id,true));}
     catch(e){if(e.message==='LIVEKIT_NOT_CONFIGURED')return fail(res,503,'Live broadcasting is not connected yet. Configure LIVEKIT_URL, LIVEKIT_API_KEY and LIVEKIT_API_SECRET in Render.');console.error('Broadcast token failed:',e.message);fail(res,503,'Could not prepare secure broadcast credentials.');}
   });
+  app.post('/api/admin/broadcast/sessions/:id/camera-token',requireStorage,requireAdmin,async function(req,res){
+    try{const r=await db().from('broadcast_sessions').select('room_name,status').eq('id',req.params.id).maybeSingle();if(r.error)throw r.error;if(!r.data)return fail(res,404,'Broadcast session not found.');if(!['preparing','live'].includes(r.data.status))return fail(res,409,'Start the broadcast before connecting a remote camera.');const identity='icf-phone-'+crypto.randomBytes(8).toString('hex');res.json(createBroadcastToken(r.data.room_name,identity,true));}
+    catch(e){if(e.message==='LIVEKIT_NOT_CONFIGURED')return fail(res,503,'LiveKit is not configured.');console.error('Remote camera token failed:',e.message);fail(res,503,'Could not connect the phone camera.');}
+  });
   app.post('/api/admin/broadcast/sessions/:id/start',requireStorage,requireAdmin,async function(req,res){
     try{if(!process.env.LIVEKIT_URL||!process.env.LIVEKIT_API_KEY||!process.env.LIVEKIT_API_SECRET)return fail(res,503,'LiveKit credentials are not configured.');const r=await db().from('broadcast_sessions').update({status:'live',started_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',req.params.id).select('*').single();if(r.error)throw r.error;res.json({session:r.data});}
     catch(e){console.error('Broadcast publish update failed:',e.message);fail(res,503,'Could not publish the broadcast status.');}
