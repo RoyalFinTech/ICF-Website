@@ -10,11 +10,11 @@ if (!/document\.querySelector\('main \.page\.active'\)/.test(apiBridge)) throw n
 if (!/var directAdminEntry = window\.location\.hash === '#admin-portal'/.test(apiBridge)) throw new Error('A direct admin deep link must bypass the public-feed wait.');
 
 const pdfLinkUpdater = apiBridge.slice(apiBridge.indexOf('function updateDocumentLinks()'), apiBridge.indexOf('function observeVisualUpdates()'));
-if (!/link\\.textContent !== label/.test(pdfLinkUpdater)) {
+if (!pdfLinkUpdater.includes('if (label && link.textContent !== label) link.textContent = label;')) {
   throw new Error('PDF link labels must be updated idempotently to prevent MutationObserver feedback loops.');
 }
 const siteCss = fs.readFileSync(path.join(ROOT, 'css/site.css'), 'utf8');
-if (!/Mobile admin navigation:[\\s\\S]*?overflow-x:\\s*auto/.test(siteCss)) {
+if (!siteCss.includes('/* Mobile admin navigation:') || !siteCss.includes('overflow-x:auto')) {
   throw new Error('Mobile admin navigation must be horizontally scrollable.');
 }
 
