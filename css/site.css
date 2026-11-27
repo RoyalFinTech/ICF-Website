@@ -635,3 +635,100 @@ body.icf-menu-open{overflow:hidden!important}
   #page-admin-portal .admin-sidebar .sidebar-item { font-size:12px; padding:9px 10px; }
   #page-admin-portal .admin-content { padding:12px; }
 }
+
+
+/* Mobile worship schedule + footer layout repair (2026-11) */
+@media (max-width: 640px) {
+  #page-home .service-times {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  #page-home .service-time-row {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    align-items: start;
+    column-gap: 12px;
+    row-gap: 3px;
+    padding: 15px 16px;
+    min-width: 0;
+  }
+  #page-home .service-time-day {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    min-width: 0;
+    padding-top: 1px;
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  #page-home .service-time-name {
+    grid-column: 2;
+    min-width: 0;
+    width: auto;
+    flex: initial;
+    font-size: 14px;
+    line-height: 1.45;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    writing-mode: horizontal-tb;
+  }
+  #page-home .service-time-hours {
+    grid-column: 2;
+    min-width: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  /* Keep footer sections in a clear reading order on narrow phones. */
+  #footer {
+    padding: 30px 20px max(28px, env(safe-area-inset-bottom)) !important;
+  }
+  #footer .footer-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 26px !important;
+    width: 100%;
+  }
+  #footer .footer-brand,
+  #footer .footer-col {
+    grid-column: 1 / -1 !important;
+    min-width: 0;
+    width: 100%;
+  }
+  #footer .footer-brand {
+    padding-bottom: 4px;
+  }
+  #footer .footer-col h4 {
+    margin-bottom: 10px;
+    font-size: 12px;
+    letter-spacing: .12em;
+  }
+  #footer .footer-col a,
+  #footer .footer-col button {
+    width: 100%;
+    min-height: 38px;
+    box-sizing: border-box;
+    display: flex !important;
+    align-items: center;
+    padding: 7px 0 !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: left;
+  }
+  #footer .footer-bottom {
+    margin-top: 24px;
+    padding-top: 18px;
+    gap: 8px;
+  }
+  #footer .footer-bottom p {
+    font-size: 11px;
+    line-height: 1.6;
+  }
+}

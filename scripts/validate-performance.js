@@ -18,4 +18,16 @@ if (!siteCss.includes('/* Mobile admin navigation:') || !siteCss.includes('overf
   throw new Error('Mobile admin navigation must be horizontally scrollable.');
 }
 
+
+const homePage = fs.readFileSync(path.join(ROOT, 'views/pages/home.html'), 'utf8');
+if (!homePage.includes('Join Us for Worship') || !homePage.includes('Worship Service')) {
+  throw new Error('Homepage worship schedule markup is missing.');
+}
+if (!siteCss.includes('Mobile worship schedule + footer layout repair') ||
+    !siteCss.includes('grid-template-columns: 76px minmax(0, 1fr)') ||
+    !siteCss.includes('#footer .footer-grid') ||
+    !siteCss.includes('grid-template-columns: minmax(0, 1fr) !important')) {
+  throw new Error('Mobile worship schedule and single-column footer repairs are missing.');
+}
+
 process.stdout.write('Performance checks passed: concurrent admin reads, active-page refresh and direct admin entry.\n');
