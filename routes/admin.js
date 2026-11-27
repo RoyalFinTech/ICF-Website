@@ -101,7 +101,7 @@ function normalizedLiveKitUrl(){var raw=String(process.env.LIVEKIT_URL||'').trim
     if (!key || !secret) return false;
     const wsUrl=normalizedLiveKitUrl(),apiUrl=wsUrl.replace(/^wss:/,'https:').replace(/^ws:/,'http:');
     const now=Math.floor(Date.now()/1000),enc=function(v){return Buffer.from(JSON.stringify(v)).toString('base64url');};
-    const unsigned=enc({alg:'HS256',typ:'JWT'})+'.'+enc({iss:key,sub:'icf-room-ender-'+crypto.randomBytes(6).toString('hex'),nbf:now-5,iat:now,exp:now+60,video:{roomAdmin:true,room:roomName}});
+    const unsigned=enc({alg:'HS256',typ:'JWT'})+'.'+enc({iss:key,sub:'icf-room-ender-'+crypto.randomBytes(6).toString('hex'),nbf:now-5,iat:now,exp:now+60,video:{roomCreate:true}});
     const token=unsigned+'.'+crypto.createHmac('sha256',secret).update(unsigned).digest('base64url');
     const response=await fetch(apiUrl+'/twirp/livekit.RoomService/DeleteRoom',{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({room:roomName}),signal:AbortSignal.timeout(8000)});
     if(response.status===404)return true;
