@@ -968,6 +968,7 @@ function navigate(page){
   document.querySelectorAll('.nav-link').forEach(l=>l.classList.toggle('active',l.dataset.page===page));
   if(page!=='home'&&window.ICFHeroSlider)window.ICFHeroSlider.stop();
   renderPage(page);
+  window.dispatchEvent(new CustomEvent('icf:page-changed',{detail:{page:page}}));
   const mobileNav=document.getElementById('nav-mobile');
   if(mobileNav)mobileNav.classList.remove('open');
   window.scrollTo(0,0);
