@@ -19,7 +19,7 @@ const studioSource = fs.readFileSync(path.join(ROOT, 'js/worship-studio.js'), 'u
 const viewerSource = fs.readFileSync(path.join(ROOT, 'js/worship-viewer.js'), 'utf8');
 new Function(studioSource);
 new Function(viewerSource);
-for (const feature of ['ws-scroll-test','ws-bible-search','ws-camera-2','ws-flyer-file','ws-text-color']) if (!studioSource.includes(feature)) throw new Error('Worship Studio control missing: ' + feature);
+for (const feature of ['ws-scroll-test','ws-bible-search','ws-camera-2','ws-flyer-file','ws-color']) if (!studioSource.includes(feature)) throw new Error('Worship Studio control missing: ' + feature);
 if (!viewerSource.includes('presentation_config')) throw new Error('Public viewer presentation configuration is missing.');
 if (Buffer.byteLength(html, 'utf8') > 200 * 1024) throw new Error('Generated homepage exceeds the 200 KB HTML budget.');
 process.stdout.write('Homepage validated: ' + requiredPages.length + ' pages, ' + Buffer.byteLength(html, 'utf8') + ' HTML bytes.\n');
