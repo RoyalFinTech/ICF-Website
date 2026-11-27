@@ -1,0 +1,25 @@
+<!-- ═══ PRAYERS ═══════════════════════════════ -->
+<div id="page-prayers" class="page page-content">
+  <div class="container">
+    <div class="page-header">
+      <div class="page-header-inner">
+        <div class="page-title">
+          <img src="/icf-logo-transparent.png"  data-logo="1" class="page-title-logo site-logo" alt=""/>
+          <div><h1>🙏 Prayer Requests</h1><p>Lift each other up in prayer</p></div>
+        </div>
+        <button class="btn btn-primary" onclick="openPrayerModal()">🙏 Submit Request</button>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <select class="filter-select" onchange="renderPrayers(this.value)">
+        <option value="all">All Categories</option>
+        <option value="healing">💊 Healing</option>
+        <option value="financial">💰 Financial</option>
+        <option value="family">👨‍👩‍👧 Family</option>
+        <option value="spiritual">✝️ Spiritual</option>
+        <option value="other">📌 Other</option>
+      </select>
+    </div>
+    <div class="grid-3" id="prayers-grid"><div class="empty-state"><div class="spinner"></div></div></div>
+  </div>
+</div>

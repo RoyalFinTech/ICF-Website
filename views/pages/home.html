@@ -1,0 +1,66 @@
+<!-- ═══ HOME ═════════════════════════════════ -->
+<div id="page-home" class="page page-content active">
+  <section class="icf-hero-slider" id="icf-hero-slider" aria-label="ICF featured messages">
+    <div class="icf-hero-slide active" data-slide="0"><img class="icf-hero-image" src="church-worship-service.jpg" alt="November theme: Living by Grace in Holiness" loading="eager" fetchpriority="high" decoding="async"><div class="icf-hero-shade"></div><div class="icf-hero-copy"><span class="icf-eyebrow">✦ NOVEMBER MONTHLY THEME ✦</span><h1>Living by Grace in Holiness</h1><p class="icf-hero-verse">📖 God’s grace trains us to live godly lives. — Titus 2:11–12</p><p>Live by God’s grace, grow in holiness, and reflect the character of Jesus in daily life.</p><div class="icf-hero-actions"><button class="btn btn-primary" onclick="navigate('prayers')">🙏 Submit a Prayer Request</button><button class="btn btn-outline" onclick="navigate('about')">✝ Discover ICF</button></div></div></div>
+    <div class="icf-hero-slide" data-slide="1"><img class="icf-hero-image" data-src="church-mummy-prayer.jpg" alt="Christian prayer and fellowship" loading="lazy" decoding="async"><div class="icf-hero-shade"></div><div class="icf-hero-copy"><span class="icf-eyebrow">WORSHIP • FELLOWSHIP • SERVICE</span><h1>It’s All About Jesus.</h1><p class="icf-hero-verse">“Oh come, let us worship and bow down.” <strong>— Psalm 95:6</strong></p><p>A Christ-centred family growing together in grace, truth and love.</p><div class="icf-hero-actions"><button class="btn btn-primary" onclick="navigate('services')">Explore Our Ministries</button><button class="btn btn-outline" onclick="navigate('events')">See Upcoming Events</button></div></div></div>
+    <div class="icf-hero-slide" data-slide="2"><img class="icf-hero-image" data-src="church-baptism-group.jpg" alt="Christian baptism in water" loading="lazy" decoding="async"><div class="icf-hero-shade"></div><div class="icf-hero-copy"><span class="icf-eyebrow">NEW LIFE • NEW HOPE</span><h1>Walk in Newness of Life</h1><p class="icf-hero-verse">“We were buried with him through baptism into death...” <strong>— Romans 6:4</strong></p><p>Celebrate faith, transformation and the promise of life in Christ.</p><div class="icf-hero-actions"><button class="btn btn-primary" onclick="navigate('baptisms')">Learn About Baptism</button><button class="btn btn-outline" onclick="navigate('signup')">Join Our Fellowship</button></div></div></div>
+    <button class="icf-hero-arrow prev" type="button" aria-label="Previous slide" onclick="icfHeroMove(-1)">‹</button><button class="icf-hero-arrow next" type="button" aria-label="Next slide" onclick="icfHeroMove(1)">›</button><div class="icf-hero-dots"><button class="active" aria-label="Slide 1" onclick="icfHeroGo(0)"></button><button aria-label="Slide 2" onclick="icfHeroGo(1)"></button><button aria-label="Slide 3" onclick="icfHeroGo(2)"></button></div>
+  </section>
+  <div id="livestream-widget" style="display:none;padding:0 20px 0"></div>
+  <div class="stats-bar">
+    <div class="stats-grid">
+      <div class="stat-pill"><div class="stat-pill-emoji">🙏</div><div class="stat-pill-num" id="stat-prayers">—</div><div class="stat-pill-label">Prayers</div></div>
+      <div class="stat-pill"><div class="stat-pill-emoji">💧</div><div class="stat-pill-num" id="stat-baptisms">—</div><div class="stat-pill-label">Baptisms</div></div>
+      <div class="stat-pill"><div class="stat-pill-emoji">📅</div><div class="stat-pill-num" id="stat-events">—</div><div class="stat-pill-label">Events</div></div>
+      <div class="stat-pill"><div class="stat-pill-emoji">👥</div><div class="stat-pill-num" id="stat-members">—</div><div class="stat-pill-label">Members</div></div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-title">Our Ministries</div>
+        <div class="section-subtitle">Advancing the Kingdom of God in The Gambia and beyond</div>
+      </div>
+      <div class="modules-grid">
+        <a class="module-card module-emerald" onclick="navigate('events')"><div class="module-emoji">🌍</div><div class="module-title">Mission Outreach</div><div class="module-desc">Reaching the unreached through evangelism, community outreach, and the teaching of God's Word across The Gambia.</div><div class="module-link">Explore →</div></a>
+        <a class="module-card module-amber" onclick="navigate('events')"><div class="module-emoji">🔥</div><div class="module-title">Crusades &amp; Revivals</div><div class="module-desc">Upcoming evangelistic crusades, city-wide revivals, and ministry conferences transforming communities.</div><div class="module-link">View Events →</div></a>
+        <a class="module-card module-rose" onclick="navigate('prayers')"><div class="module-emoji">🙏</div><div class="module-title">Prayer Requests</div><div class="module-desc">Submit prayer requests and intercede for others. Our prayer team stands with you, believing that united prayer moves mountains.</div><div class="module-link">Submit Prayer →</div></a>
+        <a class="module-card module-blue" onclick="navigate('services')"><div class="module-emoji">📖</div><div class="module-title">Discipleship Classes</div><div class="module-desc">Wednesday Discipleship Classes equip believers for a deeper walk with God, grounding them in the Word.</div><div class="module-link">Learn More →</div></a>
+        <a class="module-card module-purple" onclick="navigate('about')"><div class="module-emoji">⛪</div><div class="module-title">Church Planting</div><div class="module-desc">Committed to planting churches across Africa — rebuilding lives, restoring hope, transforming communities.</div><div class="module-link">Our Story →</div></a>
+        <a class="module-card module-cyan" onclick="navigate('baptisms')"><div class="module-emoji">💧</div><div class="module-title">Baptism Booking</div><div class="module-desc">Ready to declare your faith publicly? Book a baptism and take your next step in Christ.</div><div class="module-link">Book Now →</div></a>
+        <a class="module-card module-gold" style="border-color:rgba(212,168,0,0.2);background:linear-gradient(135deg,rgba(212,168,0,0.06) 0%,var(--bg-card) 60%)" onclick="navigate('sermons')"><div class="module-emoji">🎥</div><div class="module-title">Sermons &amp; Messages</div><div class="module-desc">Watch, listen to, and download sermons from ICF Solution Centre. Be fed by the Word of God.</div><div class="module-link" style="color:var(--gold)">Watch Now →</div></a>
+        <a class="module-card module-purple" onclick="navigate('announcements')"><div class="module-emoji">📢</div><div class="module-title">Announcements</div><div class="module-desc">Stay updated with the latest news, events, and announcements from ICF Solution Centre.</div><div class="module-link">Read More →</div></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-sm" style="background:var(--bg-card);border-top:1px solid var(--border2);border-bottom:1px solid var(--border2)">
+    <div class="container-sm">
+      <div class="pastor-welcome">
+        <blockquote>"Welcome and thank you for your visit today. We are delighted to have you visit International Christian Fellowship Solution Centre. Our prayer is that you experience the love, presence, and transforming power of our Lord Jesus Christ as you fellowship with us."</blockquote>
+        <cite>— Pastor Mrs. Cecilia Romano &amp; Evangelist Daniel Romano, National Overseers</cite>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-title">Join Us for Worship</div>
+        <div class="section-subtitle">All are welcome at ICF Solution Centre, Mariama Kunda</div>
+      </div>
+      <div style="max-width:580px;margin:0 auto">
+        <div class="service-times">
+          <div class="service-time-row"><div class="service-time-day">Sunday</div><div class="service-time-name">Worship Service</div><div class="service-time-hours">10:00 AM – 12:00 Noon</div></div>
+          <div class="service-time-row"><div class="service-time-day">Wednesday</div><div class="service-time-name">Discipleship Class</div><div class="service-time-hours">6:00 PM – 7:00 PM</div></div>
+          <div class="service-time-row"><div class="service-time-day">Friday</div><div class="service-time-name">Fervent Prayer Meeting</div><div class="service-time-hours">6:00 PM – 8:00 PM</div></div>
+          <div class="service-time-row"><div class="service-time-day">Last Fri</div><div class="service-time-name">Night Vigil (Monthly)</div><div class="service-time-hours">7:00 PM – 11:00 PM</div></div>
+        </div>
+        <div style="text-align:center;margin-top:18px">
+          <button class="btn btn-outline" onclick="navigate('services')">📋 Full Schedule</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

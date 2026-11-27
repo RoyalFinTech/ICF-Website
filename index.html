@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>International Christian Fellowship – Solution Centre | The Gambia</title>
+<meta name="description" content="ICF Solution Centre – The Crusaders, Mariama Kunda, Kombo North, The Gambia."/>
+<meta name="keywords" content="ICF, International Christian Fellowship, Gambia church, Mariama Kunda, Kombo North, worship, ministries, membership, workers manual"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="International Christian Fellowship – Solution Centre | The Gambia"/>
+<meta property="og:description" content="ICF Solution Centre – The Crusaders, Mariama Kunda, Kombo North, The Gambia."/>
+<meta property="og:image" content="/icf-logo-transparent.png"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="International Christian Fellowship – Solution Centre | The Gambia"/>
+<meta name="twitter:description" content="ICF Solution Centre – The Crusaders, Mariama Kunda, Kombo North, The Gambia."/>
+<meta name="twitter:image" content="/icf-logo-transparent.png"/>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Church","name":"International Christian Fellowship Solution Centre","address":{"@type":"PostalAddress","addressLocality":"Mariama Kunda, Kombo North","addressCountry":"Gambia"}}
+</script>
+<link rel="icon" type="image/png" href="/favicon.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap"/>
+<link rel="stylesheet" href="/css/site.css?v=20261127-2"/>
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="preload" as="image" href="/icf-logo-transparent.png" fetchpriority="high"/>
+<link rel="preload" as="image" href="/church-worship-service.jpg" fetchpriority="high"/>
+<script defer src="/js/hero-slider.js?v=20261127-2"></script>
+<script defer src="/js/splash.js?v=20261127-1"></script>
+<script defer src="/js/app.js?v=20261127-2"></script>
+<script defer src="/js/admin-modules.js?v=20261127-1"></script>
+<script defer src="/js/api-bridge.js?v=20261127-3"></script>
+<script defer src="/js/ui-repair.js?v=20261127-1"></script>
+</head>
+<body data-theme="light">
+<!-- ═══ NAVBAR ═══════════════════════════════ -->
+<div id="icf-theme-ribbon" class="icf-theme-ribbon" role="region" aria-label="ICF monthly theme"><img src="/icf-logo-transparent.png"  data-logo="1" alt="ICF" class="icf-ribbon-logo"><div class="icf-ribbon-track"><div class="icf-ribbon-content"><span>✨ <strong>NOVEMBER THEME: LIVING BY GRACE IN HOLINESS</strong></span><span>📖 God’s grace trains us to live godly lives. — Titus 2:11–12</span><span>🙏 Grace • Holiness • Obedience • Christlikeness</span><span>✝ It’s All About Jesus.</span><span>✨ <strong>NOVEMBER THEME: LIVING BY GRACE IN HOLINESS</strong></span><span>📖 God’s grace trains us to live godly lives. — Titus 2:11–12</span><span>🙏 Grace • Holiness • Obedience • Christlikeness</span><span>✝ It’s All About Jesus.</span></div></div></div>
+<nav id="navbar">
+  <div class="nav-inner">
+    <a class="nav-brand" onclick="navigate('home')">
+      <img src="/icf-logo-transparent.png"  data-logo="1" alt="ICF Logo" class="site-logo"/>
+      <div class="nav-brand-text">ICF Gambia<span>Solution Centre</span></div>
+    </a>
+    <ul class="nav-links">
+      <li><a class="nav-link" data-page="home" onclick="navigate('home')" data-i18n="home">🏠 Home</a></li>
+      <li><a class="nav-link" data-page="about" onclick="navigate('about')" data-i18n="about">📖 About</a></li>
+      <li><a class="nav-link" onclick="navigate('about');setTimeout(function(){var el=document.getElementById('leadership');if(el)el.scrollIntoView({behavior:'smooth'});},50)" title="Church Leadership">🧑‍🤝‍🧑 Leadership</a></li>
+      <li><a class="nav-link" data-page="services" onclick="navigate('services')" data-i18n="ministries">⛪ Ministries</a></li>
+      <li><a class="nav-link" data-page="events" onclick="navigate('events')" data-i18n="events">📅 Events</a></li>
+      <li><a class="nav-link" data-page="prayers" onclick="navigate('prayers')" data-i18n="prayer">🙏 Prayer</a></li>
+      <li><a class="nav-link" data-page="baptisms" onclick="navigate('baptisms')" data-i18n="baptism">💝 Baptism</a></li>
+      <li><a class="nav-link" data-page="contact" onclick="navigate('contact')" data-i18n="contact">📞 Contact</a></li>
+      <li><a class="nav-link" data-page="sermons" onclick="navigate('sermons')" data-i18n="sermons">🎥 Sermons</a></li>
+      <li><a class="nav-link" data-page="gallery" onclick="navigate('gallery')" data-i18n="gallery">📷 Gallery</a></li>
+      <li><a class="nav-link" data-page="announcements" onclick="navigate('announcements')" data-i18n="news">📢 News</a></li>
+      <li><a class="nav-link" data-page="membership" onclick="navigate('membership')" title="Membership">🧾 ICF Membership Statement PDF</a></li>
+      <li><a class="nav-link" data-page="workers" onclick="navigate('workers')" title="Worker's Manual">📘 ICF Workers’ Manual PDF</a></li>
+      <li><button class="btn nav-login" onclick="navigate('login')">👤 Login</button></li>
+      <li><button class="btn nav-signup" onclick="navigate('signup')">📝 Sign Up</button></li>
+      <li><select class="lang-selector filter-select" style="font-size:11.5px;padding:4px 7px;max-width:130px" onchange="setLanguage(this.value)" title="Language"></select></li>
+      <li><button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button></li>
+      <li><a class="nav-link" data-page="admin-login" onclick="navigate('admin-login')" style="color:var(--gold);font-weight:600">🛡️</a></li>
+    </ul>
+    <button class="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile Nav -->
+<div class="nav-mobile" id="nav-mobile">
+  <a onclick="navigate('home')">🏠 Home</a>
+  <a onclick="navigate('about')">📖 About</a>
+  <a onclick="navigate('services')">⛪ Ministries</a>
+  <a onclick="navigate('events')">📅 Events</a>
+  <a onclick="navigate('prayers')">🙏 Prayer</a>
+  <a onclick="navigate('baptisms')">💝 Baptism</a>
+  <a onclick="navigate('contact')">📞 Contact</a>
+  <button class="mob-login" onclick="navigate('login')">👤 Login</button>
+  <button class="mob-signup" onclick="navigate('signup')">📝 Sign Up</button>
+  <a onclick="navigate('about');setTimeout(function(){var el=document.getElementById('leadership');if(el)el.scrollIntoView({behavior:'smooth'});},50)">🧑‍🤝‍🧑 Leadership</a>
+  <a onclick="navigate('sermons')">🎥 Sermons</a>
+  <a onclick="navigate('gallery')">📷 Gallery</a>
+  <a onclick="navigate('announcements')">📢 Announcements</a>
+  <a onclick="navigate('membership')">📄 ICF Membership Statement PDF</a>
+  <a onclick="navigate('workers')">📘 ICF Workers’ Manual PDF</a>
+  <a onclick="navigate('workers')">📘 Workers</a>
+  <button class="mob-cta" onclick="navigate('admin-login')">🛡️ Admin Portal</button>
+  <div style="padding:8px 12px">
+    <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px">🌐 Language</label>
+    <select class="lang-selector filter-select" style="width:100%;font-size:13px" onchange="setLanguage(this.value)"></select>
+  </div>
+  <button onclick="toggleTheme()" style="margin-top:4px;text-align:left">🌙 Toggle Theme</button>
+</div>
+
+<main id="main">
+<div id="icf-splash" role="status" aria-live="polite" aria-label="Loading ICF Gambia website"><div class="splash-logo-wrap"><img src="/icf-logo-transparent.png" alt="International Christian Fellowship logo" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Cpath d=%22M50 14v72M18 45h64%22 stroke=%22white%22 stroke-width=%2210%22 stroke-linecap=%22round%22/%3E%3C/svg%3E'"></div>
+<h1 class="splash-title">ICF GAMBIA</h1><p class="splash-tagline">Solution Centre · It’s All About Jesus</p><div class="splash-loading"><span class="splash-spinner" aria-hidden="true"></span><span id="icf-splash-status">Preparing your experience</span></div><div class="splash-progress" aria-hidden="true"><span></span></div></div>
+
+<!-- ═══ HOME ═════════════════════════════════ -->
+<div id="page-home" class="page page-content active">
+  <section class="icf-hero-slider" id="icf-hero-slider" aria-label="ICF featured messages">
+    <div class="icf-hero-slide active" data-slide="0"><img class="icf-hero-image" src="church-worship-service.jpg" alt="November theme: Living by Grace in Holiness" loading="eager" fetchpriority="high" decoding="async"><div class="icf-hero-shade"></div><div class="icf-hero-copy"><span class="icf-eyebrow">✦ NOVEMBER MONTHLY THEME ✦</span><h1>Living by Grace in Holiness</h1><p class="icf-hero-verse">📖 God’s grace trains us to live godly lives. — Titus 2:11–12</p><p>Live by God’s grace, grow in holiness, and reflect the character of Jesus in daily life.</p><div class="icf-hero-actions"><button class="btn btn-primary" onclick="navigate('prayers')">🙏 Submit a Prayer Request</button><button class="btn btn-outline" onclick="navigate('about')">✝ Discover ICF</button></div></div></div>
+    <div class="icf-hero-slide" data-slide="1"><img class="icf-hero-image" data-src="church-mummy-prayer.jpg" alt="Christian prayer and fellowship" loading="lazy" decoding="async"><div class="icf-hero-shade"></div><div class="icf-hero-copy"><span class="icf-eyebrow">WORSHIP • FELLOWSHIP • SERVICE</span><h1>It’s All About Jesus.</h1><p class="icf-hero-verse">“Oh come, let us worship and bow down.” <strong>— Psalm 95:6</strong></p><p>A Christ-centred family growing together in grace, truth and love.</p><div class="icf-hero-actions"><button class="btn btn-primary" onclick="navigate('services')">Explore Our Ministries</button><button class="btn btn-outline" onclick="navigate('events')">See Upcoming Events</button></div></div></div>
+    <div class="icf-hero-slide" data-slide="2"><img class="icf-hero-image" data-src="church-baptism-group.jpg" alt="Christian baptism in water" loading="lazy" decoding="async"><div class="icf-hero-shade"></div><div class="icf-hero-copy"><span class="icf-eyebrow">NEW LIFE • NEW HOPE</span><h1>Walk in Newness of Life</h1><p class="icf-hero-verse">“We were buried with him through baptism into death...” <strong>— Romans 6:4</strong></p><p>Celebrate faith, transformation and the promise of life in Christ.</p><div class="icf-hero-actions"><button class="btn btn-primary" onclick="navigate('baptisms')">Learn About Baptism</button><button class="btn btn-outline" onclick="navigate('signup')">Join Our Fellowship</button></div></div></div>
+    <button class="icf-hero-arrow prev" type="button" aria-label="Previous slide" onclick="icfHeroMove(-1)">‹</button><button class="icf-hero-arrow next" type="button" aria-label="Next slide" onclick="icfHeroMove(1)">›</button><div class="icf-hero-dots"><button class="active" aria-label="Slide 1" onclick="icfHeroGo(0)"></button><button aria-label="Slide 2" onclick="icfHeroGo(1)"></button><button aria-label="Slide 3" onclick="icfHeroGo(2)"></button></div>
+  </section>
+  <div id="livestream-widget" style="display:none;padding:0 20px 0"></div>
+  <div class="stats-bar">
+    <div class="stats-grid">
+      <div class="stat-pill"><div class="stat-pill-emoji">🙏</div><div class="stat-pill-num" id="stat-prayers">—</div><div class="stat-pill-label">Prayers</div></div>
+      <div class="stat-pill"><div class="stat-pill-emoji">💧</div><div class="stat-pill-num" id="stat-baptisms">—</div><div class="stat-pill-label">Baptisms</div></div>
+      <div class="stat-pill"><div class="stat-pill-emoji">📅</div><div class="stat-pill-num" id="stat-events">—</div><div class="stat-pill-label">Events</div></div>
+      <div class="stat-pill"><div class="stat-pill-emoji">👥</div><div class="stat-pill-num" id="stat-members">—</div><div class="stat-pill-label">Members</div></div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-title">Our Ministries</div>
+        <div class="section-subtitle">Advancing the Kingdom of God in The Gambia and beyond</div>
+      </div>
+      <div class="modules-grid">
+        <a class="module-card module-emerald" onclick="navigate('events')"><div class="module-emoji">🌍</div><div class="module-title">Mission Outreach</div><div class="module-desc">Reaching the unreached through evangelism, community outreach, and the teaching of God's Word across The Gambia.</div><div class="module-link">Explore →</div></a>
+        <a class="module-card module-amber" onclick="navigate('events')"><div class="module-emoji">🔥</div><div class="module-title">Crusades &amp; Revivals</div><div class="module-desc">Upcoming evangelistic crusades, city-wide revivals, and ministry conferences transforming communities.</div><div class="module-link">View Events →</div></a>
+        <a class="module-card module-rose" onclick="navigate('prayers')"><div class="module-emoji">🙏</div><div class="module-title">Prayer Requests</div><div class="module-desc">Submit prayer requests and intercede for others. Our prayer team stands with you, believing that united prayer moves mountains.</div><div class="module-link">Submit Prayer →</div></a>
+        <a class="module-card module-blue" onclick="navigate('services')"><div class="module-emoji">📖</div><div class="module-title">Discipleship Classes</div><div class="module-desc">Wednesday Discipleship Classes equip believers for a deeper walk with God, grounding them in the Word.</div><div class="module-link">Learn More →</div></a>
+        <a class="module-card module-purple" onclick="navigate('about')"><div class="module-emoji">⛪</div><div class="module-title">Church Planting</div><div class="module-desc">Committed to planting churches across Africa — rebuilding lives, restoring hope, transforming communities.</div><div class="module-link">Our Story →</div></a>
+        <a class="module-card module-cyan" onclick="navigate('baptisms')"><div class="module-emoji">💧</div><div class="module-title">Baptism Booking</div><div class="module-desc">Ready to declare your faith publicly? Book a baptism and take your next step in Christ.</div><div class="module-link">Book Now →</div></a>
+        <a class="module-card module-gold" style="border-color:rgba(212,168,0,0.2);background:linear-gradient(135deg,rgba(212,168,0,0.06) 0%,var(--bg-card) 60%)" onclick="navigate('sermons')"><div class="module-emoji">🎥</div><div class="module-title">Sermons &amp; Messages</div><div class="module-desc">Watch, listen to, and download sermons from ICF Solution Centre. Be fed by the Word of God.</div><div class="module-link" style="color:var(--gold)">Watch Now →</div></a>
+        <a class="module-card module-purple" onclick="navigate('announcements')"><div class="module-emoji">📢</div><div class="module-title">Announcements</div><div class="module-desc">Stay updated with the latest news, events, and announcements from ICF Solution Centre.</div><div class="module-link">Read More →</div></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-sm" style="background:var(--bg-card);border-top:1px solid var(--border2);border-bottom:1px solid var(--border2)">
+    <div class="container-sm">
+      <div class="pastor-welcome">
+        <blockquote>"Welcome and thank you for your visit today. We are delighted to have you visit International Christian Fellowship Solution Centre. Our prayer is that you experience the love, presence, and transforming power of our Lord Jesus Christ as you fellowship with us."</blockquote>
+        <cite>— Pastor Mrs. Cecilia Romano &amp; Evangelist Daniel Romano, National Overseers</cite>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-title">Join Us for Worship</div>
+        <div class="section-subtitle">All are welcome at ICF Solution Centre, Mariama Kunda</div>
+      </div>
+      <div style="max-width:580px;margin:0 auto">
+        <div class="service-times">
+          <div class="service-time-row"><div class="service-time-day">Sunday</div><div class="service-time-name">Worship Service</div><div class="service-time-hours">10:00 AM – 12:00 Noon</div></div>
+          <div class="service-time-row"><div class="service-time-day">Wednesday</div><div class="service-time-name">Discipleship Class</div><div class="service-time-hours">6:00 PM – 7:00 PM</div></div>
+          <div class="service-time-row"><div class="service-time-day">Friday</div><div class="service-time-name">Fervent Prayer Meeting</div><div class="service-time-hours">6:00 PM – 8:00 PM</div></div>
+          <div class="service-time-row"><div class="service-time-day">Last Fri</div><div class="service-time-name">Night Vigil (Monthly)</div><div class="service-time-hours">7:00 PM – 11:00 PM</div></div>
+        </div>
+        <div style="text-align:center;margin-top:18px">
+          <button class="btn btn-outline" onclick="navigate('services')">📋 Full Schedule</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══ ABOUT ═════════════════════════════════ -->
+<div id="page-about" class="page page-content">
+  <div class="container">
+    <div class="page-header">
+      <div class="page-title">
+        <img src="/icf-logo-transparent.png"  data-logo="1" class="page-title-logo site-logo" alt=""/>
+        <div><h1>About ICF Gambia</h1><p>Our history, mission &amp; vision</p></div>
+      </div>
+    </div>
+    <div class="pastor-welcome">
+      <blockquote>"Welcome and thank you for your visit today. We are delighted to have you visit International Christian Fellowship Solution Centre. Our prayer is that you experience the love, presence, and transforming power of our Lord Jesus Christ as you fellowship with us."</blockquote>
+      <cite>— Pastor Mrs. Cecilia Romano &amp; Evangelist Daniel Romano</cite>
+    </div>
+    <div class="grid-2" style="margin-bottom:26px">
+      <div class="about-block">
+        <h2>Our History</h2>
+        <p>ICF Gambia is blessed to welcome people from all walks of life into the ministry. Through fellowship, discipleship, worship, outreach to the marginalized, church planting, and the teaching of God's Word, the ministry is committed to rebuilding lives, transforming communities, and restoring hope to families and individuals, both young and old.</p>
+        <p>The Solution Centre branch, known as The Crusaders, is located in Mariama Kunda, Kombo North — a vibrant hub of ministry, prayer, and community transformation in The Gambia, West Africa.</p>
+      </div>
+      <div>
+        <div class="about-block" style="margin-bottom:16px">
+          <h2>🎯 Mission Statement</h2>
+          <p>To glorify God by making disciples of all nations — through evangelism, discipleship, church planting, and compassionate outreach — empowering every believer to fulfill the Great Commission in the power of the Holy Spirit.</p>
+        </div>
+        <div class="about-block">
+          <h2>🌟 Vision Statement</h2>
+          <p>To be a Spirit-filled, Word-centered community of believers that transforms families, communities, and nations — planting thriving churches, raising dedicated disciples, and demonstrating the love of Christ to the marginalized and unreached.</p>
+        </div>
+      </div>
+    </div>
+    <div class="section-head" id="leadership"><div class="section-title">Church Leadership</div></div>
+    <div class="grid-4" style="max-width:540px;margin-bottom:32px">
+      <div class="leader-card"><div class="leader-avatar"><img src="pastor-cecilia-romano.jpg" alt="Pastor Mrs. Cecilia Romano, National Overseer of ICF" loading="lazy"/></div><div class="leader-name">Pastor Mrs. Cecilia Romano</div><div class="leader-role">National Overseer</div></div>
+      <div class="leader-card"><div class="leader-avatar"><img src="evangelist-daniel-romano.jpg" alt="Evangelist Daniel Romano, National Overseer of ICF" loading="lazy"/></div><div class="leader-name">Evangelist Daniel Romano</div><div class="leader-role">National Overseer</div></div>
+    </div>
+    <div class="section-head"><div class="section-title">What We Believe</div></div>
+    <div class="grid-3" style="margin-bottom:32px">
+      <div class="card"><div class="card-body"><div style="font-size:1.3rem;margin-bottom:8px">📖</div><div class="font-bold" style="margin-bottom:5px">Scripture</div><div class="text-dim text-sm">The Bible is the inspired, infallible Word of God — the final authority for faith and life.</div></div></div>
+      <div class="card"><div class="card-body"><div style="font-size:1.3rem;margin-bottom:8px">✝️</div><div class="font-bold" style="margin-bottom:5px">Salvation</div><div class="text-dim text-sm">Salvation comes through faith in Jesus Christ alone — His death, burial, and resurrection.</div></div></div>
+      <div class="card"><div class="card-body"><div style="font-size:1.3rem;margin-bottom:8px">🕊️</div><div class="font-bold" style="margin-bottom:5px">Holy Spirit</div><div class="text-dim text-sm">We believe in the baptism of the Holy Spirit and the operation of spiritual gifts today.</div></div></div>
+      <div class="card"><div class="card-body"><div style="font-size:1.3rem;margin-bottom:8px">⛪</div><div class="font-bold" style="margin-bottom:5px">The Church</div><div class="text-dim text-sm">The universal Church — the body of Christ — called to worship, fellowship, and mission.</div></div></div>
+      <div class="card"><div class="card-body"><div style="font-size:1.3rem;margin-bottom:8px">💧</div><div class="font-bold" style="margin-bottom:5px">Baptism</div><div class="text-dim text-sm">We practice water baptism by immersion as a public declaration of faith in Jesus Christ.</div></div></div>
+      <div class="card"><div class="card-body"><div style="font-size:1.3rem;margin-bottom:8px">🌍</div><div class="font-bold" style="margin-bottom:5px">Great Commission</div><div class="text-dim text-sm">Committed to fulfilling the Great Commission — making disciples of all nations (Matthew 28:19).</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SERVICES ══════════════════════════════ -->
+<div id="page-services" class="page page-content">
+  <div class="container">
+    <div class="page-header">
+      <div class="page-title">
+        <img src="/icf-logo-transparent.png"  data-logo="1" class="page-title-logo site-logo" alt=""/>
+        <div><h1>⛪ Ministries</h1><p>Join us for worship, prayer &amp; discipleship</p></div>
+      </div>
+    </div>
+    <div style="max-width:640px;margin-bottom:32px">
+      <div class="service-times">
+        <div class="service-time-row"><div class="service-time-day">Sunday</div><div class="service-time-name">Sunday Worship Service</div><div class="service-time-hours">10:00 AM – 12:00 Noon</div></div>
+        <div class="service-time-row"><div class="service-time-day">Wednesday</div><div class="service-time-name">Discipleship Class</div><div class="service-time-hours">6:00 PM – 7:00 PM</div></div>
+        <div class="service-time-row"><div class="service-time-day">Friday</div><div class="service-time-name">Fervent Prayer Meeting</div><div class="service-time-hours">6:00 PM – 8:00 PM</div></div>
+        <div class="service-time-row"><div class="service-time-day">Last Fri</div><div class="service-time-name">Night Vigil (Monthly)</div><div class="service-time-hours">7:00 PM – 11:00 PM</div></div>
+      </div>
+    </div>
+    <div class="about-block" style="max-width:640px;margin-bottom:22px">
+      <h2>🤝 Singles &amp; Married Couples Fellowship</h2>
+      <p>ICF Solution Centre hosts special fellowship meetings for singles and married couples — a space to grow in faith, build God-centered relationships, and receive biblical guidance for every season of life.</p>
+      <button class="btn btn-outline" onclick="navigate('events')">📅 View Events</button>
+    </div>
+    <div class="section-head" style="text-align:left"><div class="section-title">What to Expect</div></div>
+    <div class="grid-3" style="margin-bottom:32px">
+      <div class="card"><div class="card-body"><div style="font-size:1.3rem;margin-bottom:8px">🎵</div><div class="font-bold" style="margin-bottom:5px">Worship</div><div class="text-dim text-sm">Spirit-filled praise and worship that ushers you into the presence of God.</div></div></div>
+      <div class="card"><div class="card-body"><div style="font-size:1.3rem;margin-bottom:8px">📖</div><div class="font-bold" style="margin-bottom:5px">Word</div><div class="text-dim text-sm">Anointed, Bible-based preaching and teaching that transforms lives.</div></div></div>
+      <div class="card"><div class="card-body"><div style="font-size:1.3rem;margin-bottom:8px">🙏</div><div class="font-bold" style="margin-bottom:5px">Prayer</div><div class="text-dim text-sm">Corporate prayer, intercession, and ministry for healing and breakthrough.</div></div></div>
+    </div>
+    <div style="text-align:center">
+      <p class="text-dim" style="margin-bottom:13px">📍 ICF Solution Centre, The Crusaders, Mariama Kunda, Kombo North, The Gambia</p>
+      <button class="btn btn-primary" onclick="navigate('contact')">✉️ Get Directions</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ EVENTS ════════════════════════════════ -->
+<div id="page-events" class="page page-content">
+  <div class="container">
+    <div class="page-header">
+      <div class="page-header-inner">
+        <div class="page-title">
+          <img src="/icf-logo-transparent.png"  data-logo="1" class="page-title-logo site-logo" alt=""/>
+          <div><h1>📅 Events &amp; Crusades</h1><p>Upcoming ministry events and outreaches</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <select class="filter-select" onchange="renderEvents(this.value)">
+        <option value="all">All Types</option>
+        <option value="crusade">🔥 Crusades</option>
+        <option value="fellowship">🤝 Fellowship</option>
+        <option value="prayer">🙏 Prayer</option>
+        <option value="service">⛪ Services</option>
+        <option value="other">📌 Other</option>
+      </select>
+    </div>
+    <div class="grid-2" id="events-grid"><div class="empty-state"><div class="spinner"></div></div></div>
+  </div>
+</div>
+
+<!-- ═══ PRAYERS ═══════════════════════════════ -->
+<div id="page-prayers" class="page page-content">
+  <div class="container">
+    <div class="page-header">
+      <div class="page-header-inner">
+        <div class="page-title">
+          <img src="/icf-logo-transparent.png"  data-logo="1" class="page-title-logo site-logo" alt=""/>
+          <div><h1>🙏 Prayer Requests</h1><p>Lift each other up in prayer</p></div>
+        </div>
+        <button class="btn btn-primary" onclick="openPrayerModal()">🙏 Submit Request</button>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <select class="filter-select" onchange="renderPrayers(this.value)">
+        <option value="all">All Categories</option>
+        <option value="healing">💊 Healing</option>
+        <option value="financial">💰 Financial</option>
+        <option value="family">👨‍👩‍👧 Family</option>
+        <option value="spiritual">✝️ Spiritual</option>
+        <option value="other">📌 Other</option>
+      </select>
+    </div>
+    <div class="grid-3" id="prayers-grid"><div class="empty-state"><div class="spinner"></div></div></div>
+  </div>
+</div>
+
+<!-- ═══ BAPTISMS ══════════════════════════════ -->
+<div id="page-baptisms" class="page page-content">
+  <div class="container">
+    <div class="page-header">
+      <div class="page-header-inner">
+        <div class="page-title">
+          <img src="/icf-logo-transparent.png"  data-logo="1" class="page-title-logo site-logo" alt=""/>
+          <div><h1>💝 Baptism Booking</h1><p>Take your next step of faith</p></div>
+        </div>
+        <button class="btn btn-primary" onclick="openBaptismModal()">💧 Book My Baptism</button>
+      </div>
+    </div>
+    <div class="info-block" style="display:flex;align-items:flex-start;gap:16px;margin-bottom:24px">
+      <div style="font-size:1.7rem;flex-shrink:0">💧</div>
+      <div>
+        <div class="font-bold" style="margin-bottom:5px">What is Baptism?</div>
+        <p class="text-dim text-sm" style="line-height:1.7">Baptism is a public declaration of your faith in Jesus Christ. Fill in the form below to book your baptism date and our team will contact you to confirm your appointment.</p>
+      </div>
+    </div>
+    <div class="grid-3" id="baptisms-grid"><div class="empty-state"><div class="spinner"></div></div></div>
+  </div>
+</div>
+
+<!-- ═══ CONTACT ═══════════════════════════════ -->
+<div id="page-contact" class="page page-content">
+  <div class="container">
+    <div class="page-header">
+      <div class="page-title">
+        <img src="/icf-logo-transparent.png"  data-logo="1" class="page-title-logo site-logo" alt=""/>
+        <div><h1>📞 Contact Us</h1><p>We'd love to hear from you</p></div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-bottom:32px">
+      <div>
+        <div class="info-block" style="margin-bottom:16px">
+          <div class="font-bold" style="margin-bottom:14px">📍 Find Us</div>
+          <div class="info-row"><div class="info-icon">🏛️</div><div><div class="info-label">Church</div><div class="info-value">International Christian Fellowship<br/>Solution Centre, The Crusaders</div></div></div>
+          <div class="info-row"><div class="info-icon">📍</div><div><div class="info-label">Address</div><div class="info-value">Mariama Kunda, Kombo North<br/>The Gambia, West Africa</div></div></div>
+          <div class="info-row"><div class="info-icon">📞</div><div><div class="info-label">Phone</div><div class="info-value"><a href="tel:+2209526987" style="color:var(--gold)">+220 9526987</a></div></div></div>
+          <div class="info-row"><div class="info-icon">👥</div><div><div class="info-label">National Overseers</div><div class="info-value">Pastor Mrs. Cecilia Romano<br/>Evangelist Daniel Romano</div></div></div>
+        </div>
+        <div class="info-block">
+          <div class="font-bold" style="margin-bottom:13px">🕐 Service Times</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="flex items-center justify-between text-sm"><span class="text-dim">Sunday Worship</span><span class="font-bold">10:00 AM – 12 Noon</span></div>
+            <div class="flex items-center justify-between text-sm"><span class="text-dim">Wednesday Discipleship</span><span class="font-bold">6:00 – 7:00 PM</span></div>
+            <div class="flex items-center justify-between text-sm"><span class="text-dim">Friday Prayer Meeting</span><span class="font-bold">6:00 – 8:00 PM</span></div>
+            <div class="flex items-center justify-between text-sm"><span class="text-dim">Last Friday Night Vigil</span><span class="font-bold">7:00 – 11:00 PM</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="font-bold">✉️ Send Us a Message</div></div>
+        <div class="card-body">
+          <div id="contact-form">
+            <div class="form-group"><label class="form-label">Your Name</label><input class="form-input" type="text" id="contact-name" placeholder="Enter your full name"/></div>
+            <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" type="email" id="contact-email" placeholder="your@email.com"/></div>
+            <div class="form-group"><label class="form-label">Phone <span>(Optional)</span></label><input class="form-input" type="tel" id="contact-phone" placeholder="+220 XXXXXXX"/></div>
+            <div class="form-group"><label class="form-label">Subject</label>
+              <select class="form-select" id="contact-subject">
+                <option value="general">General Enquiry</option>
+                <option value="prayer">Prayer Request</option>
+                <option value="baptism">Baptism Question</option>
+                <option value="events">Events &amp; Programmes</option>
+                <option value="membership">Church Membership</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Message</label><textarea class="form-textarea" id="contact-message" rows="5" placeholder="Write your message here..."></textarea></div>
+            <button type="button" class="btn btn-primary btn-full" onclick="submitContactForm()">✉️ Send Message</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ LOGIN PAGE ════════════════════════════ -->
+<div id="page-login" class="page">
+  <div class="login-wrap">
+    <div class="login-card">
+      <img src="/icf-logo-transparent.png"  data-logo="1" alt="ICF" class="site-logo"/>
+      <h1>Welcome Back</h1>
+      <p>Sign in to your ICF member account</p>
+      <div style="text-align:left">
+        <div class="form-group"><label class="form-label">Email / Phone</label><input class="form-input" type="text" id="login-email" placeholder="Email address" autocomplete="username"/></div>
+        <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="login-pass" placeholder="••••••••••" autocomplete="current-password"/></div>
+        <button type="button" class="btn btn-blue btn-full" style="margin-top:8px" onclick="doMemberLogin()">👤 Sign In</button>
+        <button type="button" class="btn btn-outline btn-full" style="margin-top:8px" onclick="navigate('admin-login')">🛡️ Admin Login</button>
+      </div>
+      <div class="sep"></div>
+      <p class="text-xs text-dim">Don't have an account? <button onclick="navigate('signup')" style="background:none;border:none;cursor:pointer;color:var(--blue-g);font-weight:600;font-size:12px">Sign Up →</button></p>
+      <div style="margin-top:14px"><button class="btn btn-outline btn-sm" onclick="navigate('home')">← Back to Website</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SIGN UP PAGE ══════════════════════════ -->
+<div id="page-signup" class="page page-content">
+  <div class="container-sm">
+    <div class="page-header" style="text-align:center">
+      <img src="/icf-logo-transparent.png"  data-logo="1" alt="ICF" class="site-logo" style="margin-bottom:11px"/>
+      <h1 style="font-size:1.75rem;font-weight:800;color:#f4f1e8;text-shadow:0 1px 4px rgba(0,0,0,0.45)">📝 Join ICF Church Planters</h1>
+      <p style="margin-top:5px;color:rgba(232,236,244,0.82);text-shadow:0 1px 3px rgba(0,0,0,0.35)">Create your member account and become part of our church family</p>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div id="signup-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" data-i18n="fullName">Full Name *</label>
+              <input class="form-input" type="text" id="su-name" placeholder="Enter your full name" data-i18n-placeholder="fullName"/>
+              <div class="form-error" id="err-name">Please enter your full name</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="nationality">Nationality *</label>
+              <div class="country-selector-wrap" id="wrap-nationality">
+                <button type="button" class="country-select-btn" id="nat-btn-nationality" onclick="toggleCountryDropdown('nationality')">
+                  <span id="nat-display-nationality">🌍 Select your nationality</span>
+                  <span style="font-size:10px;color:var(--text-muted)">▾</span>
+                </button>
+                <div class="country-dropdown" id="dd-nationality" style="display:none">
+                  <div style="padding:8px"><input class="form-input" id="dd-nationality-search" placeholder="Search country..." class="country-search-input"/></div>
+                  <div class="country-list" id="list-nationality"></div>
+                </div>
+                <input type="hidden" id="su-nationality-val" value=""/>
+                <input type="hidden" id="su-nationality-code" value=""/>
+              </div>
+              <div class="form-error" id="err-nationality">Please select your nationality</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="phoneNumber">Phone Number *</label>
+            <div class="phone-input-row">
+              <div class="country-selector-wrap" style="width:auto">
+                <button type="button" class="phone-flag-btn" id="flag-btn-phone" onclick="toggleCountryDropdown('phone')">
+                  <span id="flag-display-phone">🇬🇲</span>
+                  <span id="code-display-phone">+220</span>
+                  <span style="font-size:10px;color:var(--text-muted)">▾</span>
+                </button>
+                <div class="country-dropdown" id="dd-phone" style="display:none">
+                  <div style="padding:8px"><input class="form-input" id="dd-phone-search" placeholder="Search country..." class="country-search-input"/></div>
+                  <div class="country-list" id="list-phone"></div>
+                </div>
+              </div>
+              <input class="form-input" type="tel" id="su-phone" placeholder="9XXXXXX" style="border-radius:0 var(--radius-sm) var(--radius-sm) 0"/>
+            </div>
+            <div class="form-error" id="err-phone">Please enter your phone number</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address <span>(Optional)</span></label>
+            <input class="form-input" type="email" id="su-email" placeholder="your@email.com"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Residential Address / Location *</label>
+            <input class="form-input" type="text" id="su-address" placeholder="Your home address or neighbourhood"/>
+            <div class="form-error" id="err-address">Please enter your address</div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Password *</label>
+              <input class="form-input" type="password" id="su-pass" placeholder="Create a password" oninput="checkPasswordStrength(this.value)"/>
+              <div class="pw-strength"><div class="pw-strength-bar" id="pw-bar"></div></div>
+              <div class="form-hint" id="pw-hint">Minimum 8 characters</div>
+              <div class="form-error" id="err-pass">Password must be at least 12 characters</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm Password *</label>
+              <input class="form-input" type="password" id="su-confirm" placeholder="Repeat your password"/>
+              <div class="form-error" id="err-confirm">Passwords do not match</div>
+            </div>
+          </div>
+          <div class="form-group" style="display:flex;align-items:flex-start;gap:9px">
+            <input type="checkbox" id="su-agree" style="margin-top:3px;accent-color:var(--gold);width:16px;height:16px;flex-shrink:0"/>
+            <label for="su-agree" style="font-size:13px;color:var(--text-dim);cursor:pointer;line-height:1.5">I agree to join ICF Gambia and be contacted regarding church activities and events.</label>
+          </div>
+          <div class="form-error" id="err-agree" style="margin-top:-8px;margin-bottom:10px">Please agree to the terms</div>
+          <button type="button" class="btn btn-blue btn-full btn-lg" onclick="submitSignup()">📝 Create Account</button>
+        </div>
+      </div>
+    </div>
+    <p class="text-xs text-dim" style="text-align:center;margin-top:13px">
+      Already have an account?
+      <button onclick="navigate('login')" style="background:none;border:none;cursor:pointer;color:var(--blue-g);font-weight:600;font-size:12px">Sign In →</button>
+    </p>
+  </div>
+</div>
+
+<!-- ═══ ADMIN LOGIN ═══════════════════════════ -->
+<div id="page-admin-login" class="page">
+  <div class="login-wrap">
+    <div class="login-card">
+      <img src="/icf-logo-transparent.png"  data-logo="1" alt="ICF" class="site-logo"/>
+      <h1>Admin Portal</h1>
+      <p>Sign in to the ICF church administration dashboard</p>
+      <div style="text-align:left">
+        <div class="form-group"><label class="form-label">Email / Username</label><input class="form-input" type="text" id="admin-email-input" placeholder="your-admin-email@example.com" autocomplete="username"/></div>
+        <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="admin-pass-input" placeholder="••••••••••" autocomplete="current-password"/></div>
+        <button type="button" class="btn btn-primary btn-full" style="margin-top:8px" onclick="doAdminLogin()">🛡️ Sign In</button>
+      </div>
+      <div class="sep"></div>
+      <p class="text-xs text-dim">Administrator accounts are managed through Supabase.</p>
+      <div style="margin-top:14px"><button class="btn btn-outline btn-sm" onclick="navigate('home')">← Back to Website</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ADMIN PORTAL ══════════════════════════ -->
+<div id="page-admin-portal" class="page">
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-title">🛡️ Church Admin Portal</div>
+      <button class="sidebar-item active" data-section="dashboard" onclick="setAdminSection('dashboard')"><span>📊</span> Dashboard</button>
+      <button class="sidebar-item" data-section="members" onclick="setAdminSection('members')"><span>👥</span> Members</button>
+      <button class="sidebar-item" data-section="prayers" onclick="setAdminSection('prayers')"><span>🙏</span> Prayer Requests</button>
+    <button class="sidebar-item" data-section="messages" onclick="setAdminSection('messages')"><span>✉️</span> Contact Messages</button>
+      <button class="sidebar-item" data-section="baptisms" onclick="setAdminSection('baptisms')"><span>💧</span> Baptisms</button>
+      <button class="sidebar-item" data-section="events" onclick="setAdminSection('events')"><span>📅</span> Events</button>
+      <button class="sidebar-item" data-section="nationality" onclick="setAdminSection('nationality')"><span>🌍</span> Nationality Stats</button>
+      <button class="sidebar-item" data-section="language" onclick="setAdminSection('language')"><span>🌐</span> Languages</button>
+      <button class="sidebar-item" data-section="sermons" onclick="setAdminSection('sermons')"><span>📖</span> Sermons</button>
+      <button class="sidebar-item" data-section="media" onclick="setAdminSection('media')"><span>📷</span> Media Gallery</button>
+      <button class="sidebar-item" data-section="theme-slider" onclick="setAdminSection('theme-slider')"><span>🎞️</span> Theme & Hero Slider</button>
+      <button class="sidebar-item" data-section="announcements" onclick="setAdminSection('announcements')"><span>📢</span> Announcements</button>
+      <button class="sidebar-item" data-section="newsletter" onclick="setAdminSection('newsletter')"><span>📧</span> Email Notifs</button>
+      <button class="sidebar-item" data-section="livestream" onclick="setAdminSection('livestream')"><span>🎥</span> Livestream</button>
+      <button class="sidebar-item" data-section="analytics" onclick="setAdminSection('analytics')"><span>📊</span> Analytics</button>
+      <button class="sidebar-item" data-section="settings" onclick="setAdminSection('settings')"><span>⚙️</span> Settings</button>
+      <div class="sep"></div>
+      <div style="padding:9px 11px;font-size:11.5px;color:var(--text-muted)">Logged in as: <span id="admin-user-name" style="color:var(--text)">Admin</span></div>
+      <button class="sidebar-item" onclick="adminLogout()" style="color:var(--rose)"><span>🚪</span> Logout</button>
+      <div style="padding:13px 11px 0;text-align:center">
+        <div style="font-size:9.5px;color:var(--text-muted);line-height:1.6">🛡️ Church Admin Portal<br/><span style="color:var(--gold);font-weight:600">Powered by RoyalFinTech</span></div>
+      </div>
+    </aside>
+    <div class="admin-content" id="admin-content"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<!-- ═══ SERMONS PAGE ════════════════════════════ -->
+<div id="page-sermons" class="page page-content">
+  <div class="container">
+    <div class="page-header">
+      <div class="page-header-inner">
+        <div class="page-title">
+          <div style="font-size:1.8rem">📖</div>
+          <div><h1>Sermons</h1><p>Messages from ICF Solution Centre</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="grid-2" id="sermons-grid"><div class="empty-state"><div class="spinner"></div></div></div>
+  </div>
+</div>
+
+<!-- ═══ GALLERY PAGE ════════════════════════════ -->
+<div id="page-gallery" class="page page-content">
+  <div class="container">
+    <div class="page-header">
+      <div class="page-header-inner">
+        <div class="page-title">
+          <div style="font-size:1.8rem">📷</div>
+          <div><h1>Media Gallery</h1><p>Photos from ICF Gambia's ministry and mission outreach</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Featured Mission Story: Fofuo Mission Outreach -->
+    <div class="card" style="margin-bottom:28px;border-left:3px solid var(--gold)">
+      <div class="card-body" style="padding:26px 28px">
+        <div class="badge badge-gold" style="margin-bottom:12px">🌍 Featured Mission</div>
+        <h2 style="margin-bottom:6px">Fofuo Mission Outreach — July 22, 2026</h2>
+        <p class="text-dim text-sm" style="margin-bottom:16px">Location: Fofuo, The Gambia</p>
+        <p class="text-dim" style="line-height:1.8;margin-bottom:14px">The ICF mission team continued its ongoing outreach and church-planting work in Fofuo, The Gambia. The day brought together children, youths, and adults for worship, teaching, prayer, fellowship, and community engagement.</p>
+        <p class="text-dim" style="line-height:1.8;margin-bottom:14px">Women received teaching focused on healthy marriage, while the children and youths joined together in joyful praise and worship. The team also prayed with the children and adults, and spent time listening to the experiences and challenges of the community.</p>
+        <p class="text-dim" style="line-height:1.8;margin-bottom:20px">The outreach reflects a mission journey that began approximately eight years ago and continues to grow through prayer, service, love, and genuine relationships within the community. What began as a cautious welcome has, over time and through consistent, unconditional love and service, grown into a warm and trusted relationship with the Fofuo community.</p>
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:6px">
+          <div class="card" style="text-align:center;padding:16px"><div style="font-size:1.6rem;font-weight:700;color:var(--gold)">70</div><div class="text-xs text-dim">Children</div></div>
+          <div class="card" style="text-align:center;padding:16px"><div style="font-size:1.6rem;font-weight:700;color:var(--gold)">13</div><div class="text-xs text-dim">Youths</div></div>
+          <div class="card" style="text-align:center;padding:16px"><div style="font-size:1.6rem;font-weight:700;color:var(--gold)">10</div><div class="text-xs text-dim">Adults</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mission Needs -->
+    <div class="card" style="margin-bottom:28px">
+      <div class="card-header"><div class="font-bold">🙏 How You Can Support the Fofuo Mission</div></div>
+      <div class="card-body">
+        <p class="text-dim text-sm" style="margin-bottom:16px;line-height:1.7">The mission currently has several needs as it continues to grow. Your prayer and partnership make a real difference.</p>
+        <div class="grid-2" style="gap:14px">
+          <div class="info-row"><div class="info-icon">🏗️</div><div><div class="info-label">Land</div><div class="info-value text-sm">A permanent meeting place and accommodation for missionaries</div></div></div>
+          <div class="info-row"><div class="info-icon">🪑</div><div><div class="info-label">Furnishings</div><div class="info-value text-sm">Seating and chairs for gatherings</div></div></div>
+          <div class="info-row"><div class="info-icon">🛏️</div><div><div class="info-label">Mission House</div><div class="info-value text-sm">Two beds and furniture</div></div></div>
+          <div class="info-row"><div class="info-icon">🚙</div><div><div class="info-label">Transportation</div><div class="info-value text-sm">A suitable vehicle — roads are very difficult, especially in the rainy season</div></div></div>
+          <div class="info-row"><div class="info-icon">🎵</div><div><div class="info-label">Youth Choir</div><div class="info-value text-sm">An iPad for the youth to download and practise songs</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Filter -->
+    <div id="gallery-filters" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px"></div>
+
+    <div class="grid-3" id="gallery-grid"><div class="empty-state"><div class="spinner"></div></div></div>
+  </div>
+</div>
+
+<!-- ═══ ANNOUNCEMENTS PAGE ══════════════════════ -->
+<div id="page-announcements" class="page page-content">
+  <div class="container">
+    <div class="page-header">
+      <div class="page-header-inner">
+        <div class="page-title">
+          <div style="font-size:1.8rem">📢</div>
+          <div><h1>Announcements</h1><p>Latest news from ICF Solution Centre</p></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px" id="announcements-grid">
+      <div class="empty-state"><div class="spinner"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MEMBERSHIP ════════════════════════════════ -->
+<div id="page-membership" class="page page-content">
+  <header class="pdf-hero">
+    <img src="/icf-logo-transparent.png"  data-logo="1" alt="ICF Logo" class="pdf-hero-logo site-logo fade-in-up"/>
+    <p class="pdf-tag fade-in-up">Faith &bull; Community &bull; Transformation</p>
+    <h1 class="fade-in-up">Membership, Mission &amp; Statement of Belief</h1>
+    <p class="pdf-desc fade-in-up">Becoming a member of ICF is more than joining an organisation — it's becoming part of the family of God. Below you'll find what membership means, what it asks of you, and the official document in full.</p>
+  </header>
+
+  <div class="container fade-in-up">
+    <div class="pdf-req-grid">
+      <div class="pdf-req-card glass-card">
+        <h4>🤝 Belonging</h4>
+        <p>Members are loved, prayed for, and supported by the church family — with counsel, teaching, and practical support in times of need.</p>
+      </div>
+      <div class="pdf-req-card glass-card">
+        <h4>🙏 Unity &amp; Responsibility</h4>
+        <p>Members commit to protecting church unity, sharing in its growth, and handling disagreements in a Scriptural, loving way.</p>
+      </div>
+      <div class="pdf-req-card glass-card">
+        <h4>🛠️ Serving</h4>
+        <p>Every member is encouraged to discover their gifts and take part in serving within at least one ministry of the church.</p>
+      </div>
+      <div class="pdf-req-card glass-card">
+        <h4>✝️ Faith</h4>
+        <p>Membership is grounded in our Statement of Belief — the Bible as God's Word, the Trinity, salvation through Christ, and a life of obedience and witness.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pdf-frame-wrap">
+    <div class="pdf-actions fade-in-up">
+      <button type="button" class="pdf-btn-primary" onclick="openFullscreenPDF('membershipPdfFrame')">📄 View Full Screen</button>
+      <a class="pdf-btn-ghost" href="membership-statement.pdf" download>⬇ Download ICF Membership Statement PDF</a>
+      <button type="button" class="pdf-btn-ghost" onclick="sharePDF('membership-statement.pdf','ICF Membership, Mission &amp; Statement of Belief')">🔗 Share PDF</button>
+    </div>
+    <div class="pdf-frame glass-card fade-in-up">
+      <iframe id="membershipPdfFrame" src="membership-statement.pdf" title="ICF Membership, Mission & Statement of Belief" allowfullscreen></iframe>
+    </div>
+    <div class="pdf-fallback glass-card" id="membershipPdfFallback">
+      <strong>Your browser cannot display this document.</strong>
+      <p><a class="pdf-btn-primary" href="membership-statement.pdf" target="_blank" rel="noopener" style="text-decoration:none">Click here to open the PDF</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ WORKER'S MANUAL ════════════════════════════════ -->
+<div id="page-workers" class="page page-content">
+  <header class="pdf-hero">
+    <img src="/icf-logo-transparent.png"  data-logo="1" alt="ICF Logo" class="pdf-hero-logo site-logo fade-in-up"/>
+    <p class="pdf-tag fade-in-up">Faith &bull; Community &bull; Transformation</p>
+    <h1 class="fade-in-up">Worker's Manual</h1>
+    <p class="pdf-desc fade-in-up">Guidelines for conduct and practice for everyone serving in the ICF Ministry and Movement — from qualifications and duties to our code of conduct and approach to discipline and growth.</p>
+  </header>
+
+  <div class="pdf-frame-wrap">
+    <div class="pdf-actions fade-in-up">
+      <button type="button" class="pdf-btn-primary" onclick="openFullscreenPDF('workersPdfFrame')">📄 View Full Screen</button>
+      <a class="pdf-btn-ghost" href="workers-manual.pdf" download>⬇ Download ICF Workers’ Manual PDF</a>
+      <button type="button" class="pdf-btn-ghost" onclick="sharePDF('workers-manual.pdf',&quot;ICF Worker's Manual&quot;)">🔗 Share PDF</button>
+    </div>
+    <div class="pdf-frame glass-card fade-in-up">
+      <iframe id="workersPdfFrame" src="workers-manual.pdf" title="ICF Worker's Manual" allowfullscreen></iframe>
+    </div>
+    <div class="pdf-fallback glass-card" id="workersPdfFallback">
+      <strong>Your browser cannot display this document.</strong>
+      <p><a class="pdf-btn-primary" href="workers-manual.pdf" target="_blank" rel="noopener" style="text-decoration:none">Click here to open the PDF</a></p>
+    </div>
+  </div>
+</div>
+
+<div class="pdf-toast" id="pdfToast" role="status" aria-live="polite"></div>
+
+</main>
+
+<!-- ═══ MODALS ════════════════════════════════ -->
+
+<!-- Prayer Modal -->
+<div class="modal-overlay" id="prayer-modal" onclick="if(event.target===this)closePrayerModal()">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">🙏 Submit Prayer Request</div><button class="modal-close" onclick="closePrayerModal()">✕</button></div>
+    <div id="prayer-form">
+      <div class="form-group" id="prayer-name-group"><label class="form-label">Your Name</label><input class="form-input" type="text" id="pf-name" placeholder="Enter your name"/></div>
+      <div class="form-group"><label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="anon-checkbox" onchange="toggleAnonymous()" style="accent-color:var(--gold);width:16px;height:16px"/> Submit anonymously</label></div>
+      <div class="form-group"><label class="form-label">Email <span>(Optional – for updates)</span></label><input class="form-input" type="email" id="pf-email" placeholder="your@email.com"/></div>
+      <div class="form-group"><label class="form-label">Category</label>
+        <select class="form-select" id="pf-category">
+          <option value="healing">💊 Healing</option>
+          <option value="financial">💰 Financial</option>
+          <option value="family">👨‍👩‍👧 Family</option>
+          <option value="spiritual">✝️ Spiritual Growth</option>
+          <option value="other" selected>📌 Other</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Prayer Request</label><textarea class="form-textarea" id="pf-request" rows="4" placeholder="Share your prayer request..."></textarea></div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button type="button" class="btn btn-outline" style="flex:1" onclick="closePrayerModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" style="flex:2" onclick="submitPrayerForm()">🙏 Submit Request</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Baptism Modal -->
+<div class="modal-overlay" id="baptism-modal" onclick="if(event.target===this)closeBaptismModal()">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">💧 Book a Baptism</div><button class="modal-close" onclick="closeBaptismModal()">✕</button></div>
+    <div id="baptism-form">
+      <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" type="text" id="bf-name" placeholder="Enter your full name"/></div>
+      <div class="form-group"><label class="form-label">Phone Number *</label><input class="form-input" type="tel" id="bf-phone" placeholder="+220 9XXXXXX"/></div>
+      <div class="form-group"><label class="form-label">Email <span>(Optional)</span></label><input class="form-input" type="email" id="bf-email" placeholder="your@email.com"/></div>
+      <div class="form-group"><label class="form-label">Brief Testimony <span>(Optional)</span></label><textarea class="form-textarea" id="bf-testimony" rows="3" placeholder="Share how you came to faith..."></textarea></div>
+      <div class="form-group"><label class="form-label">Preferred Baptism Date *</label><input class="form-input" type="date" id="bf-date"/></div>
+      <div style="display:flex;gap:10px">
+        <button type="button" class="btn btn-outline" style="flex:1" onclick="closeBaptismModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" style="flex:2" onclick="submitBaptismForm()">💧 Submit Booking</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Note Modal -->
+<div class="modal-overlay" id="admin-note-modal" onclick="if(event.target===this)closeAdminNoteModal()">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header"><div class="modal-title">📝 Admin Note</div><button class="modal-close" onclick="closeAdminNoteModal()">✕</button></div>
+    <div class="form-group"><label class="form-label">Note / Update</label><textarea class="form-textarea" id="admin-note-text" rows="5" placeholder="Add a note or update..."></textarea></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-outline" style="flex:1" onclick="closeAdminNoteModal()">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveAdminNote()">💾 Save Note</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Member Modal -->
+<div class="modal-overlay" id="add-member-modal" onclick="if(event.target===this)closeAddMemberModal()">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">👤 Add Member</div><button class="modal-close" onclick="closeAddMemberModal()">✕</button></div>
+    <div id="add-member-form">
+      <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" type="text" id="am-name" placeholder="Enter full name"/></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="am-email" placeholder="member@email.com"/></div>
+      <div class="form-group"><label class="form-label">Phone</label><input class="form-input" type="tel" id="am-phone" placeholder="+220 XXXXXXX"/></div>
+      <div class="form-group"><label class="form-label">Role</label>
+        <select class="form-select" id="am-role">
+          <option value="member">Member</option>
+          <option value="leader">Leader</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button type="button" class="btn btn-outline" style="flex:1" onclick="closeAddMemberModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" style="flex:2" onclick="submitAddMemberForm()">+ Add Member</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Event Modal -->
+<div class="modal-overlay" id="add-event-modal" onclick="if(event.target===this)closeAddEventModal()">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">📅 Add Event</div><button class="modal-close" onclick="closeAddEventModal()">✕</button></div>
+    <div id="add-event-form">
+      <div class="form-group"><label class="form-label">Event Title *</label><input class="form-input" type="text" id="ae-title" placeholder="Event name"/></div>
+      <div class="form-group"><label class="form-label">Type</label>
+        <select class="form-select" id="ae-type">
+          <option value="crusade">🔥 Crusade</option>
+          <option value="fellowship">🤝 Fellowship</option>
+          <option value="prayer">🙏 Prayer Meeting</option>
+          <option value="service">⛪ Service</option>
+          <option value="other">📌 Other</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Start Date *</label><input class="form-input" type="date" id="ae-date"/></div>
+        <div class="form-group"><label class="form-label">End Date <span>(Optional)</span></label><input class="form-input" type="date" id="ae-enddate"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Location *</label><input class="form-input" type="text" id="ae-location" placeholder="Venue or location"/></div>
+      <div class="form-group"><label class="form-label">Speaker <span>(Optional)</span></label><input class="form-input" type="text" id="ae-speaker" placeholder="Speaker name"/></div>
+      <div class="form-group"><label class="form-label">Description *</label><textarea class="form-textarea" id="ae-desc" rows="3" placeholder="Brief description..."></textarea></div>
+      <div style="display:flex;gap:10px">
+        <button type="button" class="btn btn-outline" style="flex:1" onclick="closeAddEventModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" style="flex:2" onclick="submitAddEventForm()">📅 Add Event</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<!-- ═══ FOOTER ════════════════════════════════ -->
+<footer id="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <img src="/icf-logo-transparent.png"  data-logo="1" alt="ICF" class="site-logo"/>
+      <h3>ICF Solution Centre</h3>
+      <p style="color:var(--gold);font-size:10.5px;font-weight:600;letter-spacing:.06em">THE CRUSADERS – MARIAMA KUNDA</p>
+      <p>International Christian Fellowship<br/>Kombo North, The Gambia, West Africa</p>
+      <p style="margin-top:7px"><a href="tel:+2209526987" style="color:var(--gold);font-weight:600">📞 +220 9526987</a></p>
+    </div>
+    <div class="footer-col">
+      <h4>Ministry</h4>
+      <a onclick="navigate('about')">About Us</a>
+      <a onclick="navigate('services')">Service Times</a>
+      <a onclick="navigate('events')">Events &amp; Crusades</a>
+      <a onclick="navigate('about')">Church Planting</a>
+    </div>
+    <div class="footer-col">
+      <h4>Connect</h4>
+      <a onclick="navigate('prayers')">Prayer Requests</a>
+      <a onclick="navigate('baptisms')">Book Baptism</a>
+      <a onclick="navigate('contact')">Contact Us</a>
+      <a onclick="navigate('signup')">Join Our Church</a>
+      <a onclick="navigate('sermons')">Sermons</a>
+      <a onclick="navigate('gallery')">Media Gallery</a>
+      <a onclick="navigate('announcements')">Announcements</a>
+      <a onclick="navigate('membership')">Membership</a>
+      <a onclick="navigate('workers')">Worker's Manual</a>
+    </div>
+    <div class="footer-col">
+      <h4>Leadership</h4>
+      <a onclick="navigate('about')">Pastor Mrs. Cecilia Romano</a>
+      <a onclick="navigate('about')">Evg. Daniel Romano</a>
+      <button onclick="navigate('admin-login')">🛡️ Admin Portal</button>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2024–2026 International Christian Fellowship – Solution Centre. All rights reserved.</p>
+    <div class="footer-powered">Powered by RoyalFinTech</div>
+  </div>
+</footer>
+
+</body>
+</html>

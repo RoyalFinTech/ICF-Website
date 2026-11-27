@@ -1,0 +1,112 @@
+<!-- ═══ MODALS ════════════════════════════════ -->
+
+<!-- Prayer Modal -->
+<div class="modal-overlay" id="prayer-modal" onclick="if(event.target===this)closePrayerModal()">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">🙏 Submit Prayer Request</div><button class="modal-close" onclick="closePrayerModal()">✕</button></div>
+    <div id="prayer-form">
+      <div class="form-group" id="prayer-name-group"><label class="form-label">Your Name</label><input class="form-input" type="text" id="pf-name" placeholder="Enter your name"/></div>
+      <div class="form-group"><label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="anon-checkbox" onchange="toggleAnonymous()" style="accent-color:var(--gold);width:16px;height:16px"/> Submit anonymously</label></div>
+      <div class="form-group"><label class="form-label">Email <span>(Optional – for updates)</span></label><input class="form-input" type="email" id="pf-email" placeholder="your@email.com"/></div>
+      <div class="form-group"><label class="form-label">Category</label>
+        <select class="form-select" id="pf-category">
+          <option value="healing">💊 Healing</option>
+          <option value="financial">💰 Financial</option>
+          <option value="family">👨‍👩‍👧 Family</option>
+          <option value="spiritual">✝️ Spiritual Growth</option>
+          <option value="other" selected>📌 Other</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Prayer Request</label><textarea class="form-textarea" id="pf-request" rows="4" placeholder="Share your prayer request..."></textarea></div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button type="button" class="btn btn-outline" style="flex:1" onclick="closePrayerModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" style="flex:2" onclick="submitPrayerForm()">🙏 Submit Request</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Baptism Modal -->
+<div class="modal-overlay" id="baptism-modal" onclick="if(event.target===this)closeBaptismModal()">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">💧 Book a Baptism</div><button class="modal-close" onclick="closeBaptismModal()">✕</button></div>
+    <div id="baptism-form">
+      <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" type="text" id="bf-name" placeholder="Enter your full name"/></div>
+      <div class="form-group"><label class="form-label">Phone Number *</label><input class="form-input" type="tel" id="bf-phone" placeholder="+220 9XXXXXX"/></div>
+      <div class="form-group"><label class="form-label">Email <span>(Optional)</span></label><input class="form-input" type="email" id="bf-email" placeholder="your@email.com"/></div>
+      <div class="form-group"><label class="form-label">Brief Testimony <span>(Optional)</span></label><textarea class="form-textarea" id="bf-testimony" rows="3" placeholder="Share how you came to faith..."></textarea></div>
+      <div class="form-group"><label class="form-label">Preferred Baptism Date *</label><input class="form-input" type="date" id="bf-date"/></div>
+      <div style="display:flex;gap:10px">
+        <button type="button" class="btn btn-outline" style="flex:1" onclick="closeBaptismModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" style="flex:2" onclick="submitBaptismForm()">💧 Submit Booking</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Note Modal -->
+<div class="modal-overlay" id="admin-note-modal" onclick="if(event.target===this)closeAdminNoteModal()">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header"><div class="modal-title">📝 Admin Note</div><button class="modal-close" onclick="closeAdminNoteModal()">✕</button></div>
+    <div class="form-group"><label class="form-label">Note / Update</label><textarea class="form-textarea" id="admin-note-text" rows="5" placeholder="Add a note or update..."></textarea></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-outline" style="flex:1" onclick="closeAdminNoteModal()">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveAdminNote()">💾 Save Note</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Member Modal -->
+<div class="modal-overlay" id="add-member-modal" onclick="if(event.target===this)closeAddMemberModal()">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">👤 Add Member</div><button class="modal-close" onclick="closeAddMemberModal()">✕</button></div>
+    <div id="add-member-form">
+      <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" type="text" id="am-name" placeholder="Enter full name"/></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="am-email" placeholder="member@email.com"/></div>
+      <div class="form-group"><label class="form-label">Phone</label><input class="form-input" type="tel" id="am-phone" placeholder="+220 XXXXXXX"/></div>
+      <div class="form-group"><label class="form-label">Role</label>
+        <select class="form-select" id="am-role">
+          <option value="member">Member</option>
+          <option value="leader">Leader</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button type="button" class="btn btn-outline" style="flex:1" onclick="closeAddMemberModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" style="flex:2" onclick="submitAddMemberForm()">+ Add Member</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Event Modal -->
+<div class="modal-overlay" id="add-event-modal" onclick="if(event.target===this)closeAddEventModal()">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">📅 Add Event</div><button class="modal-close" onclick="closeAddEventModal()">✕</button></div>
+    <div id="add-event-form">
+      <div class="form-group"><label class="form-label">Event Title *</label><input class="form-input" type="text" id="ae-title" placeholder="Event name"/></div>
+      <div class="form-group"><label class="form-label">Type</label>
+        <select class="form-select" id="ae-type">
+          <option value="crusade">🔥 Crusade</option>
+          <option value="fellowship">🤝 Fellowship</option>
+          <option value="prayer">🙏 Prayer Meeting</option>
+          <option value="service">⛪ Service</option>
+          <option value="other">📌 Other</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Start Date *</label><input class="form-input" type="date" id="ae-date"/></div>
+        <div class="form-group"><label class="form-label">End Date <span>(Optional)</span></label><input class="form-input" type="date" id="ae-enddate"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Location *</label><input class="form-input" type="text" id="ae-location" placeholder="Venue or location"/></div>
+      <div class="form-group"><label class="form-label">Speaker <span>(Optional)</span></label><input class="form-input" type="text" id="ae-speaker" placeholder="Speaker name"/></div>
+      <div class="form-group"><label class="form-label">Description *</label><textarea class="form-textarea" id="ae-desc" rows="3" placeholder="Brief description..."></textarea></div>
+      <div style="display:flex;gap:10px">
+        <button type="button" class="btn btn-outline" style="flex:1" onclick="closeAddEventModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" style="flex:2" onclick="submitAddEventForm()">📅 Add Event</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>

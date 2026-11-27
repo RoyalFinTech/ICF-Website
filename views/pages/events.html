@@ -1,0 +1,24 @@
+<!-- ═══ EVENTS ════════════════════════════════ -->
+<div id="page-events" class="page page-content">
+  <div class="container">
+    <div class="page-header">
+      <div class="page-header-inner">
+        <div class="page-title">
+          <img src="/icf-logo-transparent.png"  data-logo="1" class="page-title-logo site-logo" alt=""/>
+          <div><h1>📅 Events &amp; Crusades</h1><p>Upcoming ministry events and outreaches</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <select class="filter-select" onchange="renderEvents(this.value)">
+        <option value="all">All Types</option>
+        <option value="crusade">🔥 Crusades</option>
+        <option value="fellowship">🤝 Fellowship</option>
+        <option value="prayer">🙏 Prayer</option>
+        <option value="service">⛪ Services</option>
+        <option value="other">📌 Other</option>
+      </select>
+    </div>
+    <div class="grid-2" id="events-grid"><div class="empty-state"><div class="spinner"></div></div></div>
+  </div>
+</div>

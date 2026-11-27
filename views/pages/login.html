@@ -1,0 +1,19 @@
+<!-- ═══ LOGIN PAGE ════════════════════════════ -->
+<div id="page-login" class="page">
+  <div class="login-wrap">
+    <div class="login-card">
+      <img src="/icf-logo-transparent.png"  data-logo="1" alt="ICF" class="site-logo"/>
+      <h1>Welcome Back</h1>
+      <p>Sign in to your ICF member account</p>
+      <div style="text-align:left">
+        <div class="form-group"><label class="form-label">Email / Phone</label><input class="form-input" type="text" id="login-email" placeholder="Email address" autocomplete="username"/></div>
+        <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="login-pass" placeholder="••••••••••" autocomplete="current-password"/></div>
+        <button type="button" class="btn btn-blue btn-full" style="margin-top:8px" onclick="doMemberLogin()">👤 Sign In</button>
+        <button type="button" class="btn btn-outline btn-full" style="margin-top:8px" onclick="navigate('admin-login')">🛡️ Admin Login</button>
+      </div>
+      <div class="sep"></div>
+      <p class="text-xs text-dim">Don't have an account? <button onclick="navigate('signup')" style="background:none;border:none;cursor:pointer;color:var(--blue-g);font-weight:600;font-size:12px">Sign Up →</button></p>
+      <div style="margin-top:14px"><button class="btn btn-outline btn-sm" onclick="navigate('home')">← Back to Website</button></div>
+    </div>
+  </div>
+</div>

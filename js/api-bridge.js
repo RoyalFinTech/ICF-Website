@@ -12,7 +12,7 @@
   var queues = Object.create(null);
 
   function getToken() { return localStorage.getItem(TOKEN) || ''; }
-  function request(url, options) {
+  function request(url, options, timeoutOverrideMs) {
     options = options || {};
     var headers = Object.assign({}, options.headers || {});
     var formData = typeof FormData !== 'undefined' && options.body instanceof FormData;
@@ -22,7 +22,8 @@
     }
     if (getToken() && !headers.Authorization) headers.Authorization = 'Bearer ' + getToken();
     var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    var timeoutId = controller ? window.setTimeout(function () { controller.abort(); }, 8000) : null;
+    var timeoutMs = typeof timeoutOverrideMs === 'number' ? timeoutOverrideMs : 8000;
+    var timeoutId = controller ? window.setTimeout(function () { controller.abort(); }, timeoutMs) : null;
     if (controller && !options.signal) options.signal = controller.signal;
     return fetch(API + url,Object.assign({},options,{headers:headers})).then(function (response) {
       return response.text().then(function (raw) {
@@ -55,9 +56,9 @@
     host.insertBefore(card,host.firstChild);
   }
   function showPublicDataFailure(error) {
-    var waiting = document.querySelectorAll('main .empty-state .spinner');
+    var waiting = document.querySelectorAll('main .empty-state .spinner, #admin-content > .spinner');
     waiting.forEach(function (spinner) {
-      var state = spinner.closest('.empty-state');
+      var state = spinner.closest('.empty-state') || spinner.parentElement;
       if (!state) return;
       state.innerHTML = '<div class="empty-state-emoji">📡</div><h3>Live updates are taking a break</h3><p>The rest of the ICF website is available. Please refresh to try loading this section again.</p>';
     });
@@ -130,10 +131,10 @@
     refreshViews();
   }
   function loadPublic() {
-    return request('/public-data').catch(function (firstError) {
+    return request('/public-data',null,4500).catch(function (firstError) {
       console.warn('Public data request did not complete; retrying once:',firstError.message);
-      return new Promise(function (resolve) { window.setTimeout(resolve,1200); })
-        .then(function () { return request('/public-data'); });
+      return new Promise(function (resolve) { window.setTimeout(resolve,400); })
+        .then(function () { return request('/public-data',null,4500); });
     }).then(function (data) {
       hydrate(data);
       window.dispatchEvent(new CustomEvent('icf:data-ready',{detail:{ok:true}}));

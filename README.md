@@ -1,6 +1,6 @@
 # ICF Gambia website + Supabase backend
 
-The existing ICF Gambia single-page website, real church photographs, and PDFs are retained. Express serves the existing index (4).html as the homepage, so its filename and design do not need to be replaced.
+The existing ICF Gambia single-page website, real church photographs, and PDFs are retained. Express serves the existing index.html as the homepage, so its filename and design do not need to be replaced.
 
 ## Architecture
 - Render hosts the Node.js/Express website and API.
@@ -36,3 +36,12 @@ Supabase free projects do not include automatic database backups. Configure the 
 
 ## Before production
 Configure Supabase and Render, grant an administrator, test /health, sign-in, forms, admin edits, file uploads, mobile layout and browser console, then run and restore-test a backup.
+
+
+## Modular website structure
+
+The Render application assembles the homepage from server-side partials in `views/`. Navigation, the main shell, each public/admin page, modal markup and footer are maintained independently. The browser still receives one complete HTML document, avoiding a client-side include waterfall.
+
+Styles live in `css/site.css`. Browser code is split into focused files in `js/` (hero slider, splash lifecycle, public application, admin modules, API bridge and UI repair). The favicon is served separately as `/favicon.png`.
+
+Run `npm run build:site` after changing view partials to regenerate the root `index.html` used by static hosting. Run `npm run validate:site` before committing to verify the assembled pages and assets.

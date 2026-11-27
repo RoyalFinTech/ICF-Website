@@ -1,0 +1,31 @@
+<!-- ═══ ADMIN PORTAL ══════════════════════════ -->
+<div id="page-admin-portal" class="page">
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-title">🛡️ Church Admin Portal</div>
+      <button class="sidebar-item active" data-section="dashboard" onclick="setAdminSection('dashboard')"><span>📊</span> Dashboard</button>
+      <button class="sidebar-item" data-section="members" onclick="setAdminSection('members')"><span>👥</span> Members</button>
+      <button class="sidebar-item" data-section="prayers" onclick="setAdminSection('prayers')"><span>🙏</span> Prayer Requests</button>
+    <button class="sidebar-item" data-section="messages" onclick="setAdminSection('messages')"><span>✉️</span> Contact Messages</button>
+      <button class="sidebar-item" data-section="baptisms" onclick="setAdminSection('baptisms')"><span>💧</span> Baptisms</button>
+      <button class="sidebar-item" data-section="events" onclick="setAdminSection('events')"><span>📅</span> Events</button>
+      <button class="sidebar-item" data-section="nationality" onclick="setAdminSection('nationality')"><span>🌍</span> Nationality Stats</button>
+      <button class="sidebar-item" data-section="language" onclick="setAdminSection('language')"><span>🌐</span> Languages</button>
+      <button class="sidebar-item" data-section="sermons" onclick="setAdminSection('sermons')"><span>📖</span> Sermons</button>
+      <button class="sidebar-item" data-section="media" onclick="setAdminSection('media')"><span>📷</span> Media Gallery</button>
+      <button class="sidebar-item" data-section="theme-slider" onclick="setAdminSection('theme-slider')"><span>🎞️</span> Theme & Hero Slider</button>
+      <button class="sidebar-item" data-section="announcements" onclick="setAdminSection('announcements')"><span>📢</span> Announcements</button>
+      <button class="sidebar-item" data-section="newsletter" onclick="setAdminSection('newsletter')"><span>📧</span> Email Notifs</button>
+      <button class="sidebar-item" data-section="livestream" onclick="setAdminSection('livestream')"><span>🎥</span> Livestream</button>
+      <button class="sidebar-item" data-section="analytics" onclick="setAdminSection('analytics')"><span>📊</span> Analytics</button>
+      <button class="sidebar-item" data-section="settings" onclick="setAdminSection('settings')"><span>⚙️</span> Settings</button>
+      <div class="sep"></div>
+      <div style="padding:9px 11px;font-size:11.5px;color:var(--text-muted)">Logged in as: <span id="admin-user-name" style="color:var(--text)">Admin</span></div>
+      <button class="sidebar-item" onclick="adminLogout()" style="color:var(--rose)"><span>🚪</span> Logout</button>
+      <div style="padding:13px 11px 0;text-align:center">
+        <div style="font-size:9.5px;color:var(--text-muted);line-height:1.6">🛡️ Church Admin Portal<br/><span style="color:var(--gold);font-weight:600">Powered by RoyalFinTech</span></div>
+      </div>
+    </aside>
+    <div class="admin-content" id="admin-content"><div class="spinner"></div></div>
+  </div>
+</div>

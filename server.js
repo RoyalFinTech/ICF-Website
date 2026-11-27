@@ -1,8 +1,8 @@
 'use strict';
 require('dotenv').config();
 const crypto = require('node:crypto');
-const fs = require('node:fs');
 const path = require('node:path');
+const buildHomepage = require('./scripts/build-homepage');
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -14,7 +14,6 @@ const { createClient } = require('@supabase/supabase-js');
 const app = express();
 const PORT = Number(process.env.PORT || 10000);
 const ROOT = __dirname;
-const INDEX_FILE = path.join(ROOT, 'index (4).html');
 const URL = (process.env.SUPABASE_URL || '').replace(/\/+$/, '');
 const ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
@@ -424,14 +423,22 @@ app.post('/api/admin/uploads', requireStorage, requireAdmin, upload.single('file
   }
 });
 
+let homepageHtml = null;
 app.get('/',function (req,res) {
-  if (!fs.existsSync(INDEX_FILE)) return fail(res,500,'The church homepage file is missing.');
-  res.sendFile(INDEX_FILE);
+  try {
+    if (homepageHtml === null) homepageHtml = buildHomepage();
+    res.status(200).type('html')
+      .set('Cache-Control','public, max-age=0, must-revalidate')
+      .send(homepageHtml);
+  } catch (error) {
+    console.error('Homepage assembly failed:',error.message);
+    fail(res,500,'The church homepage could not be assembled.');
+  }
 });
 app.get('/index.html',function (req,res) { res.redirect(302,'/'); });
 app.get(['/server.js','/package.json','/package-lock.json','/README.md','/RENDER_DEPLOYMENT.md','/PROJECT_REPAIR_REPORT.md'],function (req,res) { res.sendStatus(404); });
 // Keep implementation and deployment-only files out of the public static surface.
-app.use(['/supabase','/scripts','/.github','/.git'], function (req,res) { res.sendStatus(404); });
+app.use(['/supabase','/scripts','/.github','/.git','/views'], function (req,res) { res.sendStatus(404); });
 app.use(express.static(ROOT,{ index:false, dotfiles:'ignore', maxAge:process.env.NODE_ENV === 'production' ? '1h' : 0 }));
 app.use(function (error,req,res,next) {
   if (res.headersSent) return next(error);

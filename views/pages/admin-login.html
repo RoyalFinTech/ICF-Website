@@ -1,0 +1,18 @@
+<!-- ═══ ADMIN LOGIN ═══════════════════════════ -->
+<div id="page-admin-login" class="page">
+  <div class="login-wrap">
+    <div class="login-card">
+      <img src="/icf-logo-transparent.png"  data-logo="1" alt="ICF" class="site-logo"/>
+      <h1>Admin Portal</h1>
+      <p>Sign in to the ICF church administration dashboard</p>
+      <div style="text-align:left">
+        <div class="form-group"><label class="form-label">Email / Username</label><input class="form-input" type="text" id="admin-email-input" placeholder="your-admin-email@example.com" autocomplete="username"/></div>
+        <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="admin-pass-input" placeholder="••••••••••" autocomplete="current-password"/></div>
+        <button type="button" class="btn btn-primary btn-full" style="margin-top:8px" onclick="doAdminLogin()">🛡️ Sign In</button>
+      </div>
+      <div class="sep"></div>
+      <p class="text-xs text-dim">Administrator accounts are managed through Supabase.</p>
+      <div style="margin-top:14px"><button class="btn btn-outline btn-sm" onclick="navigate('home')">← Back to Website</button></div>
+    </div>
+  </div>
+</div>

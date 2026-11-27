@@ -27,6 +27,13 @@
     slides.forEach(function (slide, i) {
       slide.classList.toggle('active', i === current);
       slide.setAttribute('aria-hidden', i === current ? 'false' : 'true');
+      if (i === current) {
+        var image = slide.querySelector('img[data-src]');
+        if (image) {
+          var source = image.getAttribute('data-src');
+          if (source) { image.src = source; image.removeAttribute('data-src'); }
+        }
+      }
     });
     dots.forEach(function (dot, i) {
       dot.classList.toggle('active', i === current);

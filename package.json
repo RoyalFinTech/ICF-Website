@@ -10,7 +10,9 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "backup": "node scripts/backup-supabase.js"
+    "backup": "node scripts/backup-supabase.js",
+    "build:site": "node scripts/build-homepage.js",
+    "validate:site": "node scripts/validate-site.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.750.0",

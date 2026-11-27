@@ -1,0 +1,28 @@
+<!-- ═══ WORKER'S MANUAL ════════════════════════════════ -->
+<div id="page-workers" class="page page-content">
+  <header class="pdf-hero">
+    <img src="/icf-logo-transparent.png"  data-logo="1" alt="ICF Logo" class="pdf-hero-logo site-logo fade-in-up"/>
+    <p class="pdf-tag fade-in-up">Faith &bull; Community &bull; Transformation</p>
+    <h1 class="fade-in-up">Worker's Manual</h1>
+    <p class="pdf-desc fade-in-up">Guidelines for conduct and practice for everyone serving in the ICF Ministry and Movement — from qualifications and duties to our code of conduct and approach to discipline and growth.</p>
+  </header>
+
+  <div class="pdf-frame-wrap">
+    <div class="pdf-actions fade-in-up">
+      <button type="button" class="pdf-btn-primary" onclick="openFullscreenPDF('workersPdfFrame')">📄 View Full Screen</button>
+      <a class="pdf-btn-ghost" href="workers-manual.pdf" download>⬇ Download ICF Workers’ Manual PDF</a>
+      <button type="button" class="pdf-btn-ghost" onclick="sharePDF('workers-manual.pdf',&quot;ICF Worker's Manual&quot;)">🔗 Share PDF</button>
+    </div>
+    <div class="pdf-frame glass-card fade-in-up">
+      <iframe id="workersPdfFrame" src="workers-manual.pdf" title="ICF Worker's Manual" allowfullscreen></iframe>
+    </div>
+    <div class="pdf-fallback glass-card" id="workersPdfFallback">
+      <strong>Your browser cannot display this document.</strong>
+      <p><a class="pdf-btn-primary" href="workers-manual.pdf" target="_blank" rel="noopener" style="text-decoration:none">Click here to open the PDF</a></p>
+    </div>
+  </div>
+</div>
+
+<div class="pdf-toast" id="pdfToast" role="status" aria-live="polite"></div>
+
+</main>
