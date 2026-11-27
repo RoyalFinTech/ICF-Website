@@ -33,6 +33,11 @@ if (serverSource.includes('const URL =') ||
   throw new Error('LiveKit CSP must use the native URL constructor and include the configured LiveKit host allowlist.');
 }
 
+const countryData = require('../js/country-data');
+if (countryData.count() !== 249 || !countryData.getCountry('GM') || !countryData.getCountry('NG')) throw new Error('Country data module must include the full ISO country list and flags.');
+const signupAuthSource = fs.readFileSync(path.join(__dirname, '..', 'routes/auth.js'), 'utf8');
+if (!signupAuthSource.includes("countryData.getCountry(nationalityCode)") || !signupAuthSource.includes("nationality:country.name")) throw new Error('Server-side nationality validation and canonical persistence are missing.');
+if (!signupAuthSource.includes("member.status !== 'approved'")) throw new Error('Member login is missing the approval gate.');
 process.stdout.write('Backend routes registered: ' + required.length + '.\n');
 
 const broadcastRoutes = fs.readFileSync(path.join(__dirname, '..', 'routes/admin.js'), 'utf8');
