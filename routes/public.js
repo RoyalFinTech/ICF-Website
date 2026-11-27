@@ -130,6 +130,13 @@ module.exports = function registerPublicRoutes(app, deps) {
     }
   });
 
+  const kjvBookCache = new Map();
+  const kjvBookCodes = new Set(["Gen","Exod","Lev","Num","Deut","Josh","Judg","Ruth","1Sam","2Sam","1Kgs","2Kgs","1Chr","2Chr","Ezra","Neh","Esth","Job","Ps","Prov","Eccl","Song","Isa","Jer","Lam","Ezek","Dan","Hos","Joel","Amos","Obad","Jonah","Mic","Nah","Hab","Zeph","Hag","Zech","Mal","Matt","Mark","Luke","John","Acts","Rom","1Cor","2Cor","Gal","Eph","Phil","Col","1Thess","2Thess","1Tim","2Tim","Titus","Phlm","Heb","Jas","1Pet","2Pet","1John","2John","3John","Jude","Rev"]);
+  app.get('/api/public/bible/kjv/:book', async function(req,res){
+    const book=String(req.params.book||'');if(!kjvBookCodes.has(book))return fail(res,404,'Unknown KJV Bible book.');
+    try{let data=kjvBookCache.get(book);if(!data){const upstream=await fetch('https://raw.githubusercontent.com/midvash/bible-data/main/versions/en/kjv/books/'+book+'.json',{signal:AbortSignal.timeout(15000)});if(!upstream.ok)throw new Error('KJV source returned '+upstream.status);data=await upstream.json();if(data.book!==book||!Array.isArray(data.chapters))throw new Error('KJV source data failed validation');kjvBookCache.set(book,data);}res.set('Cache-Control','public, max-age=86400, stale-while-revalidate=604800');res.json(data);}
+    catch(e){console.error('KJV Bible fetch failed for '+book+':',e.message);fail(res,503,'The KJV book could not be loaded right now. Please retry.');}
+  });
   app.get('/api/public/live',requireStorage,async function(req,res){
     try{let q=db().from('broadcast_sessions').select('id,slug,title,description,logo_url,logo_position,overlay_text,scripture_reference,scripture_text,presentation_config,started_at').eq('status','live').eq('is_public',true);
       const slug=String(req.query.slug||'').slice(0,40);if(slug)q=q.eq('slug',slug);const r=await q.order('started_at',{ascending:false}).limit(1).maybeSingle();
