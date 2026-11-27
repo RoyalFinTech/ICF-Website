@@ -131,7 +131,7 @@ module.exports = function registerPublicRoutes(app, deps) {
   });
 
   app.get('/api/public/live',requireStorage,async function(req,res){
-    try{let q=db().from('broadcast_sessions').select('id,slug,title,description,logo_url,logo_position,overlay_text,scripture_reference,scripture_text,started_at').eq('status','live').eq('is_public',true);
+    try{let q=db().from('broadcast_sessions').select('id,slug,title,description,logo_url,logo_position,overlay_text,scripture_reference,scripture_text,presentation_config,started_at').eq('status','live').eq('is_public',true);
       const slug=String(req.query.slug||'').slice(0,40);if(slug)q=q.eq('slug',slug);const r=await q.order('started_at',{ascending:false}).limit(1).maybeSingle();
       if(r.error)throw r.error;if(!r.data)return res.status(404).json({live:false});res.json({live:true,session:r.data});
     }catch(e){console.error('Public live lookup failed:',e.message);fail(res,503,'Live broadcast information is temporarily unavailable.');}
