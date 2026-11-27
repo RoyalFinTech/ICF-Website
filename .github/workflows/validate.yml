@@ -40,8 +40,40 @@ jobs:
           NODE
       - name: Check server syntax
         run: node --check server.js
+      - name: Check frontend application syntax
+        run: node --check js/app.js
+      - name: Check independent hero slider syntax
+        run: node --check js/hero-slider.js
       - name: Check frontend bridge syntax
         run: node --check js/api-bridge.js
+      - name: Validate homepage asset references
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const html = fs.readFileSync('index (4).html', 'utf8');
+          const required = [
+            'src="/js/hero-slider.js?v=20261127-1"',
+            'src="/js/app.js?v=20261127-1"',
+            'src="/js/api-bridge.js?v=20261127-2"',
+            'src="/icf-logo-transparent.png"',
+            'id="icf-hero-slider"'
+          ];
+          for (const token of required) {
+            if (!html.includes(token)) throw new Error('Homepage is missing: ' + token);
+          }
+          for (const asset of [
+            'js/hero-slider.js',
+            'js/app.js',
+            'js/api-bridge.js',
+            'icf-logo-transparent.png',
+            'church-worship-service.jpg',
+            'church-mummy-prayer.jpg',
+            'church-baptism-group.jpg'
+          ]) {
+            if (!fs.existsSync(asset)) throw new Error('Missing homepage asset: ' + asset);
+          }
+          console.log('Homepage scripts, logo and hero assets verified.');
+          NODE
       - name: Check backup script syntax
         run: node --check scripts/backup-supabase.js
       - name: Validate package manifest
