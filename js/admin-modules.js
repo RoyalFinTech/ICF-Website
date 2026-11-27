@@ -284,7 +284,8 @@ function sendEmail(){
 }
 
 /* ── LIVESTREAM MODULE ──────────────────────── */
-function adminLivestreamHTML(){
+function adminLivestreamHTML(){return window.adminWorshipStudioHTML?window.adminWorshipStudioHTML():'<p>Worship Studio is loading…</p>';}
+function legacyAdminLivestreamHTML(){
   const ls=DB.get('livestream',{active:false,title:'',youtubeUrl:'',facebookUrl:'',description:'',scheduledAt:''});
 
   return '<div>'+
