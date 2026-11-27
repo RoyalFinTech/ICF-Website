@@ -59,7 +59,7 @@ module.exports = function registerAuthRoutes(app, deps) {
         phone:((String(body.dialCode || '') + ' ' + phone).trim()).slice(0,50), phoneRaw:phone.slice(0,40),
         dialCode:String(body.dialCode || '').slice(0,12), address:address.slice(0,500),
         nationality:String(body.nationality || '').slice(0,100), nationalityCode:String(body.nationalityCode || '').slice(0,8),
-        role:'member', status:'pending', joinedAt:new Date().toISOString()
+        role:'member', roles:[], publicProfile:false, bio:'', avatarUrl:'', status:'pending', joinedAt:new Date().toISOString()
       };
       await insertRecord('members',member);
       res.status(201).json({ message:signup.data.session ? 'Registration received. Your membership is pending approval.' : 'Registration received. Check your email if confirmation is enabled. Your membership is pending approval.' });

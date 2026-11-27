@@ -23,7 +23,7 @@ const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const PUBLIC_BUCKET = process.env.SUPABASE_PUBLIC_BUCKET || 'church-public';
 const PRIVATE_BUCKET = process.env.SUPABASE_PRIVATE_BUCKET || 'church-private';
 const configured = Boolean(URL && ANON_KEY && SERVICE_KEY);
-const COLLECTIONS = ['members','prayers','baptisms','events','sermons','media','announcements','contactMessages','emailHistory','livestream','siteSettings','enabledLangs'];
+const COLLECTIONS = ['members','prayers','baptisms','events','sermons','media','announcements','contactMessages','emailHistory','livestream','siteSettings','enabledLangs','churchRoles'];
 const PUBLIC_COLLECTIONS = ['events','sermons','media','announcements','prayers','baptisms','livestream','siteSettings'];
 const PUBLIC_SUBMISSIONS = new Set(['prayers','baptisms','contactMessages']);
 const MAX_UPLOAD_BYTES = 15 * 1024 * 1024;
@@ -246,7 +246,7 @@ const publicLimit = rateLimit({ windowMs:15*60*1000, limit:30, standardHeaders:'
 app.get('/health', function (req,res) { res.json({ status:'ok', service:'icf-gambia', storageConfigured:configured, timestamp:new Date().toISOString() }); });
 
 registerAuthRoutes(app, { loginLimit, publicLimit, requireStorage, authClient, db, fail, insertRecord, crypto });
-registerPublicRoutes(app, { requireStorage, fail, PUBLIC_COLLECTIONS, readCollection, PUBLIC_SUBMISSIONS, publicLimit, publicRecord, insertRecord });
+registerPublicRoutes(app, { requireStorage, fail, PUBLIC_COLLECTIONS, readCollection, PUBLIC_SUBMISSIONS, publicLimit, publicRecord, insertRecord, authClient, db, multer, crypto, PUBLIC_BUCKET });
 registerAdminRoutes(app, { requireStorage, requireAdmin, fail, COLLECTIONS, readCollection, validCollection, replaceCollection, multer, MAX_UPLOAD_BYTES, path, crypto, PUBLIC_BUCKET, PRIVATE_BUCKET, db });
 let homepageHtml = null;
 app.get('/',function (req,res) {
