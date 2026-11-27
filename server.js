@@ -45,6 +45,7 @@ app.get('/healthz', function (req, res) {
     service: 'icf-website',
     environment: process.env.NODE_ENV || 'development',
     supabaseConfigured: configured,
+    liveKitConfigured: Boolean(process.env.LIVEKIT_URL && process.env.LIVEKIT_API_KEY && process.env.LIVEKIT_API_SECRET),
     timestamp: new Date().toISOString()
   });
 });
@@ -217,7 +218,7 @@ app.set('trust proxy', 1);
 app.use(helmet({ contentSecurityPolicy: { directives: {
   defaultSrc:["'self'"], scriptSrc:["'self'",'https://cdn.jsdelivr.net'], scriptSrcAttr:["'unsafe-inline'"], styleSrc:["'self'","'unsafe-inline'",'https:'],
   imgSrc:["'self'",'data:','blob:','https:'], fontSrc:["'self'",'data:','https:'],
-  workerSrc:["'self'",'blob:'], connectSrc:["'self'",URL,'https://nominatim.openstreetmap.org',process.env.LIVEKIT_URL?String(process.env.LIVEKIT_URL).replace(/^wss?:/,'https:').replace(/\/$/,''):''].filter(Boolean),
+  workerSrc:["'self'",'blob:'], connectSrc:["'self'",URL,'https://nominatim.openstreetmap.org','https://bible-api.com',process.env.LIVEKIT_URL?String(process.env.LIVEKIT_URL).replace(/^wss?:/,'https:').replace(/\/$/,''):''].filter(Boolean),
   frameSrc:["'self'",'https://www.youtube.com','https://www.youtube-nocookie.com','https://www.facebook.com'],
   objectSrc:["'self'"], baseUri:["'self'"], frameAncestors:["'self'"]
 } } }));
