@@ -1,40 +1,29 @@
 <!-- ═══ NAVBAR ═══════════════════════════════ -->
-<div id="icf-theme-ribbon" class="icf-theme-ribbon" role="region" aria-label="ICF monthly theme"><img src="/icf-logo-transparent.png"  data-logo="1" alt="ICF" class="icf-ribbon-logo"><div class="icf-ribbon-track"><div class="icf-ribbon-content"><span>✨ <strong>NOVEMBER THEME: LIVING BY GRACE IN HOLINESS</strong></span><span>📖 God’s grace trains us to live godly lives. — Titus 2:11–12</span><span>🙏 Grace • Holiness • Obedience • Christlikeness</span><span>✝ It’s All About Jesus.</span><span>✨ <strong>NOVEMBER THEME: LIVING BY GRACE IN HOLINESS</strong></span><span>📖 God’s grace trains us to live godly lives. — Titus 2:11–12</span><span>🙏 Grace • Holiness • Obedience • Christlikeness</span><span>✝ It’s All About Jesus.</span></div></div></div>
-<nav id="navbar">
+<div id="icf-theme-ribbon" class="icf-theme-ribbon" role="region" aria-label="ICF monthly theme"><img src="/icf-logo-transparent.png" data-logo="1" alt="ICF" class="icf-ribbon-logo"><div class="icf-ribbon-track"><div class="icf-ribbon-content"><span>✨ <strong>NOVEMBER THEME: LIVING BY GRACE IN HOLINESS</strong></span><span>📖 God’s grace trains us to live godly lives. — Titus 2:11–12</span><span>🙏 Grace • Holiness • Obedience • Christlikeness</span><span>✝ It’s All About Jesus.</span><span>✨ <strong>NOVEMBER THEME: LIVING BY GRACE IN HOLINESS</strong></span><span>📖 God’s grace trains us to live godly lives. — Titus 2:11–12</span><span>🙏 Grace • Holiness • Obedience • Christlikeness</span><span>✝ It’s All About Jesus.</span></div></div></div>
+<nav id="navbar" aria-label="Main navigation">
   <div class="nav-inner">
-    <a class="nav-brand" onclick="navigate('home')">
-      <img src="/icf-logo-transparent.png"  data-logo="1" alt="ICF Logo" class="site-logo"/>
+    <a class="nav-brand" onclick="navigate('home')" aria-label="ICF Gambia home">
+      <img src="/icf-logo-transparent.png" data-logo="1" alt="ICF Logo" class="site-logo"/>
       <div class="nav-brand-text">ICF Gambia<span>Solution Centre</span></div>
     </a>
-    <ul class="nav-links">
-      <li><a class="nav-link" data-page="home" onclick="navigate('home')" data-i18n="home">🏠 Home</a></li>
-      <li><a class="nav-link" data-page="about" onclick="navigate('about')" data-i18n="about">📖 About</a></li>
-      <li><a class="nav-link" onclick="navigate('about');setTimeout(function(){var el=document.getElementById('leadership');if(el)el.scrollIntoView({behavior:'smooth'});},50)" title="Church Leadership">🧑‍🤝‍🧑 Leadership</a></li>
-      <li><a class="nav-link" data-page="services" onclick="navigate('services')" data-i18n="ministries">⛪ Ministries</a></li>
-      <li><a class="nav-link" data-page="events" onclick="navigate('events')" data-i18n="events">📅 Events</a></li>
-      <li><a class="nav-link" data-page="prayers" onclick="navigate('prayers')" data-i18n="prayer">🙏 Prayer</a></li>
-      <li><a class="nav-link" data-page="baptisms" onclick="navigate('baptisms')" data-i18n="baptism">💝 Baptism</a></li>
-      <li><a class="nav-link" data-page="contact" onclick="navigate('contact')" data-i18n="contact">📞 Contact</a></li>
-      <li><a class="nav-link" data-page="sermons" onclick="navigate('sermons')" data-i18n="sermons">🎥 Sermons</a></li>
-      <li><a class="nav-link icf-watch-live-link" data-icf-watch-live href="/live.html">📺 Watch ICF Live</a></li>
-      <li><a class="nav-link" data-page="gallery" onclick="navigate('gallery')" data-i18n="gallery">📷 Gallery</a></li>
-      <li><a class="nav-link" data-page="announcements" onclick="navigate('announcements')" data-i18n="news">📢 News</a></li>
-      <li><a class="nav-link" data-page="membership" onclick="navigate('membership')" title="Membership">🧾 ICF Membership Statement PDF</a></li>
-      <li><a class="nav-link" data-page="workers" onclick="navigate('workers')" title="Worker's Manual">📘 ICF Workers’ Manual PDF</a></li>
-      <li><button class="btn nav-login" onclick="navigate('member-profile')">👤 My Profile</button></li>
-      <li><button class="btn nav-login" onclick="navigate('login')">👤 Login</button></li>
-      <li><button class="btn nav-signup" onclick="navigate('signup')">📝 Sign Up</button></li>
-      <li><select class="lang-selector filter-select" style="font-size:11.5px;padding:4px 7px;max-width:130px" onchange="setLanguage(this.value)" title="Language"></select></li>
-      <li><button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button></li>
-      <li><a class="nav-link" data-page="admin-login" onclick="navigate('admin-login')" style="color:var(--gold);font-weight:600">🛡️</a></li>
-    </ul>
-    <button class="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
+    <div class="nav-auth-actions">
+      <button type="button" class="nav-auth-login" onclick="navigate('login')">Login</button>
+      <button type="button" class="nav-auth-signup" onclick="navigate('signup')">Sign Up</button>
+      <button type="button" class="nav-hamburger" onclick="toggleMobileNav()" aria-label="Open menu" aria-controls="nav-mobile" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+  <div class="nav-shortcuts" aria-label="Quick links">
+    <a class="nav-shortcut" data-page="home" onclick="navigate('home')">🏠 Home</a>
+    <a class="nav-shortcut" data-page="about" onclick="navigate('about')">📖 About</a>
+    <a class="nav-shortcut" data-page="services" onclick="navigate('services')">⛪ Ministries</a>
+    <a class="nav-shortcut" data-page="events" onclick="navigate('events')">📅 Events</a>
+    <a class="nav-shortcut" data-page="prayers" onclick="navigate('prayers')">🙏 Prayer</a>
+    <a class="nav-shortcut" data-page="sermons" onclick="navigate('sermons')">🎥 Sermons</a>
+    <a class="nav-shortcut nav-shortcut-live" data-icf-watch-live href="/live.html">🔴 Watch Live</a>
+    <a class="nav-shortcut" data-page="contact" onclick="navigate('contact')">📞 Contact</a>
   </div>
 </nav>
 
-<!-- Mobile Nav -->
 <div class="nav-mobile" id="nav-mobile">
   <a onclick="navigate('home')">🏠 Home</a>
   <a onclick="navigate('about')">📖 About</a>

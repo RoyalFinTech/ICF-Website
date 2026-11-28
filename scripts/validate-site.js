@@ -8,16 +8,22 @@ const checkedIn = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 if (html !== checkedIn) throw new Error('index.html is stale. Run npm run build:site and commit the generated file.');
 const requiredPages = ['home','about','services','events','prayers','baptisms','contact','login','signup','admin-login','admin-portal','sermons','gallery','announcements','membership','workers','member-profile','password-reset','email-confirmed'];
 for (const page of requiredPages) if (!html.includes('id="page-' + page + '"')) throw new Error('Missing page: ' + page);
-for (const asset of ['favicon.png','css/site.css','js/hero-slider.js','js/splash.js','js/app.js','js/admin-modules.js','js/api-bridge.js','js/ui-repair.js','js/country-data.js','js/member-directory.js','js/worship-studio.js','js/worship-viewer.js','live.html','camera.html','js/camera-join.js','js/live-status.js','icf-logo-transparent.png','church-worship-service.jpg','church-mummy-prayer.jpg','church-baptism-group.jpg','membership-statement.pdf','workers-manual.pdf']) {
+for (const asset of ['favicon.png','css/site.css','js/hero-slider.js','js/splash.js','js/app.js','js/admin-modules.js','js/api-bridge.js','js/ui-repair.js','js/country-data.js','js/nationality-picker.js','js/member-directory.js','js/worship-studio.js','js/worship-viewer.js','live.html','camera.html','js/camera-join.js','js/live-status.js','icf-logo-transparent.png','church-worship-service.jpg','church-mummy-prayer.jpg','church-baptism-group.jpg','membership-statement.pdf','workers-manual.pdf']) {
   if (!fs.existsSync(path.join(ROOT, asset))) throw new Error('Missing homepage asset: ' + asset);
 }
 if (html.includes('data:image/png;base64,')) throw new Error('A large embedded PNG remains in the homepage HTML.');
 if (!/\/css\/site\.css\?v=\d{8}-\d+/.test(html)) throw new Error('External stylesheet is not linked or cache-busted.');
 if (!/worship-studio\.js\?v=\d{8}-\d+/.test(html)) throw new Error('Worship Studio client script is not linked or cache-busted.');
 if (!html.includes('/favicon.png')) throw new Error('External favicon is not linked.');
+if (!html.includes('class="nav-shortcuts"') || !html.includes('class="nav-auth-login"') || !html.includes('class="nav-auth-signup"')) throw new Error('Responsive quick navigation or visible login/signup actions are missing.');
+const pickerSource = fs.readFileSync(path.join(ROOT, 'js/nationality-picker.js'), 'utf8');
+new Function(pickerSource);
+if (!pickerSource.includes('getAll()') || !pickerSource.includes('getPhoneCountries()') || !pickerSource.includes('nationality-search-status') || !pickerSource.includes('selectedDialCode') || !pickerSource.includes('event.stopPropagation()') || !pickerSource.includes('data-name=') || !pickerSource.includes('data-dial=')) throw new Error('Dedicated nationality picker must isolate the legacy search listener and retain searchable result attributes.');
 const countryData = require('../js/country-data');
 const countries = countryData.getAll();
 if (countries.length !== 249 || countries.some(function (country) { return !country.code || !country.name || !country.flag || !country.region; })) throw new Error('The full country and flag catalogue is incomplete.');
+const phoneCountries = countryData.getPhoneCountries();
+if (phoneCountries.length < 240 || !countryData.getCountry('GM').dialCode || countryData.getCountry('NG').dialCode !== '+234' || countryData.getCountry('US').dialCode !== '+1') throw new Error('International calling-code coverage is incomplete or required country mappings are wrong.');
 if (!countryData.getCountry('GM') || countryData.getCountry('GM').name !== 'The Gambia' || !countryData.getCountry('NG') || !countryData.getCountry('US')) throw new Error('Required nationality country records are missing.');
 
 const signupHtml = fs.readFileSync(path.join(ROOT, 'views/pages/signup.html'), 'utf8');
