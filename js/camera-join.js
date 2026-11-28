@@ -94,14 +94,14 @@ function setPictureAdjustments(){
 function applyPhonePresentation(presentation){
  if(!presentation)return;
  var logo=el('phone-brand-logo'),welcome=el('phone-brand-welcome'),slide=el('phone-brand-slide'),scripture=el('phone-brand-scripture');
- var url=String(presentation.logo_url||'').trim()||'/icf-logo-transparent.png';
- if(logo){if(logo.getAttribute('src')!==url){logo.onerror=function(){if(this.getAttribute('src')!=='/icf-logo-transparent.png')this.src='/icf-logo-transparent.png';};logo.src=url;}logo.style.display='block';logo.dataset.position=presentation.logo_position||'top-left';}
- var config=presentation.presentation_config||{},mode=config.mode||'camera';
- var welcomeText=String(presentation.overlay_text||'');
+ var url=String(presentation.logo_url||presentation.logoUrl||'').trim()||'/icf-logo-transparent.png';
+ if(logo){if(logo.getAttribute('src')!==url){logo.onerror=function(){if(this.getAttribute('src')!=='/icf-logo-transparent.png')this.src='/icf-logo-transparent.png';};logo.src=url;}logo.style.display='block';logo.dataset.position=presentation.logo_position||presentation.logoPosition||'top-left';}
+ var config=presentation.presentation_config||presentation.presentationConfig||{},mode=config.mode||'camera';
+ var welcomeText=String(presentation.overlay_text||presentation.overlayText||'');
  if(welcome){welcome.textContent=welcomeText;welcome.style.display=welcomeText?'block':'none';}
  var slideText=[config.slideTitle||'',config.slideBody||''].filter(Boolean).join('\n');
  if(slide){slide.textContent=slideText;slide.hidden=!(mode==='slide'||mode==='ticker')||!slideText;}
- var scriptureText=String(presentation.scripture_text||'').trim(),reference=String(presentation.scripture_reference||'').trim();
+ var scriptureText=String(presentation.scripture_text||presentation.scriptureText||'').trim(),reference=String(presentation.scripture_reference||presentation.scriptureReference||'').trim();
  if(scripture){scripture.textContent=(reference?reference+'\n':'')+scriptureText;scripture.style.display=(reference||scriptureText)?'block':'none';}
 }
 async function syncPhonePresentation(){
@@ -140,7 +140,7 @@ async function connect(){
   var settings=stream.getVideoTracks()[0].getSettings?stream.getVideoTracks()[0].getSettings():{},resolution=settings.width&&settings.height?settings.width+'×'+settings.height:'720p mode';
   if(el('flip-phone'))el('flip-phone').disabled=false;if(el('pause-phone'))el('pause-phone').disabled=false;if(el('disconnect-phone'))el('disconnect-phone').disabled=false;
   if(el('connect-phone')){el('connect-phone').textContent='Connected';el('connect-phone').disabled=true;}
-  if(el('camera-device-status'))el('camera-device-status').textContent='Connected as '+credentials.cameraName+'. Camera source '+resolution+'. Programme graphics are included in the outgoing video.';
+  if(el('camera-device-status'))el('camera-device-status').textContent='Connected as '+credentials.cameraName+'. Camera source '+resolution+'. Phone preview branding is shown locally; the Worship Studio composes programme graphics into the live output and recording.';
   keepAwake();startBrandingSync();status('Camera connected.','live');
  }catch(e){
   if(e.message==='ICF_WAITING_FOR_LIVE'&&retryCount<45){retryCount++;status('QR link recognised. Waiting for the operator to start the live service…','info');if(el('connect-phone'))el('connect-phone').textContent='Waiting for studio…';setTimeout(function(){if(!room&&!connecting)connect();},2500);}
