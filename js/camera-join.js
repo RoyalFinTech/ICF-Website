@@ -4,7 +4,7 @@ var room=null,stream=null,publishedTrack=null,outputCanvas=null,outputContext=nu
 var paused=false,facing='environment',connecting=false,wakeLock=null,trackName='',retryCount=0;
 var statusTimer=0,brandingTimer=0,controlsTimer=0,activeSessionId='',sensorReady=false,sensorListenerRegistered=false,sensorLandscape=null,sensorAngle=null,lastFrameAt=0;
 var digitalZoom=1,brightness=1,contrast=1,panX=0,panY=0,hardwareZoomSupported=false,hardwareZoomBase=1,networkQuality='unknown';
-var publishOptions={name:'',videoCodec:'vp8',videoEncoding:{maxBitrate:1500000,maxFramerate:20,priority:'high'},degradationPreference:'maintain-framerate',simulcast:false};
+var publishOptions={name:'',videoCodec:'vp8',videoEncoding:{maxBitrate:1800000,maxFramerate:30,priority:'high'},degradationPreference:'maintain-framerate',simulcast:false};
 function el(id){return document.getElementById(id);}
 function status(message,kind){
  var e=el('camera-status'),s=el('live-state');if(e){e.textContent=message||'';e.dataset.visible=message?'true':'false';}
@@ -37,7 +37,7 @@ async function enableOrientationSensor(){
 function stopComposer(){if(outputFrame)cancelAnimationFrame(outputFrame);outputFrame=0;lastFrameAt=0;if(outputStream){outputStream.getTracks().forEach(function(t){t.stop();});outputStream=null;}outputCanvas=null;outputContext=null;}
 function drawCameraFrame(timestamp){
  if(!outputCanvas||!outputContext)return;
- if(!timestamp||timestamp-lastFrameAt>=1000/20){
+ if(!timestamp||timestamp-lastFrameAt>=1000/30){
   lastFrameAt=timestamp||performance.now();
   var video=el('phone-preview'),w=video.videoWidth,h=video.videoHeight;
   if(w>0&&h>0&&video.readyState>=2){
@@ -59,7 +59,7 @@ function startComposer(){
  stopComposer();outputCanvas=document.createElement('canvas');outputCanvas.width=1280;outputCanvas.height=720;
  outputContext=outputCanvas.getContext('2d',{alpha:false,desynchronized:true});if(!outputContext)throw new Error('This browser cannot prepare the camera output.');
  outputContext.fillStyle='#071329';outputContext.fillRect(0,0,1280,720);
- drawCameraFrame(performance.now());outputStream=outputCanvas.captureStream(20);
+ drawCameraFrame(performance.now());outputStream=outputCanvas.captureStream(30);
  if(!outputStream||!outputStream.getVideoTracks().length)throw new Error('Could not create the camera output on this device.');
 }
 async function publishPhoneOutput(){
