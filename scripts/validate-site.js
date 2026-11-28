@@ -11,6 +11,22 @@ for (const page of requiredPages) if (!html.includes('id="page-' + page + '"')) 
 for (const asset of ['favicon.png','css/site.css','js/hero-slider.js','js/splash.js','js/app.js','js/admin-modules.js','js/api-bridge.js','js/ui-repair.js','js/country-data.js','js/nationality-picker.js','js/member-directory.js','js/worship-studio.js','js/worship-viewer.js','live.html','camera.html','js/camera-join.js','js/live-status.js','icf-logo-transparent.png','church-worship-service.jpg','church-mummy-prayer.jpg','church-baptism-group.jpg','membership-statement.pdf','workers-manual.pdf']) {
   if (!fs.existsSync(path.join(ROOT, asset))) throw new Error('Missing homepage asset: ' + asset);
 }
+
+const cameraClientSource = fs.readFileSync(path.join(ROOT, 'js/camera-join.js'), 'utf8');
+const worshipStudioSource = fs.readFileSync(path.join(ROOT, 'js/worship-studio.js'), 'utf8');
+const worshipViewerSource = fs.readFileSync(path.join(ROOT, 'js/worship-viewer.js'), 'utf8');
+const broadcastRoutesSource = fs.readFileSync(path.join(ROOT, 'routes/admin.js'), 'utf8');
+for (const [name, source] of [['phone camera client',cameraClientSource],['worship studio client',worshipStudioSource],['public worship viewer',worshipViewerSource],['broadcast admin routes',broadcastRoutesSource]]) {
+  try { new Function(source); } catch (error) { throw new Error(name + ' contains a JavaScript syntax error: ' + error.message); }
+}
+const cameraPage = fs.readFileSync(path.join(ROOT, 'camera.html'), 'utf8');
+const livePage = fs.readFileSync(path.join(ROOT, 'live.html'), 'utf8');
+if (!cameraPage.includes('id="phone-preview"') || !cameraPage.includes('id="camera-drawer"') || !cameraPage.includes('id="login-phone"') || !cameraPage.includes('viewport-fit=cover')) throw new Error('The full-screen phone camera interface or sign-in drawer is incomplete.');
+if (!cameraClientSource.includes("window.addEventListener('storage'") || !cameraClientSource.includes("window.open(loginUrl") || !cameraClientSource.includes("credentials.trackName")) throw new Error('Phone QR sign-in and automatic remote camera pairing are incomplete.');
+if (!worshipStudioSource.includes('ws-phone-qr-image') || !worshipStudioSource.includes('refreshRemoteRoster') || !worshipStudioSource.includes('addRemoteCamera') || !worshipStudioSource.includes("value='remote:'")) throw new Error('Studio QR pairing and remote camera roster are incomplete.');
+if (!worshipViewerSource.includes('live-remote-cameras') || !worshipViewerSource.includes('addRemoteCamera')) throw new Error('Public live viewer cannot display multiple remote phone cameras.');
+if (!livePage.includes('id="live-remote-cameras"')) throw new Error('Public live page is missing the multi-camera stage container.');
+if (!broadcastRoutesSource.includes("trackName:'icf-camera-'+cameraId+'::'") || !broadcastRoutesSource.includes("canSubscribe:canSubscribe!==false")) throw new Error('Server camera identities or scoped publish-only permissions are incomplete.');
 if (html.includes('data:image/png;base64,')) throw new Error('A large embedded PNG remains in the homepage HTML.');
 if (!/\/css\/site\.css\?v=\d{8}-\d+/.test(html)) throw new Error('External stylesheet is not linked or cache-busted.');
 if (!/worship-studio\.js\?v=\d{8}-\d+/.test(html)) throw new Error('Worship Studio client script is not linked or cache-busted.');
