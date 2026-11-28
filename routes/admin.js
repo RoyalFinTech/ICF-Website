@@ -176,6 +176,15 @@ function normalizedLiveKitUrl(){var raw=String(process.env.LIVEKIT_URL||'').trim
     try{const r=await db().from('broadcast_sessions').select('room_name,status').eq('id',req.params.id).maybeSingle();if(r.error)throw r.error;if(!r.data)return fail(res,404,'Broadcast session not found.');if(!['preparing','live'].includes(r.data.status))return fail(res,409,'Start the broadcast before connecting a remote camera.');const cameraId=crypto.randomBytes(6).toString('hex');const requested=String((req.body||{}).cameraName||'').trim() .replace(/[<>]/g,' ').split(String.fromCharCode(10)).join(' ').split(String.fromCharCode(13)).join(' ').slice(0,48);const cameraName=requested||('Phone camera '+cameraId.slice(0,4).toUpperCase());const identity='icf-phone-'+cameraId;res.set('Cache-Control','no-store');res.json(Object.assign(createBroadcastToken(r.data.room_name,identity,true,false),{cameraId:cameraId,cameraName:cameraName,trackName:'icf-camera-'+cameraId+'::'+encodeURIComponent(cameraName)}));}
     catch(e){if(e.message==='LIVEKIT_NOT_CONFIGURED')return fail(res,503,'LiveKit is not configured.');if(e.message==='LIVEKIT_URL_INVALID')return fail(res,503,'LIVEKIT_URL must be a valid LiveKit WebSocket URL.');console.error('Remote camera token failed:',e.message);fail(res,503,'Could not connect the phone camera.');}
   });
+  app.get('/api/admin/broadcast/sessions/:id/phone-presentation',requireStorage,requireAdmin,async function(req,res){
+    try{
+      const r=await db().from('broadcast_sessions').select('id,status,logo_url,logo_position,overlay_text,scripture_reference,scripture_text,presentation_config').eq('id',req.params.id).maybeSingle();
+      if(r.error)throw r.error;
+      if(!r.data)return fail(res,404,'Broadcast session not found.');
+      res.set('Cache-Control','no-store, no-cache, must-revalidate');
+      res.json({presentation:r.data});
+    }catch(e){console.error('Phone presentation lookup failed:',e.message);fail(res,503,'Could not sync the camera presentation.');}
+  });
   app.post('/api/admin/broadcast/sessions/:id/start',requireStorage,requireAdmin,async function(req,res){
     try{
       if(!process.env.LIVEKIT_URL||!process.env.LIVEKIT_API_KEY||!process.env.LIVEKIT_API_SECRET)return fail(res,503,'LiveKit credentials are not configured.');
