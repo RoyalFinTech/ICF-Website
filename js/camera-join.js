@@ -36,7 +36,7 @@ async function enableOrientationSensor(){
 }
 function stopComposer(){if(outputFrame)cancelAnimationFrame(outputFrame);outputFrame=0;lastFrameAt=0;if(outputStream){outputStream.getTracks().forEach(function(t){t.stop();});outputStream=null;}outputCanvas=null;outputContext=null;}
 function wrapCanvasText(ctx,text,x,y,maxWidth,lineHeight,maxLines){
- var words=String(text||'').split(/\\s+/),line='',lines=[];
+ var words=String(text||'').split(/\s+/),line='',lines=[];
  words.forEach(function(word){var test=line?line+' '+word:word;if(line&&ctx.measureText(test).width>maxWidth){lines.push(line);line=word;}else line=test;});
  if(line)lines.push(line);if(maxLines&&lines.length>maxLines)lines=lines.slice(0,maxLines);
  lines.forEach(function(item,index){ctx.fillText(item,x,y+index*lineHeight);});return lines.length;
