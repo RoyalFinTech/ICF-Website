@@ -282,6 +282,7 @@ app.get('/index.html',function (req,res) { res.redirect(302,'/'); });
 app.get(['/server.js','/package.json','/package-lock.json','/README.md','/RENDER_DEPLOYMENT.md','/PROJECT_REPAIR_REPORT.md'],function (req,res) { res.sendStatus(404); });
 // Keep implementation and deployment-only files out of the public static surface.
 app.use(['/supabase','/scripts','/.github','/.git','/views','/routes'], function (req,res) { res.sendStatus(404); });
+app.use(['/live.html','/camera.html'],function (req,res,next) { res.setHeader('Cache-Control','no-store, no-cache, must-revalidate'); next(); });
 app.use(express.static(ROOT,{ index:false, dotfiles:'ignore', maxAge:process.env.NODE_ENV === 'production' ? '1h' : 0 }));
 app.use(function (error,req,res,next) {
   if (res.headersSent) return next(error);
