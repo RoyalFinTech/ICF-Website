@@ -24,7 +24,7 @@ async function connect(){
   status('Checking the active ICF service…','info');
   var list=await request('/admin/broadcast/sessions'),session=(list.sessions||[]).find(function(s){return s.slug===slug;});
   if(!session)throw new Error('This ICF camera link does not match an existing broadcast. Generate a new QR code.');if(!['preparing','live'].includes(session.status))throw new Error('ICF_WAITING_FOR_LIVE');
-  var credentials=await request('/admin/broadcast/sessions/'+session.id+'/camera-token','POST',{cameraName:el('camera-name').value||'Phone camera'});
+  var credentials=await request('/admin/broadcast/sessions/'+session.id+'/camera-token','POST',{cameraName:(el('camera-name').value||'').trim()});
   trackName=credentials.trackName;retryCount=0;
   status('Requesting this phone’s camera permission…','info');await startDevice();
   room=new LivekitClient.Room({adaptiveStream:true,dynacast:true});
