@@ -107,7 +107,7 @@ if (!studioSource.includes("var BUILTIN_HYMNS") || !studioSource.includes("funct
 if (!studioSource.includes("All other ground is sinking sand") || !studioSource.includes("Rock of Ages")) throw new Error('Required classic hymn search text is missing.');
 
 if (!viewerSource.includes('presentation_config')) throw new Error('Public viewer presentation configuration is missing.');
-if (!studioSource.includes("Closing the public broadcast") || !studioSource.includes("result.ended") || studioSource.indexOf("'/admin/broadcast/sessions/'+ending.id+'/end'") > studioSource.indexOf("if(room){try{await room.disconnect();}")) throw new Error('Studio must confirm server-side end before local LiveKit disconnect.');
+if (!studioSource.includes("Closing the public broadcast") || !studioSource.includes("result.ended") || studioSource.indexOf("'/admin/broadcast/sessions/'+ending.id+'/end'") > studioSource.indexOf("if(room){try{await room.disconnect();}",studioSource.indexOf('serverConfirmed=!!result.ended'))) throw new Error('Studio must confirm server-side end before local LiveKit disconnect.');
 if (!adminSource.includes('terminateLiveKitRoom') || !adminSource.includes('livekit.RoomService/DeleteRoom') && adminSource.includes('video:{roomCreate:true}') || !adminSource.includes('ended:true')) throw new Error('Server broadcast shutdown must terminate the LiveKit room and confirm offline status.');
 if (!viewerSource.includes('function goOffline') || !viewerSource.includes("cache:'no-store'") || !viewerSource.includes("ICF broadcast ended")) throw new Error('Public viewer must clear video and bypass cache when a service ends.');
 
