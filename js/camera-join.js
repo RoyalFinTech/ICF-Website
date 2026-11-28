@@ -2,7 +2,7 @@
 'use strict';
 var room=null,stream=null,publishedTrack=null,outputCanvas=null,outputContext=null,outputStream=null,outputFrame=0;
 var paused=false,facing='environment',connecting=false,wakeLock=null,trackName='',retryCount=0;
-var statusTimer=0,brandingTimer=0,activeSessionId='',sensorReady=false,sensorLandscape=null,sensorAngle=null,lastFrameAt=0;
+var statusTimer=0,brandingTimer=0,activeSessionId='',sensorReady=false,sensorListenerRegistered=false,sensorLandscape=null,sensorAngle=null,lastFrameAt=0;
 var digitalZoom=1,brightness=1,contrast=1,hardwareZoomSupported=false,hardwareZoomBase=1,networkQuality='unknown';
 var publishOptions={name:'',videoCodec:'vp8',videoEncoding:{maxBitrate:2200000,maxFramerate:24,priority:'medium'},degradationPreference:'balanced',simulcast:false};
 function el(id){return document.getElementById(id);}
@@ -29,7 +29,7 @@ async function enableOrientationSensor(){
   if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
    var permission=await DeviceOrientationEvent.requestPermission();if(permission!=='granted')return false;
   }
-  window.addEventListener('deviceorientation',handleDeviceOrientation,true);
+  if(!sensorListenerRegistered){window.addEventListener('deviceorientation',handleDeviceOrientation,true);sensorListenerRegistered=true;}
   return true;
  }catch(_e){return false;}
 }
@@ -166,7 +166,7 @@ async function disconnect(){
 function openSignIn(){var loginUrl=location.origin+'/?page=admin-login';window.open(loginUrl,'icf-admin-signin','noopener');status('Sign in in the new tab. This camera will connect automatically after login.','info');}
 function toggleDrawer(){el('camera-drawer').classList.toggle('open');}
 function fullscreen(){var target=el('camera-app');if(target.requestFullscreen)target.requestFullscreen().catch(function(){});else if(target.webkitRequestFullscreen)target.webkitRequestFullscreen();}
-function orientationChanged(){if(outputCanvas&&outputContext){sensorReady=false;}}
+function orientationChanged(){/* Keep the physical sensor reading authoritative even when Android auto-rotate is locked. */}
 el('connect-phone').addEventListener('click',function(){enableOrientationSensor().finally(connect);});
 el('flip-phone').addEventListener('click',flip);el('pause-phone').addEventListener('click',togglePause);el('disconnect-phone').addEventListener('click',disconnect);
 el('login-phone').addEventListener('click',openSignIn);el('drawer-toggle').addEventListener('click',toggleDrawer);el('fullscreen-phone').addEventListener('click',fullscreen);
