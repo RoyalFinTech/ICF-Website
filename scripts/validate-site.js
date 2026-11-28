@@ -12,7 +12,7 @@ for (const asset of ['favicon.png','css/site.css','js/hero-slider.js','js/splash
   if (!fs.existsSync(path.join(ROOT, asset))) throw new Error('Missing homepage asset: ' + asset);
 }
 if (html.includes('data:image/png;base64,')) throw new Error('A large embedded PNG remains in the homepage HTML.');
-if (!html.includes('/css/site.css?v=20261127-18')) throw new Error('External stylesheet is not linked or cache-busted.');
+if (!/\/css\/site\.css\?v=\d{8}-\d+/.test(html)) throw new Error('External stylesheet is not linked or cache-busted.');
 if (!/worship-studio\.js\?v=\d{8}-\d+/.test(html)) throw new Error('Worship Studio client script is not linked or cache-busted.');
 if (!html.includes('/favicon.png')) throw new Error('External favicon is not linked.');
 const countryData = require('../js/country-data');
