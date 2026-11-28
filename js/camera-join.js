@@ -17,7 +17,8 @@ function drawCameraFrame(){
   var ctx=outputContext,W=outputCanvas.width,H=outputCanvas.height,screenWide=isLandscape(),frameWide=w>=h,angle=orientationAngle(),rotation=0;
   if(screenWide!==frameWide){
    if(screenWide)rotation=(angle===270?-90:90);
-   else rotation=(angle===90?-90:90);
+   else rotation=(angle===180?-90:90);
+   if(facing==='user')rotation=-rotation;
   }else if(angle===180){rotation=180;}
   ctx.fillStyle='#071329';ctx.fillRect(0,0,W,H);
   ctx.save();ctx.translate(W/2,H/2);if(rotation)ctx.rotate(rotation*Math.PI/180);
