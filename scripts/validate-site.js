@@ -34,6 +34,10 @@ if (phoneOrientationFeatures.some(function (feature) { return !cameraClientSourc
 if (!worshipStudioSource.includes('additional.push') || !worshipStudioSource.includes('Full programme recording')) throw new Error('Programme recorder is missing multi-camera composition.');
 if (!worshipStudioSource.includes('logoUrl:p.logoUrl') || !broadcastRoutesSource.includes('logo_url:logoUrl')) throw new Error('Live presentation updates do not persist ICF logo branding.');
 if (!stylesSource.includes('#ws-stage .worship-overlay-logo{z-index:7}') || !livePlayerSource.includes('.logo{position:absolute;z-index:7;') || !livePlayerSource.includes('.overlay{position:absolute;z-index:6;')) throw new Error('ICF logo and presentation text must render above remote video layers.');
+if (!worshipStudioSource.includes("if(secondary&&secondStream)additional.push({video:secondary,name:'Local camera 2'})")) throw new Error('Programme recording must retain the local secondary camera in every multi-camera layout.');
+const serverSource = fs.readFileSync(path.join(ROOT, 'server.js'), 'utf8');
+if (!serverSource.includes("app.use(['/live.html','/camera.html']") || !serverSource.includes("Cache-Control','no-store, no-cache, must-revalidate")) throw new Error('Remote camera and live player HTML must not be served from a stale browser cache.');
+
 
 if (html.includes('data:image/png;base64,')) throw new Error('A large embedded PNG remains in the homepage HTML.');
 if (!/\/css\/site\.css\?v=\d{8}-\d+/.test(html)) throw new Error('External stylesheet is not linked or cache-busted.');
