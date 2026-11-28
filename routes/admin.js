@@ -224,7 +224,7 @@ function normalizedLiveKitUrl(){var raw=String(process.env.LIVEKIT_URL||'').trim
         textColor:/^#[0-9a-f]{6}$/i.test(String(raw.textColor||''))?raw.textColor:'#ffffff',
         fontSize:Math.max(18,Math.min(64,Number(raw.fontSize)||34)),textAlign:['left','center','right'].includes(raw.textAlign)?raw.textAlign:'center',bibleAlign:['left','center','right'].includes(raw.bibleAlign)?raw.bibleAlign:'center',
         welcomeMode:['static','scroll','fade'].includes(raw.welcomeMode)?raw.welcomeMode:'static',welcomeDuration:Math.max(3,Math.min(120,Number(raw.welcomeDuration)||12)),welcomeRepeat:Math.max(1,Math.min(30,Math.floor(Number(raw.welcomeRepeat)||1))),
-        scroll:raw.scroll===true,scrollDuration:Math.max(3,Math.min(120,Number(raw.scrollDuration)||18)),scrollRepeat:Math.max(0,Math.min(30,Math.floor(Number(raw.scrollRepeat)||0))),flyerUrl:String(raw.flyerUrl||'').slice(0,1200),slideTitle:String(raw.slideTitle||'').slice(0,180),
+        scroll:raw.scroll===true,scrollDuration:Math.max(3,Math.min(120,Number(raw.scrollDuration)||18)),scrollRepeat:Math.max(0,Math.min(30,Math.floor(Number(raw.scrollRepeat)||0))),flyerUrl:String(raw.flyerUrl||'').slice(0,1200),slideKind:['hymn','slide'].includes(raw.slideKind)?raw.slideKind:'slide',slideTitle:String(raw.slideTitle||'').slice(0,180),
         slideBody:String(raw.slideBody||'').slice(0,3000),slideReference:String(raw.slideReference||'').slice(0,180),
         slides:Array.isArray(raw.slides)?raw.slides.slice(0,60).map(function(s){return {type:['camera','overlay','slide','flyer','split','ticker'].includes(s.type)?s.type:'slide',
           title:String(s.title||'').slice(0,180),body:String(s.body||'').slice(0,3000),reference:String(s.reference||'').slice(0,180),
