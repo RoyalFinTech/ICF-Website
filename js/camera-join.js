@@ -21,9 +21,9 @@ function drawCameraFrame(){
   }else if(angle===180){rotation=180;}
   ctx.fillStyle='#071329';ctx.fillRect(0,0,W,H);
   ctx.save();ctx.translate(W/2,H/2);if(rotation)ctx.rotate(rotation*Math.PI/180);
-  var rotatedWide=(rotation===90||rotation===-90)?!frameWide:frameWide;
-  if(rotatedWide){var scale=Math.max(W/w,H/h);ctx.drawImage(video,-w*scale/2,-h*scale/2,w*scale,h*scale);}
-  else{var scaleFit=Math.min(W/w,H/h);ctx.drawImage(video,-w*scaleFit/2,-h*scaleFit/2,w*scaleFit,h*scaleFit);}
+  var rotated=(rotation===90||rotation===-90),effectiveW=rotated?h:w,effectiveH=rotated?w:h,rotatedWide=effectiveW>=effectiveH;
+  if(rotatedWide){var scale=Math.max(W/effectiveW,H/effectiveH);ctx.drawImage(video,-w*scale/2,-h*scale/2,w*scale,h*scale);}
+  else{var scaleFit=Math.min(W/effectiveW,H/effectiveH);ctx.drawImage(video,-w*scaleFit/2,-h*scaleFit/2,w*scaleFit,h*scaleFit);}
   ctx.restore();
  }
  outputFrame=requestAnimationFrame(drawCameraFrame);
@@ -101,7 +101,7 @@ async function disconnect(){
 function openSignIn(){var loginUrl=location.origin+'/?page=admin-login';window.open(loginUrl,'icf-admin-signin','noopener');status('Sign in in the new tab. This camera will connect automatically after successful administrator sign-in.','info');}
 function toggleDrawer(){el('camera-drawer').classList.toggle('open');}
 function fullscreen(){var target=el('camera-app');if(target.requestFullscreen)target.requestFullscreen().catch(function(){});else if(target.webkitRequestFullscreen)target.webkitRequestFullscreen();}
-function orientationChanged(){if(outputCanvas&&outputContext)drawCameraFrame();}
+function orientationChanged(){/* The continuous frame loop reads the current screen orientation on every frame. */}
 el('connect-phone').addEventListener('click',connect);el('flip-phone').addEventListener('click',flip);el('pause-phone').addEventListener('click',togglePause);el('disconnect-phone').addEventListener('click',disconnect);
 el('login-phone').addEventListener('click',openSignIn);el('drawer-toggle').addEventListener('click',toggleDrawer);el('fullscreen-phone').addEventListener('click',fullscreen);
 window.addEventListener('storage',function(e){if(e.key==='icf_admin_token'&&e.newValue&&!room)connect();});
