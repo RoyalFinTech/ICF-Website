@@ -1000,3 +1000,16 @@ body.icf-admin-active #main { padding-top:0; }
   #page-signup .nationality-picker{min-width:0}
   #page-signup .country-native-select{font-size:14px}
 }
+
+/* Android-safe nationality picker: searchable HTML list, never a native select */
+#wrap-nationality .nationality-current{display:flex;align-items:center;min-height:42px;padding:8px 12px;margin-bottom:8px;border:1px solid var(--gold);border-radius:var(--radius-sm);background:var(--bg2);color:var(--text);font-weight:600}
+#wrap-nationality .nationality-dropdown{display:block!important;position:relative!important;inset:auto!important;min-width:0;width:100%;max-height:none;overflow:hidden;box-shadow:none}
+#wrap-nationality .nationality-search-wrap{padding:8px;background:var(--bg-card);position:sticky;top:0;z-index:2}
+#wrap-nationality .nationality-search{display:block;width:100%;min-height:44px;box-sizing:border-box}
+#wrap-nationality .nationality-country-list{max-height:260px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#wrap-nationality .country-group-title{position:sticky;top:0;z-index:1;padding:7px 12px;background:var(--bg2);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+#wrap-nationality .country-item{width:100%;border:0;background:transparent;text-align:left;min-height:42px}
+#wrap-nationality .country-item[aria-selected="true"]{background:rgba(212,168,0,.13);outline:1px solid var(--gold);outline-offset:-1px}
+#wrap-nationality .country-item-flag{width:25px;flex:0 0 25px}
+#wrap-nationality .country-item-name{flex:1;min-width:0}
+@media(max-width:640px){#wrap-nationality .nationality-country-list{max-height:230px}#wrap-nationality .country-item{min-height:46px;font-size:14px}}
