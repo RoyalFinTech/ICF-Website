@@ -43,6 +43,10 @@ if (!cameraPage.includes('id="frame-up"') || !cameraPage.includes('id="frame-lef
 if (!cameraClientSource.includes("window.addEventListener('deviceorientation'") || !cameraClientSource.includes('sensorLandscape') || !cameraClientSource.includes('phone-presentation')) throw new Error('Phone camera motion-sensor rotation or live branding sync is incomplete.');
 if (!cameraClientSource.includes('maxBitrate:1800000') || !cameraClientSource.includes('outputCanvas.width=1280') || !cameraClientSource.includes('captureStream(30)')) throw new Error('Phone camera transport profile has not been tuned for smooth 720p streaming.');
 if (!broadcastRoutesSource.includes('/phone-presentation')) throw new Error('Paired phones cannot retrieve the live ICF presentation layer.');
+if (!broadcastRoutesSource.includes("welcomeMode:['static','scroll','fade']") || !broadcastRoutesSource.includes('welcomeRepeat:') || !broadcastRoutesSource.includes('scrollRepeat:') || !broadcastRoutesSource.includes('bibleAlign:')) throw new Error('Broadcast API is not persisting the complete presentation animation and Bible alignment settings.');
+if (!worshipStudioSource.includes('ws-welcome-repeat') || !worshipStudioSource.includes('ws-scroll-duration') || !worshipStudioSource.includes('icf-studio-slide-scroll')) throw new Error('Worship Studio scrolling controls and preview animation are incomplete.');
+if (!worshipViewerSource.includes('welcomeRepeat') || !worshipViewerSource.includes('slide-scroll-repeat') || !livePage.includes('.overlay[data-behavior=scroll] span') || !livePage.includes('.live-slide-text.scroll span')) throw new Error('Public live output is not applying configured scrolling animation.');
+if (!worshipStudioSource.includes("stream:'icf-program-av'")) throw new Error('Studio microphone and camera tracks must share a LiveKit stream for synchronization.');
 
 
 
