@@ -1063,3 +1063,26 @@ body.icf-admin-active #main { padding-top:0; }
 #wrap-nationality .nationality-search-status{min-height:18px;padding:5px 2px 0;color:var(--text-muted);font-size:11px;line-height:1.4}
 #wrap-nationality .nationality-country-list:empty{min-height:48px}
 @media(max-width:640px){#wrap-nationality .nationality-country-list{max-height:220px!important}#wrap-nationality .country-item{min-height:46px;font-size:14px}}
+
+/* Remote phone camera roster, QR pairing and programme layouts */
+.ws-remote-camera-grid{position:absolute;inset:0;z-index:3;pointer-events:none;display:none}
+.ws-remote-camera-tile{overflow:hidden;border:2px solid #fff;border-radius:10px;background:#020617;box-shadow:0 5px 22px #0009}
+.ws-remote-camera-tile video{display:block;width:100%;height:100%;object-fit:cover}
+.ws-remote-camera-label{position:absolute;left:7px;bottom:7px;padding:4px 7px;border-radius:5px;background:#071329cf;color:#fff;font-size:10px;font-weight:800}
+#ws-stage[data-camera-layout=split] #ws-preview,#ws-stage[data-camera-layout=grid] #ws-preview{position:absolute;left:0;top:0;width:50%;height:100%;object-fit:cover}
+#ws-stage[data-camera-layout=split] .ws-remote-camera-grid,#ws-stage[data-camera-layout=grid] .ws-remote-camera-grid{position:absolute;left:50%;top:0;right:0;bottom:0;width:50%;height:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(45%,1fr));grid-auto-rows:minmax(45%,1fr);gap:4px;padding:4px}
+#ws-stage[data-camera-layout=split] .ws-remote-camera-tile,#ws-stage[data-camera-layout=grid] .ws-remote-camera-tile{position:relative!important;inset:auto!important;width:100%!important;height:100%!important}
+#ws-stage[data-camera-layout=single] .ws-remote-camera-grid{display:block}
+#ws-stage[data-camera-layout=single] .ws-remote-camera-tile{border:0;border-radius:0}
+#ws-stage[data-camera-layout=pip] .ws-remote-camera-tile{border-radius:9px}
+.ws-remote-camera-roster{margin:10px 0;padding:12px;border:1px solid var(--gold);border-radius:10px;background:var(--bg-card2);display:grid;gap:8px}
+.ws-remote-camera-roster>strong{font-size:12px;color:var(--gold)}
+.ws-remote-camera-roster>span{font-size:11px;color:var(--text-dim)}
+.ws-remote-camera-list{display:grid;gap:7px}
+.ws-remote-camera-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px;border-radius:8px;background:var(--bg-card)}
+.ws-remote-camera-row small{display:block;color:var(--text-dim);font-size:10px;margin-top:3px}
+.ws-remote-camera-row .btn{font-size:10px;padding:7px 10px;flex:0 0 auto}
+.ws-phone-qr{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding-top:8px}
+.ws-phone-qr img{width:180px;height:180px;object-fit:contain;background:#fff;padding:8px;border-radius:10px}
+.ws-phone-qr small{max-width:260px;color:var(--text-dim);font-size:11px;line-height:1.5}
+@media(max-width:520px){.ws-phone-qr img{width:150px;height:150px}.ws-remote-camera-row{align-items:flex-start}}
