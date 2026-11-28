@@ -49,7 +49,7 @@ if (!worshipViewerSource.includes('welcomeRepeat') || !worshipViewerSource.inclu
 if (!worshipStudioSource.includes("stream:'icf-program-av'")) throw new Error('Studio microphone and camera tracks must share a LiveKit stream for synchronization.');
 if (!worshipStudioSource.includes('ws-hymn-end') || !worshipStudioSource.includes("c.slideKind==='hymn'") || !worshipStudioSource.includes('ws-hymn-layout')) throw new Error('Worship Studio hymn publishing, layout, or end-display controls are incomplete.');
 if (!worshipViewerSource.includes('live-hymn-heading') || !worshipViewerSource.includes('hymn-layout') || !worshipViewerSource.includes('hasSecondary') || !livePage.includes('.live-slide-text.hymn-layout')) throw new Error('Public live hymn layout or empty picture-in-picture suppression is incomplete.');
-if (!adminRoutesSource.includes("slideKind:['hymn','slide'].includes(raw.slideKind)?raw.slideKind:'slide'")) throw new Error('Broadcast API must persist the selected slide kind so public viewers render hymn formatting correctly.');
+if (!broadcastRoutesSource.includes("slideKind:['hymn','slide'].includes(raw.slideKind)?raw.slideKind:'slide'")) throw new Error('Broadcast API must persist the selected slide kind so public viewers render hymn formatting correctly.');
 
 
 
