@@ -18,7 +18,7 @@ if (!html.includes('/favicon.png')) throw new Error('External favicon is not lin
 if (!html.includes('class="nav-shortcuts"') || !html.includes('class="nav-auth-login"') || !html.includes('class="nav-auth-signup"')) throw new Error('Responsive quick navigation or visible login/signup actions are missing.');
 const pickerSource = fs.readFileSync(path.join(ROOT, 'js/nationality-picker.js'), 'utf8');
 new Function(pickerSource);
-if (!pickerSource.includes('getAll()') || !pickerSource.includes('getPhoneCountries()') || !pickerSource.includes('nationality-search-status') || !pickerSource.includes('selectedDialCode')) throw new Error('Dedicated nationality picker, live results or phone-code synchronization is missing.');
+if (!pickerSource.includes('getAll()') || !pickerSource.includes('getPhoneCountries()') || !pickerSource.includes('nationality-search-status') || !pickerSource.includes('selectedDialCode') || !pickerSource.includes('event.stopPropagation()') || !pickerSource.includes('data-name=') || !pickerSource.includes('data-dial=')) throw new Error('Dedicated nationality picker must isolate the legacy search listener and retain searchable result attributes.');
 const countryData = require('../js/country-data');
 const countries = countryData.getAll();
 if (countries.length !== 249 || countries.some(function (country) { return !country.code || !country.name || !country.flag || !country.region; })) throw new Error('The full country and flag catalogue is incomplete.');
