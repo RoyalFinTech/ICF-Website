@@ -86,7 +86,7 @@
         group.countries.map(function (country) {
           return '<button type="button" class="country-item" role="option" aria-selected="' +
             (country.code === (document.getElementById('su-nationality-code') || {}).value ? 'true' : 'false') +
-            '" data-code="' + escapeHtml(country.code) + '">' +
+            '" data-code="' + escapeHtml(country.code) + '" data-name="' + escapeHtml(country.name) + '" data-dial="' + escapeHtml(country.dialCode) + '">' +
             '<span class="country-item-flag" aria-hidden="true">' + escapeHtml(country.flag) + '</span>' +
             '<span class="country-item-name">' + escapeHtml(country.name) + '</span>' +
             '<span class="country-item-code">' + escapeHtml(country.code) + '</span></button>';
@@ -94,7 +94,7 @@
     }).join('');
     if (status) {
       status.textContent = matches.length
-        ? (q ? matches.length + ' matching country/territory' + (matches.length === 1 ? '' : 'ies') + ' · tap to select' : allCountries.length + ' countries and territories · grouped by region')
+        ? (q ? matches.length + ' matching ' + (matches.length === 1 ? 'country or territory' : 'countries and territories') + ' · tap to select' : allCountries.length + ' countries and territories · grouped by region')
         : 'No country found for “' + String(query || '').trim() + '”. Try a country name or ISO code.';
     }
     list.setAttribute('aria-label', matches.length + ' matching countries and territories');
@@ -113,7 +113,7 @@
     }
     if (!initialized) {
       initialized = true;
-      search.addEventListener('input', function () { render(search.value); });
+      search.addEventListener('input', function (event) { event.stopPropagation(); render(search.value); });
       search.addEventListener('keydown', function (event) {
         if (event.key === 'Enter') {
           var first = list.querySelector('.country-item');
