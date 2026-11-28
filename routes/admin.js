@@ -88,11 +88,11 @@ module.exports = function registerAdminRoutes(app, deps) {
   });
 
 function normalizedLiveKitUrl(){var raw=String(process.env.LIVEKIT_URL||'').trim();if(!raw)throw new Error('LIVEKIT_NOT_CONFIGURED');if(!/^https?:\/\//i.test(raw)&&!/^wss?:\/\//i.test(raw))raw='wss://'+raw;var u=new URL(raw);if(u.protocol==='https:')u.protocol='wss:';else if(u.protocol==='http:')u.protocol='ws:';if(!['wss:','ws:'].includes(u.protocol)||!u.hostname)throw new Error('LIVEKIT_URL_INVALID');u.pathname='';u.search='';u.hash='';return u.toString().replace(/\/$/,'');}
-  function createBroadcastToken(room, identity, canPublish) {
+  function createBroadcastToken(room, identity, canPublish, canSubscribe) {
     const key=process.env.LIVEKIT_API_KEY||'', secret=process.env.LIVEKIT_API_SECRET||'', serverUrl=normalizedLiveKitUrl();
     if(!key||!secret||!serverUrl) throw new Error('LIVEKIT_NOT_CONFIGURED');
     const now=Math.floor(Date.now()/1000), enc=function(v){return Buffer.from(JSON.stringify(v)).toString('base64url');};
-    const body=enc({alg:'HS256',typ:'JWT'})+'.'+enc({iss:key,sub:identity,name:identity,nbf:now-5,iat:now,exp:now+3600,video:{roomJoin:true,room:room,canPublish:!!canPublish,canSubscribe:true}});
+    const body=enc({alg:'HS256',typ:'JWT'})+'.'+enc({iss:key,sub:identity,name:identity,nbf:now-5,iat:now,exp:now+3600,video:{roomJoin:true,room:room,canPublish:!!canPublish,canSubscribe:canSubscribe!==false}});
     return {serverUrl:serverUrl,token:body+'.'+crypto.createHmac('sha256',secret).update(body).digest('base64url')};
   }
   async function terminateLiveKitRoom(roomName) {
@@ -173,7 +173,7 @@ function normalizedLiveKitUrl(){var raw=String(process.env.LIVEKIT_URL||'').trim
     catch(e){if(e.message==='LIVEKIT_NOT_CONFIGURED')return fail(res,503,'Live broadcasting is not connected yet. Configure LIVEKIT_URL, LIVEKIT_API_KEY and LIVEKIT_API_SECRET in Render.');if(e.message==='LIVEKIT_URL_INVALID')return fail(res,503,'LIVEKIT_URL is invalid. Set it to your LiveKit Cloud server URL, for example wss://your-project.livekit.cloud.');console.error('Broadcast token failed:',e.message);fail(res,503,'Could not prepare secure broadcast credentials.');}
   });
   app.post('/api/admin/broadcast/sessions/:id/camera-token',requireStorage,requireAdmin,async function(req,res){
-    try{const r=await db().from('broadcast_sessions').select('room_name,status').eq('id',req.params.id).maybeSingle();if(r.error)throw r.error;if(!r.data)return fail(res,404,'Broadcast session not found.');if(!['preparing','live'].includes(r.data.status))return fail(res,409,'Start the broadcast before connecting a remote camera.');const cameraId=crypto.randomBytes(6).toString('hex');const requested=String((req.body||{}).cameraName||'').trim().replace(/[<>\\r\\n]/g,' ').slice(0,48);const cameraName=requested||('Phone camera '+cameraId.slice(0,4).toUpperCase());const identity='icf-phone-'+cameraId;res.set('Cache-Control','no-store');res.json(Object.assign(createBroadcastToken(r.data.room_name,identity,true),{cameraId:cameraId,cameraName:cameraName,trackName:'icf-camera-'+cameraId+'::'+encodeURIComponent(cameraName)}));}
+    try{const r=await db().from('broadcast_sessions').select('room_name,status').eq('id',req.params.id).maybeSingle();if(r.error)throw r.error;if(!r.data)return fail(res,404,'Broadcast session not found.');if(!['preparing','live'].includes(r.data.status))return fail(res,409,'Start the broadcast before connecting a remote camera.');const cameraId=crypto.randomBytes(6).toString('hex');const requested=String((req.body||{}).cameraName||'').trim() .replace(/[<>]/g,' ').replace(/[\\r\\n]/g,' ').slice(0,48);const cameraName=requested||('Phone camera '+cameraId.slice(0,4).toUpperCase());const identity='icf-phone-'+cameraId;res.set('Cache-Control','no-store');res.json(Object.assign(createBroadcastToken(r.data.room_name,identity,true,false),{cameraId:cameraId,cameraName:cameraName,trackName:'icf-camera-'+cameraId+'::'+encodeURIComponent(cameraName)}));}
     catch(e){if(e.message==='LIVEKIT_NOT_CONFIGURED')return fail(res,503,'LiveKit is not configured.');if(e.message==='LIVEKIT_URL_INVALID')return fail(res,503,'LIVEKIT_URL must be a valid LiveKit WebSocket URL.');console.error('Remote camera token failed:',e.message);fail(res,503,'Could not connect the phone camera.');}
   });
   app.post('/api/admin/broadcast/sessions/:id/start',requireStorage,requireAdmin,async function(req,res){
