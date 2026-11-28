@@ -2,7 +2,7 @@
 'use strict';
 var room=null,stream=null,publishedTrack=null,outputCanvas=null,outputContext=null,outputStream=null,outputFrame=0;
 var paused=false,facing='environment',connecting=false,wakeLock=null,trackName='',retryCount=0;
-var statusTimer=0,brandingTimer=0,activeSessionId='',sensorReady=false,sensorListenerRegistered=false,sensorLandscape=null,sensorAngle=null,lastFrameAt=0;
+var statusTimer=0,brandingTimer=0,controlsTimer=0,activeSessionId='',sensorReady=false,sensorListenerRegistered=false,sensorLandscape=null,sensorAngle=null,lastFrameAt=0;
 var digitalZoom=1,brightness=1,contrast=1,panX=0,panY=0,hardwareZoomSupported=false,hardwareZoomBase=1,networkQuality='unknown';
 var publishOptions={name:'',videoCodec:'vp8',videoEncoding:{maxBitrate:1500000,maxFramerate:20,priority:'high'},degradationPreference:'maintain-framerate',simulcast:false};
 function el(id){return document.getElementById(id);}
@@ -99,7 +99,7 @@ function applyPhonePresentation(presentation){
  if(logo){if(logo.getAttribute('src')!==url){logo.onerror=function(){if(this.getAttribute('src')!=='/icf-logo-transparent.png')this.src='/icf-logo-transparent.png';};logo.src=url;}logo.style.display='block';logo.dataset.position=presentation.logo_position||presentation.logoPosition||'top-left';}
  var config=presentation.presentation_config||presentation.presentationConfig||{},mode=config.mode||'camera';
  var welcomeText=String(presentation.overlay_text||presentation.overlayText||'');
- if(welcome){welcome.textContent=welcomeText;welcome.style.display=welcomeText?'block':'none';}
+ if(welcome){welcome.textContent=welcomeText;welcome.style.display=welcomeText?'block':'none';welcome.classList.toggle('is-marquee',!!welcomeText);}
  var slideText=[config.slideTitle||'',config.slideBody||''].filter(Boolean).join('\n');
  if(slide){slide.textContent=slideText;slide.hidden=!(mode==='slide'||mode==='ticker')||!slideText;}
  var scriptureText=String(presentation.scripture_text||presentation.scriptureText||'').trim(),reference=String(presentation.scripture_reference||presentation.scriptureReference||'').trim();
@@ -168,7 +168,8 @@ async function disconnect(){
  }catch(e){status(e.message,'error');}
 }
 function openSignIn(){var loginUrl=location.origin+'/?page=admin-login';window.open(loginUrl,'icf-admin-signin','noopener');status('Sign in in the new tab. This camera will connect automatically after login.','info');}
-function toggleDrawer(){el('camera-drawer').classList.toggle('open');}
+function revealControls(){var app=el('camera-app');if(!app)return;app.classList.remove('controls-hidden');if(controlsTimer)clearTimeout(controlsTimer);if(!el('camera-drawer').classList.contains('open'))controlsTimer=setTimeout(function(){app.classList.add('controls-hidden');},3600);}
+function toggleDrawer(){el('camera-drawer').classList.toggle('open');revealControls();}
 function fullscreen(){var target=el('camera-app');var entered=target.requestFullscreen?target.requestFullscreen():target.webkitRequestFullscreen?target.webkitRequestFullscreen():null;if(entered&&typeof entered.then==='function')entered.then(function(){try{if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(function(){});}catch(_e){}}).catch(function(){});}
 function orientationChanged(){
  var app=el('camera-app');if(!app)return;
@@ -184,6 +185,8 @@ el('phone-zoom').addEventListener('change',function(){setZoom(this.value);});
 el('frame-up').addEventListener('click',function(){moveFrame(0,-.08);});el('frame-down').addEventListener('click',function(){moveFrame(0,.08);});el('frame-left').addEventListener('click',function(){moveFrame(-.08,0);});el('frame-right').addEventListener('click',function(){moveFrame(.08,0);});el('frame-reset').addEventListener('click',resetFrame);
 el('phone-brightness').addEventListener('input',setPictureAdjustments);el('phone-contrast').addEventListener('input',setPictureAdjustments);
 el('camera-status').addEventListener('click',function(){this.dataset.visible='false';if(statusTimer)clearTimeout(statusTimer);});
+el('camera-app').addEventListener('pointerdown',revealControls,{passive:true});
+revealControls();
 window.addEventListener('storage',function(e){if(e.key==='icf_admin_token'&&e.newValue&&!room)connect();});
 window.addEventListener('focus',function(){if(token()&&!room&&!connecting)connect();});
 window.addEventListener('orientationchange',orientationChanged);window.addEventListener('resize',orientationChanged);
