@@ -1097,3 +1097,23 @@ body.icf-admin-active #main { padding-top:0; }
 #ws-stage .worship-preview-label{z-index:19!important}
 #ws-stage .ws-remote-camera-grid{z-index:2!important}
 #ws-stage .ws-remote-camera-tile{z-index:2!important}
+
+
+/* ICF Worship Studio touch controls and narrow-screen operation */
+.worship-live-actions,.worship-actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+.worship-live-actions .btn,.worship-actions .btn{min-height:44px;touch-action:manipulation}
+.ws-toolbar{scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.ws-toolbar .btn{min-height:42px;scroll-snap-align:start}
+@media(max-width:560px){
+  #page-admin-portal .worship-studio{padding-bottom:max(36px,env(safe-area-inset-bottom))}
+  #page-admin-portal .worship-preview-frame{width:100%;max-width:100%;aspect-ratio:16/9;max-height:none}
+  #page-admin-portal .worship-live-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  #page-admin-portal .worship-live-actions .btn{width:100%;min-width:0;padding:11px 8px;font-size:12px;white-space:normal}
+  #page-admin-portal .worship-live-actions #ws-record-status{grid-column:1/-1}
+  #page-admin-portal .worship-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  #page-admin-portal .worship-actions .btn{width:100%;min-width:0;padding:10px 7px;font-size:11px;white-space:normal}
+  #page-admin-portal .worship-device-row label{min-width:0}
+  #page-admin-portal .worship-device-row select{width:100%;min-width:0;min-height:44px}
+  #page-admin-portal .worship-control-card input,#page-admin-portal .worship-control-card select,#page-admin-portal .worship-control-card textarea{max-width:100%;min-width:0}
+}
+@media(hover:none){.ws-toolbar::-webkit-scrollbar{display:none}}
