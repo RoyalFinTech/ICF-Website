@@ -68,8 +68,9 @@ async function publishPhoneOutput(){
  await room.localParticipant.publishTrack(publishedTrack,publishOptions);
 }
 async function keepAwake(){try{if('wakeLock'in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(_e){}}
+function syncPreviewTransform(){var video=el('phone-preview');if(video)video.style.transform='translate3d('+(panX*12)+'%, '+(panY*12)+'%, 0) scale('+digitalZoom+')';}
 function syncZoomControls(){
- var v=el('phone-zoom'),d=el('zoom-display'),q=el('zoom-value');if(v)v.value=String(currentZoom);if(d)d.textContent=currentZoom.toFixed(1)+'×';if(q)q.textContent=currentZoom.toFixed(1)+'×';
+ var v=el('phone-zoom'),d=el('zoom-display'),q=el('zoom-value');if(v)v.value=String(currentZoom);if(d)d.textContent=currentZoom.toFixed(1)+'×';if(q)q.textContent=currentZoom.toFixed(1)+'×';syncPreviewTransform();
 }
 var currentZoom=1;
 async function setZoom(value){
@@ -82,7 +83,7 @@ async function setZoom(value){
  syncZoomControls();
 }
 function stepZoom(amount){setZoom(currentZoom+amount).catch(function(){});}
-function moveFrame(dx,dy){panX=Math.max(-.4,Math.min(.4,panX+dx));panY=Math.max(-.4,Math.min(.4,panY+dy));}
+function moveFrame(dx,dy){panX=Math.max(-.4,Math.min(.4,panX+dx));panY=Math.max(-.4,Math.min(.4,panY+dy));syncPreviewTransform();}
 function resetFrame(){panX=0;panY=0;setZoom(1).catch(function(){});if(el('phone-brightness'))el('phone-brightness').value='1';if(el('phone-contrast'))el('phone-contrast').value='1';setPictureAdjustments();}
 function setPictureAdjustments(){
  brightness=Number(el('phone-brightness')&&el('phone-brightness').value)||1;
