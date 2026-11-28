@@ -444,7 +444,7 @@ function toggleCountryDropdown(id) {
   var list = document.getElementById('list-' + id);
   if (list && !list.querySelector('.country-item')) populateCountryLists();
   var isOpen = dd.style.display !== 'none';
-  document.querySelectorAll('.country-dropdown').forEach(function(d) { d.style.display = 'none'; });
+  document.querySelectorAll('.country-dropdown').forEach(function(d) { if (d.id !== 'dd-nationality') d.style.display = 'none'; });
   if (!isOpen) {
     dd.style.display = 'block';
     var si = dd.querySelector('.country-search-input');
@@ -481,6 +481,9 @@ function selectCountry(id, code, dialCode, name, flag, type) {
       var search = document.getElementById('dd-nationality-search');
       if (search) search.value = '';
       filterCountries('nationality', '', 'nationality');
+      document.querySelectorAll('#list-nationality .country-item[aria-selected="true"]').forEach(function(item) {
+        item.removeAttribute('aria-selected');
+      });
       var chosen = document.querySelector('#list-nationality .country-item[data-code="' + code + '"]');
       if (chosen) chosen.setAttribute('aria-selected', 'true');
     }
@@ -529,7 +532,7 @@ document.addEventListener('click', function(e) {
   if (!e.target.closest('.country-selector-wrap') &&
       !e.target.closest('.country-dropdown')) {
     document.querySelectorAll('.country-dropdown').forEach(function(d) {
-      d.style.display = 'none';
+      if (d.id !== 'dd-nationality') d.style.display = 'none';
     });
   }
 });
