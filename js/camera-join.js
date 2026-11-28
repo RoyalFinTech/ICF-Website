@@ -3,7 +3,7 @@
 var room=null,stream=null,publishedTrack=null,outputCanvas=null,outputContext=null,outputStream=null,outputFrame=0;
 var paused=false,facing='environment',connecting=false,wakeLock=null,trackName='',retryCount=0;
 var statusTimer=0,brandingTimer=0,activeSessionId='',sensorReady=false,sensorListenerRegistered=false,sensorLandscape=null,sensorAngle=null,lastFrameAt=0;
-var digitalZoom=1,brightness=1,contrast=1,hardwareZoomSupported=false,hardwareZoomBase=1,networkQuality='unknown';
+var digitalZoom=1,brightness=1,contrast=1,panX=0,panY=0,hardwareZoomSupported=false,hardwareZoomBase=1,networkQuality='unknown';
 var publishOptions={name:'',videoCodec:'vp8',videoEncoding:{maxBitrate:2200000,maxFramerate:24,priority:'medium'},degradationPreference:'balanced',simulcast:false};
 function el(id){return document.getElementById(id);}
 function status(message,kind){
@@ -45,7 +45,7 @@ function drawCameraFrame(timestamp){
    else if(angle===180){rotation=180;}
    var rotated=rotation===90||rotation===-90,effectiveW=rotated?h:w,effectiveH=rotated?w:h;
    var scale=Math.max(W/effectiveW,H/effectiveH);
-   ctx.save();ctx.fillStyle='#071329';ctx.fillRect(0,0,W,H);ctx.translate(W/2,H/2);if(rotation)ctx.rotate(rotation*Math.PI/180);
+   ctx.save();ctx.fillStyle='#071329';ctx.fillRect(0,0,W,H);ctx.translate(W/2+panX*W*.12,H/2+panY*H*.12);if(rotation)ctx.rotate(rotation*Math.PI/180);
    if('filter'in ctx)ctx.filter='brightness('+brightness+') contrast('+contrast+')';
    ctx.scale(digitalZoom,digitalZoom);
    ctx.drawImage(video,-w*scale/2,-h*scale/2,w*scale,h*scale);
@@ -81,7 +81,7 @@ async function setZoom(value){
  }
  syncZoomControls();
 }
-function stepZoom(amount){setZoom(currentZoom+amount).catch(function(){});}
+function stepZoom(amount){setZoom(currentZoom+amount).catch(function(){});}\nfunction moveFrame(dx,dy){panX=Math.max(-.4,Math.min(.4,panX+dx));panY=Math.max(-.4,Math.min(.4,panY+dy));}\nfunction resetFrame(){panX=0;panY=0;setZoom(1).catch(function(){});if(el('phone-brightness'))el('phone-brightness').value='1';if(el('phone-contrast'))el('phone-contrast').value='1';setPictureAdjustments();}
 function setPictureAdjustments(){
  brightness=Number(el('phone-brightness')&&el('phone-brightness').value)||1;
  contrast=Number(el('phone-contrast')&&el('phone-contrast').value)||1;
@@ -171,7 +171,7 @@ el('connect-phone').addEventListener('click',function(){enableOrientationSensor(
 el('flip-phone').addEventListener('click',flip);el('pause-phone').addEventListener('click',togglePause);el('disconnect-phone').addEventListener('click',disconnect);
 el('login-phone').addEventListener('click',openSignIn);el('drawer-toggle').addEventListener('click',toggleDrawer);el('fullscreen-phone').addEventListener('click',fullscreen);
 el('zoom-in').addEventListener('click',function(){stepZoom(.2);});el('zoom-out').addEventListener('click',function(){stepZoom(-.2);});
-el('phone-zoom').addEventListener('input',function(){setZoom(this.value);});
+el('phone-zoom').addEventListener('change',function(){setZoom(this.value);});\nel('frame-up').addEventListener('click',function(){moveFrame(0,-.08);});el('frame-down').addEventListener('click',function(){moveFrame(0,.08);});el('frame-left').addEventListener('click',function(){moveFrame(-.08,0);});el('frame-right').addEventListener('click',function(){moveFrame(.08,0);});el('frame-reset').addEventListener('click',resetFrame);
 el('phone-brightness').addEventListener('input',setPictureAdjustments);el('phone-contrast').addEventListener('input',setPictureAdjustments);
 el('camera-status').addEventListener('click',function(){this.dataset.visible='false';if(statusTimer)clearTimeout(statusTimer);});
 window.addEventListener('storage',function(e){if(e.key==='icf_admin_token'&&e.newValue&&!room)connect();});
