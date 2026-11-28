@@ -25,6 +25,7 @@ if (!homePage.includes('Join Us for Worship') || !homePage.includes('Worship Ser
 }
 if (!siteCss.includes('Mobile worship schedule + footer layout repair') ||
     !siteCss.includes('grid-template-columns: 76px minmax(0, 1fr)') ||
+    !siteCss.includes('#page-services .service-time-row') ||
     !siteCss.includes('#footer .footer-grid') ||
     !siteCss.includes('grid-template-columns: minmax(0, 1fr) !important')) {
   throw new Error('Mobile worship schedule and single-column footer repairs are missing.');
