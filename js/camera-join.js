@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-var room=null,stream=null,publishedTrack=null,paused=false,facing='environment',connecting=false,wakeLock=null,trackName='';
+var room=null,stream=null,publishedTrack=null,paused=false,facing='environment',connecting=false,wakeLock=null,trackName='',retryCount=0;
 function el(id){return document.getElementById(id);}
 function status(message,kind){var e=el('camera-status'),s=el('live-state');if(e)e.textContent=message||'';if(s){s.dataset.kind=kind||'info';s.textContent=kind==='live'?'CONNECTED':kind==='error'?'CONNECTION ERROR':'READY';}}
 function token(){return localStorage.getItem('icf_admin_token')||'';}
@@ -23,9 +23,9 @@ async function connect(){
   var slug=new URLSearchParams(location.search).get('slug');if(!slug)throw new Error('The QR/link is missing its broadcast code. Generate a fresh link from the ICF studio.');
   status('Checking the active ICF service…','info');
   var list=await request('/admin/broadcast/sessions'),session=(list.sessions||[]).find(function(s){return s.slug===slug;});
-  if(!session||!['preparing','live'].includes(session.status))throw new Error('The ICF operator must start the broadcast before this phone can join.');
+  if(!session)throw new Error('This ICF camera link does not match an existing broadcast. Generate a new QR code.');if(!['preparing','live'].includes(session.status))throw new Error('ICF_WAITING_FOR_LIVE');
   var credentials=await request('/admin/broadcast/sessions/'+session.id+'/camera-token','POST',{cameraName:el('camera-name').value||'Phone camera'});
-  trackName=credentials.trackName;
+  trackName=credentials.trackName;retryCount=0;
   status('Requesting this phone’s camera permission…','info');await startDevice();
   room=new LivekitClient.Room({adaptiveStream:true,dynacast:true});
   room.on(LivekitClient.RoomEvent.Disconnected,function(){if(room){room=null;publishedTrack=null;}status('The studio connection was interrupted. Reconnect to resume sending video.','error');el('connect-phone').disabled=false;});
@@ -36,7 +36,7 @@ async function connect(){
   el('connect-phone').textContent='Connected';el('camera-device-status').textContent='Connected as '+credentials.cameraName+'. The operator can now select this feed in the camera roster.';
   el('drawer-toggle').setAttribute('aria-label','Camera options · connected');keepAwake();
   status('Your live camera is connected to the ICF Worship Studio. Keep this page open while filming.','live');
- }catch(e){status(e.message,'error');el('connect-phone').disabled=false;el('connect-phone').textContent='Try connect again';}
+ }catch(e){if(e.message==='ICF_WAITING_FOR_LIVE'&&retryCount<45){retryCount++;status('Your QR link is recognised. Waiting for the operator to start the live service…','info');el('connect-phone').textContent='Waiting for studio…';setTimeout(function(){if(!room&&!connecting)connect();},2500);}else{status(e.message,'error');el('connect-phone').disabled=false;el('connect-phone').textContent='Try connect again';}}
  finally{connecting=false;}
 }
 async function flip(){
