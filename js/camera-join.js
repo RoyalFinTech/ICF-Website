@@ -56,9 +56,9 @@ function drawCameraFrame(timestamp){
  outputFrame=requestAnimationFrame(drawCameraFrame);
 }
 function startComposer(){
- stopComposer();outputCanvas=document.createElement('canvas');outputCanvas.width=960;outputCanvas.height=540;
+ stopComposer();outputCanvas=document.createElement('canvas');outputCanvas.width=1280;outputCanvas.height=720;
  outputContext=outputCanvas.getContext('2d',{alpha:false,desynchronized:true});if(!outputContext)throw new Error('This browser cannot prepare the camera output.');
- outputContext.fillStyle='#071329';outputContext.fillRect(0,0,960,540);
+ outputContext.fillStyle='#071329';outputContext.fillRect(0,0,1280,720);
  drawCameraFrame(performance.now());outputStream=outputCanvas.captureStream(20);
  if(!outputStream||!outputStream.getVideoTracks().length)throw new Error('Could not create the camera output on this device.');
 }
