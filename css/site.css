@@ -1090,9 +1090,10 @@ body.icf-admin-active #main { padding-top:0; }
 #ws-stage[data-camera-count="0"][data-camera-layout=split] #ws-preview,#ws-stage[data-camera-count="0"][data-camera-layout=grid] #ws-preview{width:100%;height:100%}
 
 /* Keep ICF programme graphics above remote-phone video layers */
-#ws-stage .worship-overlay-logo{z-index:7}
+#ws-stage .worship-overlay-logo{z-index:20!important}
 #ws-stage .worship-overlay-text,#ws-stage .worship-overlay-verse,
+#ws-stage .ws-slide-text,#ws-stage .ws-slide-reference{z-index:19!important}
 #ws-stage .ws-slide-text,#ws-stage .ws-slide-reference,
-#ws-stage .worship-preview-label{z-index:6}
-#ws-stage .ws-remote-camera-grid{z-index:3}
-#ws-stage .ws-remote-camera-tile{z-index:3}
+#ws-stage .worship-preview-label{z-index:19!important}
+#ws-stage .ws-remote-camera-grid{z-index:2!important}
+#ws-stage .ws-remote-camera-tile{z-index:2!important}
