@@ -4,6 +4,7 @@ var room=null,stream=null,publishedTrack=null,outputCanvas=null,outputContext=nu
 var paused=false,facing='environment',connecting=false,wakeLock=null,trackName='',retryCount=0;
 var statusTimer=0,brandingTimer=0,activeSessionId='',sensorReady=false,sensorListenerRegistered=false,sensorLandscape=null,sensorAngle=null,lastFrameAt=0;
 var digitalZoom=1,brightness=1,contrast=1,panX=0,panY=0,hardwareZoomSupported=false,hardwareZoomBase=1,networkQuality='unknown';
+var brandingImage=null,brandingImageUrl='',phonePresentation={};
 var publishOptions={name:'',videoCodec:'vp8',videoEncoding:{maxBitrate:2200000,maxFramerate:24,priority:'medium'},degradationPreference:'balanced',simulcast:false};
 function el(id){return document.getElementById(id);}
 function status(message,kind){
@@ -34,6 +35,38 @@ async function enableOrientationSensor(){
  }catch(_e){return false;}
 }
 function stopComposer(){if(outputFrame)cancelAnimationFrame(outputFrame);outputFrame=0;lastFrameAt=0;if(outputStream){outputStream.getTracks().forEach(function(t){t.stop();});outputStream=null;}outputCanvas=null;outputContext=null;}
+function wrapCanvasText(ctx,text,x,y,maxWidth,lineHeight,maxLines){
+ var words=String(text||'').split(/\\s+/),line='',lines=[];
+ words.forEach(function(word){var test=line?line+' '+word:word;if(line&&ctx.measureText(test).width>maxWidth){lines.push(line);line=word;}else line=test;});
+ if(line)lines.push(line);if(maxLines&&lines.length>maxLines)lines=lines.slice(0,maxLines);
+ lines.forEach(function(item,index){ctx.fillText(item,x,y+index*lineHeight);});return lines.length;
+}
+function drawPhoneBranding(ctx,W,H){
+ var p=phonePresentation||{},config=p.presentation_config||{},mode=config.mode||'camera';
+ ctx.save();ctx.filter='none';ctx.textAlign='center';ctx.textBaseline='middle';
+ ctx.shadowColor='rgba(0,0,0,.72)';ctx.shadowBlur=8;ctx.fillStyle='#fff';
+ if(brandingImage&&brandingImage.complete&&brandingImage.naturalWidth){
+  var maxW=155,maxH=92,ratio=Math.min(maxW/brandingImage.naturalWidth,maxH/brandingImage.naturalHeight);
+  var lw=brandingImage.naturalWidth*ratio,lh=brandingImage.naturalHeight*ratio;
+  var pos=p.logo_position||'top-left',lx=pos.indexOf('right')>=0?W-lw-34:34,ly=pos.indexOf('bottom')>=0?H-lh-34:28;
+  ctx.drawImage(brandingImage,lx,ly,lw,lh);
+ }
+ var welcome=String(p.overlay_text||'').trim();
+ if(welcome){ctx.font='bold 25px Arial,sans-serif';wrapCanvasText(ctx,welcome,W/2,76,W-250,31,2);}
+ var slide=[config.slideTitle||'',config.slideBody||''].filter(Boolean).join(' ');
+ if((mode==='slide'||mode==='ticker')&&slide){ctx.font='bold 42px Arial,sans-serif';ctx.shadowBlur=12;wrapCanvasText(ctx,slide,W/2,H*.48,W-150,52,5);}
+ var ref=String(p.scripture_reference||'').trim(),verse=String(p.scripture_text||'').trim();
+ if(ref||verse){
+  var lines=verse?Math.min(3,Math.ceil(verse.length/95)):0;
+  var panelH=ref?76+lines*25:54+lines*25,top=H-panelH-26;
+  ctx.shadowBlur=0;ctx.fillStyle='rgba(4,15,35,.82)';ctx.fillRect(42,top,W-84,panelH);
+  ctx.fillStyle='#f6d879';ctx.font='bold 19px Arial,sans-serif';
+  if(ref)ctx.fillText(ref,W/2,top+23);
+  ctx.fillStyle='#fff';ctx.font='18px Arial,sans-serif';
+  if(verse)wrapCanvasText(ctx,verse,W/2,top+(ref?51:27),W-125,25,3);
+ }
+ ctx.restore();
+}
 function drawCameraFrame(timestamp){
  if(!outputCanvas||!outputContext)return;
  if(!timestamp||timestamp-lastFrameAt>=1000/24){
@@ -49,7 +82,7 @@ function drawCameraFrame(timestamp){
    if('filter'in ctx)ctx.filter='brightness('+brightness+') contrast('+contrast+')';
    ctx.scale(digitalZoom,digitalZoom);
    ctx.drawImage(video,-w*scale/2,-h*scale/2,w*scale,h*scale);
-   ctx.restore();if('filter'in ctx)ctx.filter='none';
+   ctx.restore();if('filter'in ctx)ctx.filter='none';drawPhoneBranding(ctx,W,H);
   }
  }
  outputFrame=requestAnimationFrame(drawCameraFrame);
@@ -91,10 +124,11 @@ function setPictureAdjustments(){
  var video=el('phone-preview');if(video)video.style.filter='brightness('+brightness+') contrast('+contrast+')';
 }
 function applyPhonePresentation(presentation){
- if(!presentation)return;
+ if(!presentation)return;phonePresentation=presentation;
  var logo=el('phone-brand-logo'),welcome=el('phone-brand-welcome'),slide=el('phone-brand-slide'),scripture=el('phone-brand-scripture');
  var url=String(presentation.logo_url||'').trim();
  if(logo){if(url&&logo.getAttribute('src')!==url)logo.src=url;logo.style.display=url?'block':'none';logo.dataset.position=presentation.logo_position||'top-left';}
+ if(url&&url!==brandingImageUrl){brandingImageUrl=url;brandingImage=new Image();brandingImage.crossOrigin='anonymous';brandingImage.onload=function(){if(outputContext)drawPhoneBranding(outputContext,outputCanvas.width,outputCanvas.height);};brandingImage.onerror=function(){brandingImage=null;};brandingImage.src=url;}else if(!url){brandingImage=null;brandingImageUrl='';}
  var config=presentation.presentation_config||{},mode=config.mode||'camera';
  var welcomeText=String(presentation.overlay_text||'');
  if(welcome){welcome.textContent=welcomeText;welcome.style.display=welcomeText?'block':'none';}
@@ -139,8 +173,8 @@ async function connect(){
   var settings=stream.getVideoTracks()[0].getSettings?stream.getVideoTracks()[0].getSettings():{},resolution=settings.width&&settings.height?settings.width+'×'+settings.height:'720p mode';
   if(el('flip-phone'))el('flip-phone').disabled=false;if(el('pause-phone'))el('pause-phone').disabled=false;if(el('disconnect-phone'))el('disconnect-phone').disabled=false;
   if(el('connect-phone')){el('connect-phone').textContent='Connected';el('connect-phone').disabled=true;}
-  if(el('camera-device-status'))el('camera-device-status').textContent='Connected as '+credentials.cameraName+'. Camera source '+resolution+'. Rotation follows the phone motion sensor; output is 720p landscape.';
-  keepAwake();startBrandingSync();status('Camera connected. Rotate the phone to landscape; the programme picture will follow.','live');
+  if(el('camera-device-status'))el('camera-device-status').textContent='Connected as '+credentials.cameraName+'. Camera source '+resolution+'. Programme graphics are included in the outgoing video.';
+  keepAwake();startBrandingSync();status('Camera connected.','live');
  }catch(e){
   if(e.message==='ICF_WAITING_FOR_LIVE'&&retryCount<45){retryCount++;status('QR link recognised. Waiting for the operator to start the live service…','info');if(el('connect-phone'))el('connect-phone').textContent='Waiting for studio…';setTimeout(function(){if(!room&&!connecting)connect();},2500);}
   else{status(e.message,'error');if(el('connect-phone')){el('connect-phone').disabled=false;el('connect-phone').textContent='Try connect again';}}
