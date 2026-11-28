@@ -490,7 +490,7 @@ function selectCountry(id, code, dialCode, name, flag, type) {
   }
   // Close dropdown and clear search
   var dd = document.getElementById('dd-' + id);
-  if (dd) dd.style.display = 'none';
+  if (dd && type === 'phone') dd.style.display = 'none';
   var si = document.getElementById('dd-' + id + '-search');
   if (si) { si.value = ''; filterCountries(id, '', type); }
 }
