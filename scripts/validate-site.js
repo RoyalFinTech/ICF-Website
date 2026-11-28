@@ -29,11 +29,11 @@ if (!livePage.includes('id="live-remote-cameras"')) throw new Error('Public live
 if (!broadcastRoutesSource.includes("trackName:'icf-camera-'+cameraId+'::'") || !broadcastRoutesSource.includes("canSubscribe:canSubscribe!==false")) throw new Error('Server camera identities or scoped publish-only permissions are incomplete.');
 const stylesSource = fs.readFileSync(path.join(ROOT, 'css/site.css'), 'utf8');
 const livePlayerSource = livePage;
-const phoneOrientationFeatures = ['screen.orientation','orientationchange','captureStream(30)','orientationAngle','videoEncoding:{maxBitrate:4500000'];
+const phoneOrientationFeatures = ['screen.orientation','orientationchange','captureStream(24)','currentAngle','deviceorientation','videoEncoding:{maxBitrate:2200000'];
 if (phoneOrientationFeatures.some(function (feature) { return !cameraClientSource.includes(feature); })) throw new Error('Phone camera landscape compositor or HD publish settings are incomplete.');
 if (!worshipStudioSource.includes('additional.push') || !worshipStudioSource.includes('Full programme recording')) throw new Error('Programme recorder is missing multi-camera composition.');
 if (!worshipStudioSource.includes('logoUrl:p.logoUrl') || !broadcastRoutesSource.includes('logo_url:logoUrl')) throw new Error('Live presentation updates do not persist ICF logo branding.');
-if (!stylesSource.includes('#ws-stage .worship-overlay-logo{z-index:7}') || !livePlayerSource.includes('.logo{position:absolute;z-index:7;') || !livePlayerSource.includes('.overlay{position:absolute;z-index:6;')) throw new Error('ICF logo and presentation text must render above remote video layers.');
+if (!stylesSource.includes('#ws-stage .worship-overlay-logo{z-index:20!important}') || !livePlayerSource.includes('.logo{position:absolute;z-index:20;') || !livePlayerSource.includes('.overlay{position:absolute;z-index:19;')) throw new Error('ICF logo and presentation text must render above remote video layers.');
 if (!worshipStudioSource.includes("if(secondary&&secondStream)additional.push({video:secondary,name:'Local camera 2'})")) throw new Error('Programme recording must retain the local secondary camera in every multi-camera layout.');
 const serverSource = fs.readFileSync(path.join(ROOT, 'server.js'), 'utf8');
 if (!serverSource.includes("app.use(['/live.html','/camera.html']") || !serverSource.includes("Cache-Control','no-store, no-cache, must-revalidate")) throw new Error('Remote camera and live player HTML must not be served from a stale browser cache.');
