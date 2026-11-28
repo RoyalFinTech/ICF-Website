@@ -4,7 +4,7 @@ var room=null,stream=null,publishedTrack=null,outputCanvas=null,outputContext=nu
 var paused=false,facing='environment',connecting=false,wakeLock=null,trackName='',retryCount=0;
 var statusTimer=0,brandingTimer=0,activeSessionId='',sensorReady=false,sensorListenerRegistered=false,sensorLandscape=null,sensorAngle=null,lastFrameAt=0;
 var digitalZoom=1,brightness=1,contrast=1,panX=0,panY=0,hardwareZoomSupported=false,hardwareZoomBase=1,networkQuality='unknown';
-var publishOptions={name:'',videoCodec:'vp8',videoEncoding:{maxBitrate:2200000,maxFramerate:24,priority:'medium'},degradationPreference:'balanced',simulcast:false};
+var publishOptions={name:'',videoCodec:'vp8',videoEncoding:{maxBitrate:1500000,maxFramerate:20,priority:'high'},degradationPreference:'maintain-framerate',simulcast:false};
 function el(id){return document.getElementById(id);}
 function status(message,kind){
  var e=el('camera-status'),s=el('live-state');if(e){e.textContent=message||'';e.dataset.visible=message?'true':'false';}
@@ -19,9 +19,10 @@ function physicalLandscape(){return sensorReady&&sensorLandscape!==null?sensorLa
 function currentAngle(){if(sensorReady&&sensorAngle!==null)return sensorAngle;try{if(screen.orientation&&typeof screen.orientation.angle==='number')return ((screen.orientation.angle%360)+360)%360;}catch(_e){}if(typeof window.orientation==='number')return ((window.orientation%360)+360)%360;return 0;}
 function handleDeviceOrientation(event){
  if(!event||typeof event.gamma!=='number'||!Number.isFinite(event.gamma))return;
- var g=event.gamma,b=Number(event.beta)||0;
- if(Math.abs(g)>52){sensorLandscape=true;sensorAngle=g>0?90:270;sensorReady=true;}
- else if(Math.abs(g)<28){sensorLandscape=false;sensorAngle=(b>145||b< -145)?180:0;sensorReady=true;}
+ var g=event.gamma,b=Number(event.beta)||0,previous=sensorLandscape;
+ if(Math.abs(g)>38){sensorLandscape=true;sensorAngle=g>0?90:270;sensorReady=true;}
+ else if(Math.abs(g)<22){sensorLandscape=false;sensorAngle=(b>145||b< -145)?180:0;sensorReady=true;}
+ if(previous!==sensorLandscape){var app=el('camera-app');if(app)app.dataset.physicalOrientation=sensorLandscape?'landscape':'portrait';}
 }
 async function enableOrientationSensor(){
  if(sensorReady)return true;
@@ -36,7 +37,7 @@ async function enableOrientationSensor(){
 function stopComposer(){if(outputFrame)cancelAnimationFrame(outputFrame);outputFrame=0;lastFrameAt=0;if(outputStream){outputStream.getTracks().forEach(function(t){t.stop();});outputStream=null;}outputCanvas=null;outputContext=null;}
 function drawCameraFrame(timestamp){
  if(!outputCanvas||!outputContext)return;
- if(!timestamp||timestamp-lastFrameAt>=1000/24){
+ if(!timestamp||timestamp-lastFrameAt>=1000/20){
   lastFrameAt=timestamp||performance.now();
   var video=el('phone-preview'),w=video.videoWidth,h=video.videoHeight;
   if(w>0&&h>0&&video.readyState>=2){
@@ -55,10 +56,10 @@ function drawCameraFrame(timestamp){
  outputFrame=requestAnimationFrame(drawCameraFrame);
 }
 function startComposer(){
- stopComposer();outputCanvas=document.createElement('canvas');outputCanvas.width=1280;outputCanvas.height=720;
+ stopComposer();outputCanvas=document.createElement('canvas');outputCanvas.width=960;outputCanvas.height=540;
  outputContext=outputCanvas.getContext('2d',{alpha:false,desynchronized:true});if(!outputContext)throw new Error('This browser cannot prepare the camera output.');
- outputContext.fillStyle='#071329';outputContext.fillRect(0,0,1280,720);
- drawCameraFrame(performance.now());outputStream=outputCanvas.captureStream(24);
+ outputContext.fillStyle='#071329';outputContext.fillRect(0,0,960,540);
+ drawCameraFrame(performance.now());outputStream=outputCanvas.captureStream(20);
  if(!outputStream||!outputStream.getVideoTracks().length)throw new Error('Could not create the camera output on this device.');
 }
 async function publishPhoneOutput(){
@@ -168,8 +169,13 @@ async function disconnect(){
 }
 function openSignIn(){var loginUrl=location.origin+'/?page=admin-login';window.open(loginUrl,'icf-admin-signin','noopener');status('Sign in in the new tab. This camera will connect automatically after login.','info');}
 function toggleDrawer(){el('camera-drawer').classList.toggle('open');}
-function fullscreen(){var target=el('camera-app');if(target.requestFullscreen)target.requestFullscreen().catch(function(){});else if(target.webkitRequestFullscreen)target.webkitRequestFullscreen();}
-function orientationChanged(){/* Keep the physical sensor reading authoritative even when Android auto-rotate is locked. */}
+function fullscreen(){var target=el('camera-app');var entered=target.requestFullscreen?target.requestFullscreen():target.webkitRequestFullscreen?target.webkitRequestFullscreen():null;if(entered&&typeof entered.then==='function')entered.then(function(){try{if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(function(){});}catch(_e){}}).catch(function(){});}
+function orientationChanged(){
+ var app=el('camera-app');if(!app)return;
+ if(sensorReady&&sensorLandscape!==null)app.dataset.physicalOrientation=sensorLandscape?'landscape':'portrait';
+ else app.dataset.physicalOrientation=fallbackLandscape()?'landscape':'portrait';
+ if(outputCanvas&&outputContext){var v=el('phone-preview');if(v&&v.videoWidth)drawCameraFrame(performance.now());}
+}
 el('connect-phone').addEventListener('click',function(){enableOrientationSensor().finally(connect);});
 el('flip-phone').addEventListener('click',flip);el('pause-phone').addEventListener('click',togglePause);el('disconnect-phone').addEventListener('click',disconnect);
 el('login-phone').addEventListener('click',openSignIn);el('drawer-toggle').addEventListener('click',toggleDrawer);el('fullscreen-phone').addEventListener('click',fullscreen);
