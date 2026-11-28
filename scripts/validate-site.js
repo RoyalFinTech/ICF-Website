@@ -41,7 +41,7 @@ if (!cameraPage.includes('id="phone-brand-logo"') || !cameraPage.includes('id="p
 if (!cameraPage.includes('id="zoom-in"') || !cameraPage.includes('id="phone-brightness"') || !cameraPage.includes('id="phone-contrast"')) throw new Error('Phone camera zoom, brightness and contrast controls are incomplete.');
 if (!cameraPage.includes('id="frame-up"') || !cameraPage.includes('id="frame-left"') || !cameraPage.includes('id="frame-reset"') || !cameraClientSource.includes('function moveFrame(')) throw new Error('Phone camera framing-position controls are incomplete.');
 if (!cameraClientSource.includes("window.addEventListener('deviceorientation'") || !cameraClientSource.includes('sensorLandscape') || !cameraClientSource.includes('phone-presentation')) throw new Error('Phone camera motion-sensor rotation or live branding sync is incomplete.');
-if (!cameraClientSource.includes('maxBitrate:1500000') || !cameraClientSource.includes('outputCanvas.width=1280') || !cameraClientSource.includes('captureStream(20)')) throw new Error('Phone camera transport profile has not been tuned for smooth 720p streaming.');
+if (!cameraClientSource.includes('maxBitrate:1800000') || !cameraClientSource.includes('outputCanvas.width=1280') || !cameraClientSource.includes('captureStream(30)')) throw new Error('Phone camera transport profile has not been tuned for smooth 720p streaming.');
 if (!broadcastRoutesSource.includes('/phone-presentation')) throw new Error('Paired phones cannot retrieve the live ICF presentation layer.');
 
 
