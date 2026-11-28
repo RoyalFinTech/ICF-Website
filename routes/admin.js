@@ -161,6 +161,7 @@ function normalizedLiveKitUrl(){var raw=String(process.env.LIVEKIT_URL||'').trim
       const slug=crypto.randomBytes(9).toString('hex'),id=crypto.randomUUID();
       const row={id:id,slug:slug,title:title,description:String(b.description||'').slice(0,1200),room_name:'icf-'+slug,status:'draft',
         is_public:b.isPublic!==false,recording_enabled:b.recordingEnabled===true,recording_status:b.recordingEnabled===true?'pending':'not_requested',
+        presentation_config:b.presentationConfig&&typeof b.presentationConfig==='object'?b.presentationConfig:null,
         logo_url:String(b.logoUrl||'').slice(0,1000)||null,logo_position:['top-left','top-right','bottom-left','bottom-right'].includes(b.logoPosition)?b.logoPosition:'top-left',
         overlay_text:String(b.overlayText||'').slice(0,500),scripture_reference:String(b.scriptureReference||'').slice(0,120),scripture_text:String(b.scriptureText||'').slice(0,1200),
         scheduled_at:b.scheduledAt||null,created_by:req.identity.user.id};
