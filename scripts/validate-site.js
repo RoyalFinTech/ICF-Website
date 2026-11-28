@@ -37,6 +37,12 @@ if (!stylesSource.includes('#ws-stage .worship-overlay-logo{z-index:7}') || !liv
 if (!worshipStudioSource.includes("if(secondary&&secondStream)additional.push({video:secondary,name:'Local camera 2'})")) throw new Error('Programme recording must retain the local secondary camera in every multi-camera layout.');
 const serverSource = fs.readFileSync(path.join(ROOT, 'server.js'), 'utf8');
 if (!serverSource.includes("app.use(['/live.html','/camera.html']") || !serverSource.includes("Cache-Control','no-store, no-cache, must-revalidate")) throw new Error('Remote camera and live player HTML must not be served from a stale browser cache.');
+if (!cameraPage.includes('id="phone-brand-logo"') || !cameraPage.includes('id="phone-brand-welcome"') || !cameraPage.includes('id="phone-brand-scripture"')) throw new Error('Paired phone camera must preview the current ICF logo, welcome text and scripture.');
+if (!cameraPage.includes('id="zoom-in"') || !cameraPage.includes('id="phone-brightness"') || !cameraPage.includes('id="phone-contrast"')) throw new Error('Phone camera zoom, brightness and contrast controls are incomplete.');
+if (!cameraClientSource.includes("window.addEventListener('deviceorientation'") || !cameraClientSource.includes('sensorLandscape') || !cameraClientSource.includes('phone-presentation')) throw new Error('Phone camera motion-sensor rotation or live branding sync is incomplete.');
+if (!cameraClientSource.includes('maxBitrate:2200000') || !cameraClientSource.includes('outputCanvas.width=1280') || !cameraClientSource.includes('captureStream(24)')) throw new Error('Phone camera transport profile has not been tuned for smooth 720p streaming.');
+if (!broadcastRoutesSource.includes('/phone-presentation')) throw new Error('Paired phones cannot retrieve the live ICF presentation layer.');
+
 
 
 if (html.includes('data:image/png;base64,')) throw new Error('A large embedded PNG remains in the homepage HTML.');
