@@ -27,6 +27,14 @@ if (!worshipStudioSource.includes('ws-phone-qr-image') || !worshipStudioSource.i
 if (!worshipViewerSource.includes('live-remote-cameras') || !worshipViewerSource.includes('addRemoteCamera')) throw new Error('Public live viewer cannot display multiple remote phone cameras.');
 if (!livePage.includes('id="live-remote-cameras"')) throw new Error('Public live page is missing the multi-camera stage container.');
 if (!broadcastRoutesSource.includes("trackName:'icf-camera-'+cameraId+'::'") || !broadcastRoutesSource.includes("canSubscribe:canSubscribe!==false")) throw new Error('Server camera identities or scoped publish-only permissions are incomplete.');
+const stylesSource = fs.readFileSync(path.join(ROOT, 'css/site.css'), 'utf8');
+const livePlayerSource = livePage;
+const phoneOrientationFeatures = ['screen.orientation','orientationchange','captureStream(30)','orientationAngle','videoEncoding:{maxBitrate:4500000'];
+if (phoneOrientationFeatures.some(function (feature) { return !cameraClientSource.includes(feature); })) throw new Error('Phone camera landscape compositor or HD publish settings are incomplete.');
+if (!worshipStudioSource.includes('additional.push') || !worshipStudioSource.includes('Full programme recording')) throw new Error('Programme recorder is missing multi-camera composition.');
+if (!worshipStudioSource.includes('logoUrl:p.logoUrl') || !broadcastRoutesSource.includes('logo_url:logoUrl')) throw new Error('Live presentation updates do not persist ICF logo branding.');
+if (!stylesSource.includes('#ws-stage .worship-overlay-logo{z-index:7}') || !livePlayerSource.includes('.logo{position:absolute;z-index:7;') || !livePlayerSource.includes('.overlay{position:absolute;z-index:6;')) throw new Error('ICF logo and presentation text must render above remote video layers.');
+
 if (html.includes('data:image/png;base64,')) throw new Error('A large embedded PNG remains in the homepage HTML.');
 if (!/\/css\/site\.css\?v=\d{8}-\d+/.test(html)) throw new Error('External stylesheet is not linked or cache-busted.');
 if (!/worship-studio\.js\?v=\d{8}-\d+/.test(html)) throw new Error('Worship Studio client script is not linked or cache-busted.');
