@@ -220,9 +220,10 @@ function normalizedLiveKitUrl(){var raw=String(process.env.LIVEKIT_URL||'').trim
           background:/^#[0-9a-f]{6}$/i.test(String(s.background||''))?s.background:'#071329',textColor:/^#[0-9a-f]{6}$/i.test(String(s.textColor||''))?s.textColor:'#ffffff',
           fontSize:Math.max(18,Math.min(64,Number(s.fontSize)||34)),textAlign:['left','center','right'].includes(s.textAlign)?s.textAlign:'center',
           scroll:s.scroll===true,flyerUrl:String(s.flyerUrl||'').slice(0,1200)};}):[],slideIndex:Math.max(0,Math.min(59,Number(raw.slideIndex)||0))};
+      const logoUrl=String(b.logoUrl||'').trim().slice(0,1000);const logoPosition=['top-left','top-right','bottom-left','bottom-right'].includes(b.logoPosition)?b.logoPosition:'top-left';
       const r=await db().from('broadcast_sessions').update({overlay_text:String(b.overlayText||'').slice(0,500),
         scripture_reference:String(b.scriptureReference||'').slice(0,180),scripture_text:String(b.scriptureText||'').slice(0,3000),
-        presentation_config:config,updated_at:new Date().toISOString()}).eq('id',req.params.id).in('status',['draft','preparing','live']).select('id').maybeSingle();
+        logo_url:logoUrl||null,logo_position:logoPosition,presentation_config:config,updated_at:new Date().toISOString()}).eq('id',req.params.id).in('status',['draft','preparing','live']).select('id').maybeSingle();
       if(r.error)throw r.error;if(!r.data)return fail(res,404,'Broadcast session not found.');res.json({updated:true,presentationConfig:config});
     }catch(e){console.error('Broadcast presentation update failed:',e.message);fail(res,503,'Could not update the broadcast presentation.');}
   });
