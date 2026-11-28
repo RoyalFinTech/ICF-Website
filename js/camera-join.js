@@ -81,7 +81,9 @@ async function setZoom(value){
  }
  syncZoomControls();
 }
-function stepZoom(amount){setZoom(currentZoom+amount).catch(function(){});}\nfunction moveFrame(dx,dy){panX=Math.max(-.4,Math.min(.4,panX+dx));panY=Math.max(-.4,Math.min(.4,panY+dy));}\nfunction resetFrame(){panX=0;panY=0;setZoom(1).catch(function(){});if(el('phone-brightness'))el('phone-brightness').value='1';if(el('phone-contrast'))el('phone-contrast').value='1';setPictureAdjustments();}
+function stepZoom(amount){setZoom(currentZoom+amount).catch(function(){});}
+function moveFrame(dx,dy){panX=Math.max(-.4,Math.min(.4,panX+dx));panY=Math.max(-.4,Math.min(.4,panY+dy));}
+function resetFrame(){panX=0;panY=0;setZoom(1).catch(function(){});if(el('phone-brightness'))el('phone-brightness').value='1';if(el('phone-contrast'))el('phone-contrast').value='1';setPictureAdjustments();}
 function setPictureAdjustments(){
  brightness=Number(el('phone-brightness')&&el('phone-brightness').value)||1;
  contrast=Number(el('phone-contrast')&&el('phone-contrast').value)||1;
@@ -171,7 +173,8 @@ el('connect-phone').addEventListener('click',function(){enableOrientationSensor(
 el('flip-phone').addEventListener('click',flip);el('pause-phone').addEventListener('click',togglePause);el('disconnect-phone').addEventListener('click',disconnect);
 el('login-phone').addEventListener('click',openSignIn);el('drawer-toggle').addEventListener('click',toggleDrawer);el('fullscreen-phone').addEventListener('click',fullscreen);
 el('zoom-in').addEventListener('click',function(){stepZoom(.2);});el('zoom-out').addEventListener('click',function(){stepZoom(-.2);});
-el('phone-zoom').addEventListener('change',function(){setZoom(this.value);});\nel('frame-up').addEventListener('click',function(){moveFrame(0,-.08);});el('frame-down').addEventListener('click',function(){moveFrame(0,.08);});el('frame-left').addEventListener('click',function(){moveFrame(-.08,0);});el('frame-right').addEventListener('click',function(){moveFrame(.08,0);});el('frame-reset').addEventListener('click',resetFrame);
+el('phone-zoom').addEventListener('change',function(){setZoom(this.value);});
+el('frame-up').addEventListener('click',function(){moveFrame(0,-.08);});el('frame-down').addEventListener('click',function(){moveFrame(0,.08);});el('frame-left').addEventListener('click',function(){moveFrame(-.08,0);});el('frame-right').addEventListener('click',function(){moveFrame(.08,0);});el('frame-reset').addEventListener('click',resetFrame);
 el('phone-brightness').addEventListener('input',setPictureAdjustments);el('phone-contrast').addEventListener('input',setPictureAdjustments);
 el('camera-status').addEventListener('click',function(){this.dataset.visible='false';if(statusTimer)clearTimeout(statusTimer);});
 window.addEventListener('storage',function(e){if(e.key==='icf_admin_token'&&e.newValue&&!room)connect();});
