@@ -978,7 +978,7 @@ function navigate(page){
   const el=document.getElementById('page-'+page);
   if(el)el.classList.add('active');
   document.body.classList.toggle('icf-admin-active',page==='admin-portal');
-  document.querySelectorAll('.nav-link').forEach(l=>l.classList.toggle('active',l.dataset.page===page));
+  document.querySelectorAll('.nav-link,.nav-shortcut').forEach(l=>l.classList.toggle('active',l.dataset.page===page));
   if(page!=='home'&&window.ICFHeroSlider)window.ICFHeroSlider.stop();
   renderPage(page);
   window.dispatchEvent(new CustomEvent('icf:page-changed',{detail:{page:page}}));
@@ -1435,7 +1435,7 @@ function toggleAnonymous(){
   const ng=document.getElementById('prayer-name-group');
   if(ng)ng.style.display=cb&&cb.checked?'none':'block';
 }
-function toggleMobileNav(){document.getElementById('nav-mobile').classList.toggle('open')}
+function toggleMobileNav(){const menu=document.getElementById('nav-mobile');const button=document.querySelector('.nav-hamburger');if(!menu)return;const open=menu.classList.toggle('open');if(button)button.setAttribute('aria-expanded',open?'true':'false');}
 
 /* ── Global Exports ── */
 window.showAddSermonForm=showAddSermonForm;window.hideAddSermonForm=hideAddSermonForm;
