@@ -23,12 +23,14 @@
             <div class="form-group">
               <label class="form-label" data-i18n="nationality" for="nat-btn-nationality">Nationality *</label><small class="form-hint">Search by country name or choose from the region groups.</small>
               <div class="country-selector-wrap nationality-picker" id="wrap-nationality">
-                <input class="form-input country-search-input nationality-search" type="search" id="su-nationality-search" placeholder="Search country name or ISO code…" aria-label="Search nationality by country name or ISO code" autocomplete="off"/>
-                <select class="form-input country-native-select" id="su-nationality-code" name="nationalityCode" aria-label="Select your nationality" required>
-                  <option value="">🌍 Select your nationality</option>
-                </select>
+                <div class="nationality-current" aria-live="polite"><span id="nat-display-nationality">🌍 Select your nationality</span></div>
+                <div class="country-dropdown nationality-dropdown" id="dd-nationality" style="display:block;position:relative;top:auto;left:auto;right:auto">
+                  <div class="nationality-search-wrap"><input class="form-input country-search-input nationality-search" type="search" id="dd-nationality-search" placeholder="Search country, territory or ISO code…" aria-label="Search nationality by country name or ISO code" autocomplete="off"/></div>
+                  <div class="country-list nationality-country-list" id="list-nationality" role="listbox" aria-label="Countries and territories"></div>
+                </div>
                 <input type="hidden" id="su-nationality-val" value=""/>
-                <p class="form-hint nationality-picker-hint">All countries and territories are grouped by region. Search above, then select your country.</p>
+                <input type="hidden" id="su-nationality-code" name="nationalityCode" value=""/>
+                <p class="form-hint nationality-picker-hint">Search above, then tap your country. Countries are grouped by region.</p>
               </div>
               <div class="form-error" id="err-nationality">Please select your nationality</div>
             </div>
