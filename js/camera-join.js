@@ -93,8 +93,8 @@ function setPictureAdjustments(){
 function applyPhonePresentation(presentation){
  if(!presentation)return;
  var logo=el('phone-brand-logo'),welcome=el('phone-brand-welcome'),slide=el('phone-brand-slide'),scripture=el('phone-brand-scripture');
- var url=String(presentation.logo_url||'').trim();
- if(logo){if(url&&logo.getAttribute('src')!==url)logo.src=url;logo.style.display=url?'block':'none';logo.dataset.position=presentation.logo_position||'top-left';}
+ var url=String(presentation.logo_url||'').trim()||'/icf-logo-transparent.png';
+ if(logo){if(logo.getAttribute('src')!==url){logo.onerror=function(){if(this.getAttribute('src')!=='/icf-logo-transparent.png')this.src='/icf-logo-transparent.png';};logo.src=url;}logo.style.display='block';logo.dataset.position=presentation.logo_position||'top-left';}
  var config=presentation.presentation_config||{},mode=config.mode||'camera';
  var welcomeText=String(presentation.overlay_text||'');
  if(welcome){welcome.textContent=welcomeText;welcome.style.display=welcomeText?'block':'none';}
