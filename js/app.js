@@ -441,6 +441,8 @@ function handleCountryClick(el) {
 function toggleCountryDropdown(id) {
   var dd = document.getElementById('dd-' + id);
   if (!dd) return;
+  var list = document.getElementById('list-' + id);
+  if (list && !list.querySelector('.country-item')) populateCountryLists();
   var isOpen = dd.style.display !== 'none';
   document.querySelectorAll('.country-dropdown').forEach(function(d) { d.style.display = 'none'; });
   if (!isOpen) {
@@ -499,12 +501,65 @@ function filterCountries(id, query, type) {
 }
 
 /* ── Build and inject country lists ──────────── */
+function populateNationalitySelect() {
+  var select = document.getElementById('su-nationality-code');
+  if (!select) return;
+  var selected = select.value || '';
+  if (select.options.length <= 1) {
+    var currentGroup = null;
+    COUNTRIES.forEach(function(country) {
+      if (!currentGroup || currentGroup.label !== country.region) {
+        currentGroup = document.createElement('optgroup');
+        currentGroup.label = country.region || 'Other territories';
+        select.appendChild(currentGroup);
+      }
+      var option = document.createElement('option');
+      option.value = country.code;
+      option.textContent = country.flag + ' ' + country.name + ' (' + country.code + ')';
+      option.setAttribute('data-name', country.name.toLowerCase());
+      option.setAttribute('data-code', country.code.toLowerCase());
+      option.setAttribute('data-region', (country.region || '').toLowerCase());
+      currentGroup.appendChild(option);
+    });
+  }
+  if (selected) select.value = selected;
+  var search = document.getElementById('su-nationality-search');
+  if (search && !search.dataset.bound) {
+    search.dataset.bound = '1';
+    search.addEventListener('input', function() {
+      var q = String(search.value || '').trim().toLowerCase();
+      Array.from(select.querySelectorAll('optgroup')).forEach(function(group) {
+        var visible = false;
+        Array.from(group.options).forEach(function(option) {
+          var match = !q || (option.getAttribute('data-name') || '').indexOf(q) !== -1 ||
+            (option.getAttribute('data-code') || '').indexOf(q) !== -1 ||
+            (option.getAttribute('data-region') || '').indexOf(q) !== -1;
+          option.hidden = !match;
+          if (match) visible = true;
+        });
+        group.hidden = !visible;
+      });
+      if (q && select.selectedOptions.length && select.selectedOptions[0].hidden) {
+        select.value = '';
+        var value = document.getElementById('su-nationality-val');
+        if (value) value.value = '';
+      }
+    });
+  }
+  if (!select.dataset.bound) {
+    select.dataset.bound = '1';
+    select.addEventListener('change', function() {
+      var country = window.ICFCountryData && window.ICFCountryData.getCountry(select.value);
+      var value = document.getElementById('su-nationality-val');
+      if (value) value.value = country ? country.name : '';
+      select.setAttribute('aria-invalid', select.value ? 'false' : 'true');
+    });
+  }
+}
 function populateCountryLists() {
   var phoneList = document.getElementById('list-phone');
   if (phoneList) renderCountryList(phoneList, 'phone', 'phone');
-
-  var natList = document.getElementById('list-nationality');
-  if (natList) renderCountryList(natList, 'nationality', 'nationality');
+  populateNationalitySelect();
 }
 
 /* ── Build the phone input search handler ──────  */
@@ -1461,8 +1516,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   icfStartupStep('language',initLanguage);
   icfStartupStep('language selectors',populateLangSelectors);
   icfStartupStep('country lists',populateCountryLists);
+  icfStartupStep('nationality select',populateNationalitySelect);
   icfStartupStep('phone search',()=>setupCountrySearch('phone','phone'));
-  icfStartupStep('nationality search',()=>setupCountrySearch('nationality','nationality'));
   let hash='home';
   let callbackPage=null;
   try{

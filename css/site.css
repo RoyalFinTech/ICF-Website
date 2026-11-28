@@ -982,3 +982,21 @@ body.icf-admin-active #main { padding-top:0; }
 .icf-turnstile-wrap p{margin:8px 0 0;color:var(--text-muted);font-size:12px}
 .icf-honeypot{position:absolute!important;left:-10000px!important;top:auto!important;width:1px!important;height:1px!important;overflow:hidden!important}
 @media(max-width:520px){.auth-inline-links{flex-direction:column;align-items:flex-start}.auth-flow-card{border-radius:14px}}
+
+
+/* ICF mobile service schedule + robust nationality picker (2026-11-28) */
+.service-time-name{min-width:0;flex:1 1 auto;overflow-wrap:normal;word-break:normal;writing-mode:horizontal-tb}
+.service-time-hours{min-width:0;flex:0 1 auto}
+.country-native-select{display:block;width:100%;min-height:46px;margin-top:9px;box-sizing:border-box;color:var(--text);background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 12px;font:inherit}
+.nationality-search{width:100%;box-sizing:border-box}
+.nationality-picker-hint{display:block;margin-top:7px;line-height:1.5}
+#page-signup .card,#page-signup .card-body{overflow:visible}
+@media(max-width:640px){
+  #page-home .service-times,#page-services .service-times{width:100%;max-width:100%;overflow:hidden}
+  #page-home .service-time-row,#page-services .service-time-row,.service-times .service-time-row{display:grid;grid-template-columns:minmax(72px,86px) minmax(0,1fr);align-items:start;column-gap:12px;row-gap:3px;padding:15px 16px;min-width:0}
+  #page-home .service-time-day,#page-services .service-time-day,.service-times .service-time-day{grid-column:1;grid-row:1/span 2;min-width:0;padding-top:1px;white-space:normal;overflow-wrap:normal;word-break:normal}
+  #page-home .service-time-name,#page-services .service-time-name,.service-times .service-time-name{grid-column:2;min-width:0;width:auto;flex:initial;font-size:14px;line-height:1.45;white-space:normal;overflow-wrap:normal;word-break:normal;writing-mode:horizontal-tb}
+  #page-home .service-time-hours,#page-services .service-time-hours,.service-times .service-time-hours{grid-column:2;min-width:0;font-size:13px;line-height:1.45;white-space:normal;overflow-wrap:normal;word-break:normal}
+  #page-signup .nationality-picker{min-width:0}
+  #page-signup .country-native-select{font-size:14px}
+}

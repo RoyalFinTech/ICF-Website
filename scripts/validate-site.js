@@ -12,7 +12,7 @@ for (const asset of ['favicon.png','css/site.css','js/hero-slider.js','js/splash
   if (!fs.existsSync(path.join(ROOT, asset))) throw new Error('Missing homepage asset: ' + asset);
 }
 if (html.includes('data:image/png;base64,')) throw new Error('A large embedded PNG remains in the homepage HTML.');
-if (!html.includes('/css/site.css?v=20261127-18')) throw new Error('External stylesheet is not linked or cache-busted.');
+if (!/\/css\/site\.css\?v=\d{8}-\d+/.test(html)) throw new Error('External stylesheet is not linked or cache-busted.');
 if (!/worship-studio\.js\?v=\d{8}-\d+/.test(html)) throw new Error('Worship Studio client script is not linked or cache-busted.');
 if (!html.includes('/favicon.png')) throw new Error('External favicon is not linked.');
 const countryData = require('../js/country-data');
@@ -33,11 +33,11 @@ if (!signupHtml.includes('id="su-website"') || !signupHtml.includes('id="icf-tur
 const signupAuthSource = fs.readFileSync(path.join(ROOT, 'routes/auth.js'), 'utf8');
 const countryAppSource = fs.readFileSync(path.join(ROOT, 'js/app.js'), 'utf8');
 const signupBridgeSource = fs.readFileSync(path.join(ROOT, 'js/api-bridge.js'), 'utf8');
-if (!signupHtml.includes('id="su-nationality-code"') || !signupHtml.includes('id="dd-nationality-search"')) throw new Error('Signup nationality picker controls are missing.');
+if (!signupHtml.includes('id="su-nationality-code"') || !signupHtml.includes('id="su-nationality-search"')) throw new Error('Signup searchable native nationality selector controls are missing.');
 if (!loginHtml.includes('type="email"') || !loginHtml.includes('id="login-email"')) throw new Error('Member login must collect an email address.');
 if (!signupAuthSource.includes("countryData.getCountry(nationalityCode)") || !signupAuthSource.includes("nationality:country.name, nationalityCode:country.code")) throw new Error('Signup API must validate and persist the canonical nationality and ISO code.');
 if (!signupAuthSource.includes("member.status !== 'approved'")) throw new Error('Member login must enforce administrator approval.');
-if (!countryAppSource.includes('window.ICFCountryData.getAll()') || !countryAppSource.includes('country-group-title') || !signupBridgeSource.includes('MEMBER_SIGNUP_BUSY')) throw new Error('Grouped searchable country selector or signup submit protection is missing.');
+if (!countryAppSource.includes('window.ICFCountryData.getAll()') || !countryAppSource.includes('function populateNationalitySelect()') || !countryAppSource.includes('select.querySelectorAll(\'optgroup\')') || !signupBridgeSource.includes('MEMBER_SIGNUP_BUSY')) throw new Error('Grouped searchable native nationality selector or signup submit protection is missing.');
 const studioSource = fs.readFileSync(path.join(ROOT, 'js/worship-studio.js'), 'utf8');
 const viewerSource = fs.readFileSync(path.join(ROOT, 'js/worship-viewer.js'), 'utf8');
 const adminSource = fs.readFileSync(path.join(ROOT, 'routes/admin.js'), 'utf8');
