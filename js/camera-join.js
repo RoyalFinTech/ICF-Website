@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 var room=null,stream=null,publishedTrack=null,outputCanvas=null,outputContext=null,outputStream=null,outputFrame=0;
-var paused=false,facing='environment',connecting=false,wakeLock=null,trackName='',retryCount=0;
+var paused=false,facing='environment',connecting=false,wakeLock=null,trackName='',retryCount=0,manualDisconnect=false,reconnectTimer=0,reconnectAttempts=0;
 var statusTimer=0,brandingTimer=0,controlsTimer=0,activeSessionId='',sensorReady=false,sensorListenerRegistered=false,sensorLandscape=null,sensorAngle=null,lastFrameAt=0;
 var digitalZoom=1,brightness=1,contrast=1,panX=0,panY=0,hardwareZoomSupported=false,hardwareZoomBase=1,networkQuality='unknown';
 var publishOptions={name:'',videoCodec:'vp8',videoEncoding:{maxBitrate:1800000,maxFramerate:30,priority:'high'},degradationPreference:'maintain-framerate',simulcast:false};
@@ -119,8 +119,11 @@ async function startDevice(){
  if(video.readyState<2||!video.videoWidth){await new Promise(function(resolve,reject){var timer=setTimeout(function(){cleanup();reject(new Error('The camera started but did not provide picture frames. Try reconnecting.'));},7000);function ready(){cleanup();resolve();}function cleanup(){clearTimeout(timer);video.removeEventListener('loadeddata',ready);video.removeEventListener('resize',ready);}video.addEventListener('loadeddata',ready,{once:true});video.addEventListener('resize',ready,{once:true});});}
  currentZoom=1;digitalZoom=1;setPictureAdjustments();syncZoomControls();startComposer();if(room)await publishPhoneOutput();
 }
+function scheduleReconnect(reason){if(manualDisconnect||!token()||reconnectTimer)return;var delay=Math.min(20000,1000*Math.pow(2,Math.min(reconnectAttempts,4)));reconnectAttempts++;if(reason)status(reason+' Reconnecting in '+Math.ceil(delay/1000)+'s…','error');reconnectTimer=setTimeout(function(){reconnectTimer=0;if(!room&&!connecting&&!manualDisconnect&&navigator.onLine!==false)connect();},delay);}
+window.addEventListener('online',function(){if(!manualDisconnect&&token()&&!room&&!connecting){if(reconnectTimer){clearTimeout(reconnectTimer);reconnectTimer=0;}connect();}});
 async function connect(){
  if(connecting||room&&publishedTrack)return;
+ manualDisconnect=false;if(reconnectTimer){clearTimeout(reconnectTimer);reconnectTimer=0;}
  connecting=true;if(el('connect-phone'))el('connect-phone').disabled=true;
  try{
   if(!token())throw new Error('Sign in to ICF first. Use the Sign in button in Camera options, then this page will connect automatically.');
@@ -135,17 +138,17 @@ async function connect(){
   var credentials=await request('/admin/broadcast/sessions/'+session.id+'/camera-token','POST',{cameraName:(el('camera-name').value||'').trim()});
   trackName=credentials.trackName;retryCount=0;status('Allow camera access to connect this phone.','info');
   await startDevice();room=new LivekitClient.Room({adaptiveStream:false,dynacast:false});
-  room.on(LivekitClient.RoomEvent.Disconnected,function(){if(room){room=null;publishedTrack=null;}status('Studio connection interrupted. Reconnect to resume video.','error');if(el('connect-phone'))el('connect-phone').disabled=false;});
+  room.on(LivekitClient.RoomEvent.Reconnecting,function(){status('Connection interrupted. Keeping the camera ready while LiveKit reconnects…','info');});room.on(LivekitClient.RoomEvent.Reconnected,function(){reconnectAttempts=0;status('Camera connection restored.','live');});room.on(LivekitClient.RoomEvent.Disconnected,function(){room=null;publishedTrack=null;if(el('connect-phone')){el('connect-phone').disabled=false;el('connect-phone').textContent='Reconnect camera';}scheduleReconnect('Studio connection interrupted.');});
   if(LivekitClient.RoomEvent.ConnectionQualityChanged){room.on(LivekitClient.RoomEvent.ConnectionQualityChanged,function(quality,participant){if(participant&&participant.isLocal){networkQuality=String(quality||'unknown').toLowerCase();var state=el('live-state');if(state&&room)state.textContent='CONNECTED · '+networkQuality.toUpperCase();}});}
   await room.connect(credentials.serverUrl,credentials.token);await publishPhoneOutput();
   var settings=stream.getVideoTracks()[0].getSettings?stream.getVideoTracks()[0].getSettings():{},resolution=settings.width&&settings.height?settings.width+'×'+settings.height:'720p mode';
   if(el('flip-phone'))el('flip-phone').disabled=false;if(el('pause-phone'))el('pause-phone').disabled=false;if(el('disconnect-phone'))el('disconnect-phone').disabled=false;
   if(el('connect-phone')){el('connect-phone').textContent='Connected';el('connect-phone').disabled=true;}
   if(el('camera-device-status'))el('camera-device-status').textContent='Connected as '+credentials.cameraName+'. Camera source '+resolution+'. Phone preview branding is shown locally; the Worship Studio composes programme graphics into the live output and recording.';
-  keepAwake();startBrandingSync();status('Camera connected.','live');
+  reconnectAttempts=0;keepAwake();startBrandingSync();status('Camera connected.','live');
  }catch(e){
   if(e.message==='ICF_WAITING_FOR_LIVE'&&retryCount<45){retryCount++;status('QR link recognised. Waiting for the operator to start the live service…','info');if(el('connect-phone'))el('connect-phone').textContent='Waiting for studio…';setTimeout(function(){if(!room&&!connecting)connect();},2500);}
-  else{status(e.message,'error');if(el('connect-phone')){el('connect-phone').disabled=false;el('connect-phone').textContent='Try connect again';}}
+  else{if(room){try{await room.disconnect();}catch(_e){}room=null;publishedTrack=null;}status(e.message,'error');if(el('connect-phone')){el('connect-phone').disabled=false;el('connect-phone').textContent='Try connect again';}scheduleReconnect('Camera connection failed.');}
  }finally{connecting=false;}
 }
 async function flip(){
@@ -158,6 +161,7 @@ function togglePause(){
  status(paused?'Camera paused. Tap Resume to continue.':'Camera resumed.','live');
 }
 async function disconnect(){
+ manualDisconnect=true;if(reconnectTimer){clearTimeout(reconnectTimer);reconnectTimer=0;}
  try{
   if(room){if(publishedTrack){try{await room.localParticipant.unpublishTrack(publishedTrack);}catch(_e){}try{publishedTrack.stop();}catch(_e){}publishedTrack=null;}await room.disconnect();room=null;}
   stopComposer();if(stream){stream.getTracks().forEach(function(t){t.stop();});stream=null;}el('phone-preview').srcObject=null;
@@ -188,11 +192,11 @@ el('camera-status').addEventListener('click',function(){this.dataset.visible='fa
 el('camera-app').addEventListener('pointerdown',revealControls,{passive:true});
 revealControls();
 window.addEventListener('storage',function(e){if(e.key==='icf_admin_token'&&e.newValue&&!room)connect();});
-window.addEventListener('focus',function(){if(token()&&!room&&!connecting)connect();});
+window.addEventListener('focus',function(){if(!manualDisconnect&&token()&&!room&&!connecting)connect();});
 window.addEventListener('orientationchange',orientationChanged);window.addEventListener('resize',orientationChanged);
 try{if(screen.orientation&&screen.orientation.addEventListener)screen.orientation.addEventListener('change',orientationChanged);}catch(_e){}
-document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&token()&&!room&&!connecting)connect();if(document.visibilityState==='visible')keepAwake();});
-window.addEventListener('beforeunload',function(){if(room)room.disconnect();if(brandingTimer)clearInterval(brandingTimer);stopComposer();if(stream)stream.getTracks().forEach(function(t){t.stop();});});
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&!manualDisconnect&&token()&&!room&&!connecting)connect();if(document.visibilityState==='visible')keepAwake();});
+window.addEventListener('beforeunload',function(){manualDisconnect=true;if(reconnectTimer)clearTimeout(reconnectTimer);if(room)room.disconnect();if(brandingTimer)clearInterval(brandingTimer);stopComposer();if(stream)stream.getTracks().forEach(function(t){t.stop();});});
 window.addEventListener('pointerdown',function(){if(!sensorReady)enableOrientationSensor();},{once:true});
 if(token())connect();else status('Scan the ICF camera QR code, then use Sign in under Options.','info');
 })();
