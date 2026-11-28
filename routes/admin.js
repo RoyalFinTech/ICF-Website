@@ -222,8 +222,9 @@ function normalizedLiveKitUrl(){var raw=String(process.env.LIVEKIT_URL||'').trim
       const b=req.body||{},raw=b.presentationConfig||{},mode=['camera','overlay','slide','flyer','split','ticker'].includes(raw.mode)?raw.mode:'camera';
       const config={mode:mode,quality:['480p','720p','1080p'].includes(raw.quality)?raw.quality:'720p',orientation:raw.orientation==='portrait'?'portrait':'landscape',cameraLayout:['single','pip','split','grid'].includes(raw.cameraLayout)?raw.cameraLayout:'single',activeCamera:/^remote:[a-f0-9]{12}$/.test(String(raw.activeCamera||''))?raw.activeCamera:(raw.activeCamera==='camera2'?'camera2':'camera1'),background:/^#[0-9a-f]{6}$/i.test(String(raw.background||''))?raw.background:'#071329',
         textColor:/^#[0-9a-f]{6}$/i.test(String(raw.textColor||''))?raw.textColor:'#ffffff',
-        fontSize:Math.max(18,Math.min(64,Number(raw.fontSize)||34)),textAlign:['left','center','right'].includes(raw.textAlign)?raw.textAlign:'center',
-        scroll:raw.scroll===true,flyerUrl:String(raw.flyerUrl||'').slice(0,1200),slideTitle:String(raw.slideTitle||'').slice(0,180),
+        fontSize:Math.max(18,Math.min(64,Number(raw.fontSize)||34)),textAlign:['left','center','right'].includes(raw.textAlign)?raw.textAlign:'center',bibleAlign:['left','center','right'].includes(raw.bibleAlign)?raw.bibleAlign:'center',
+        welcomeMode:['static','scroll','fade'].includes(raw.welcomeMode)?raw.welcomeMode:'static',welcomeDuration:Math.max(3,Math.min(120,Number(raw.welcomeDuration)||12)),welcomeRepeat:Math.max(1,Math.min(30,Math.floor(Number(raw.welcomeRepeat)||1))),
+        scroll:raw.scroll===true,scrollDuration:Math.max(3,Math.min(120,Number(raw.scrollDuration)||18)),scrollRepeat:Math.max(0,Math.min(30,Math.floor(Number(raw.scrollRepeat)||0))),flyerUrl:String(raw.flyerUrl||'').slice(0,1200),slideTitle:String(raw.slideTitle||'').slice(0,180),
         slideBody:String(raw.slideBody||'').slice(0,3000),slideReference:String(raw.slideReference||'').slice(0,180),
         slides:Array.isArray(raw.slides)?raw.slides.slice(0,60).map(function(s){return {type:['camera','overlay','slide','flyer','split','ticker'].includes(s.type)?s.type:'slide',
           title:String(s.title||'').slice(0,180),body:String(s.body||'').slice(0,3000),reference:String(s.reference||'').slice(0,180),
