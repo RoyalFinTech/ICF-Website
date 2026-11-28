@@ -47,7 +47,7 @@ if (!broadcastRoutesSource.includes("welcomeMode:['static','scroll','fade']") ||
 if (!worshipStudioSource.includes('ws-welcome-repeat') || !worshipStudioSource.includes('ws-scroll-duration') || !worshipStudioSource.includes('icf-studio-slide-scroll')) throw new Error('Worship Studio scrolling controls and preview animation are incomplete.');
 if (!worshipViewerSource.includes('welcomeRepeat') || !worshipViewerSource.includes('slide-scroll-repeat') || !livePage.includes('.overlay[data-behavior=scroll] span') || !livePage.includes('.live-slide-text.scroll span')) throw new Error('Public live output is not applying configured scrolling animation.');
 if (!worshipStudioSource.includes("stream:'icf-program-av'")) throw new Error('Studio microphone and camera tracks must share a LiveKit stream for synchronization.');
-if (!worshipStudioSource.includes('ws-hymn-end') || !worshipStudioSource.includes("slideKind:'hymn'") || !worshipStudioSource.includes('ws-hymn-layout')) throw new Error('Worship Studio hymn publishing, layout, or end-display controls are incomplete.');
+if (!worshipStudioSource.includes('ws-hymn-end') || !worshipStudioSource.includes("c.slideKind==='hymn'") || !worshipStudioSource.includes('ws-hymn-layout')) throw new Error('Worship Studio hymn publishing, layout, or end-display controls are incomplete.');
 if (!worshipViewerSource.includes('live-hymn-heading') || !worshipViewerSource.includes('hymn-layout') || !worshipViewerSource.includes('hasSecondary') || !livePage.includes('.live-slide-text.hymn-layout')) throw new Error('Public live hymn layout or empty picture-in-picture suppression is incomplete.');
 
 
