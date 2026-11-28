@@ -175,7 +175,7 @@ function orientationChanged(){
  var app=el('camera-app');if(!app)return;
  if(sensorReady&&sensorLandscape!==null)app.dataset.physicalOrientation=sensorLandscape?'landscape':'portrait';
  else app.dataset.physicalOrientation=fallbackLandscape()?'landscape':'portrait';
- if(outputCanvas&&outputContext){var v=el('phone-preview');if(v&&v.videoWidth)drawCameraFrame(performance.now());}
+ 
 }
 el('connect-phone').addEventListener('click',function(){enableOrientationSensor().finally(connect);});
 el('flip-phone').addEventListener('click',flip);el('pause-phone').addEventListener('click',togglePause);el('disconnect-phone').addEventListener('click',disconnect);
